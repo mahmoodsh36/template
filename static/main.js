@@ -69,11 +69,14 @@ function handleMathButton(node) {
       symbol.setAttribute('fill', 'red');
       let ref = node.getAttribute('data-ref');
       let refId = ref.substr(4);
+      console.log(refId);
       getElementByBlkId(refId, function (elm) {
         if (!toShow)
           return;
+        if (!elm)
+          return;
         // elm = elm.cloneNode(true); // clone it so we wont have problems
-        randomizeSvgIds(elm);
+        elm.querySelectorAll('svg').forEach(entry => randomizeSvgIds(entry)); // fix some rendering issues caused by conflicting id's
         if (popupElm === undefined) {
           popupElm = document.createElement('div');
           popupElm.className = "popup";
