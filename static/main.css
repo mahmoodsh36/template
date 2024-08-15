@@ -72,7 +72,7 @@ html, body {
     white-space: nowrap;
     text-overflow: ellipsis;
 }
-.album-name {
+.card-title {
     color: rgb(175, 39, 39);
 }
 
