@@ -58,7 +58,10 @@ function randomString(length) {
 
 let popupElm;
 let toShow = true; /* we need this because by the time the web request is done the user might've moved the mouse and we no longer need to show the result */
+// so a "math button" is something that has a data-ref property and .math-button class, the "math" thing was because it started as a thing for math cross-references
 function handleMathButton(node) {
+  let ref = node.getAttribute('data-ref');
+  let refId = ref.substr(4);
   if (node.classList.contains('math-button')) {
     let symbol = node.children[0];
     symbol.setAttribute('original-fill', symbol.getAttribute('fill'));
@@ -67,14 +70,12 @@ function handleMathButton(node) {
       if (popupElm !== undefined)
         popupElm.innerHTML = ''; // clear previously added blocks
       symbol.setAttribute('fill', 'red');
-      let ref = node.getAttribute('data-ref');
-      let refId = ref.substr(4);
-      console.log(refId);
       getElementByBlkId(refId, function (elm) {
         if (!toShow)
           return;
         if (!elm)
           return;
+        console.log(refId);
         // elm = elm.cloneNode(true); // clone it so we wont have problems
         elm.querySelectorAll('svg').forEach(entry => randomizeSvgIds(entry)); // fix some rendering issues caused by conflicting id's
         if (popupElm === undefined) {
@@ -101,13 +102,16 @@ function handleMathButton(node) {
         });
       }
     }
+    node.onclick = function() {
+      let entry = findById(refId);
+      window.open(entry.filepath);
+    }
   }
 }
 
 // find a blk entry by its id
 function findById(id) {
   for (let entry of data) {
-    // substr(4) because the id may begin with blk:
     if (entry.id !== null && entry.id === id) {
       return entry;
     }
