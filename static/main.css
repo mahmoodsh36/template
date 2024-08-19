@@ -67,11 +67,11 @@ html, body {
     flex-flow: column;
     margin: 5px;
 }
-.collage .card span {
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-}
+/* .collage .card span { */
+/*     overflow: hidden; */
+/*     white-space: nowrap; */
+/*     text-overflow: ellipsis; */
+/* } */
 .card-title {
     color: rgb(175, 39, 39);
 }

@@ -104,7 +104,8 @@ function handleMathButton(node) {
     }
     node.onclick = function() {
       let entry = findById(refId);
-      window.open(entry.filepath);
+      // window.open(entry.filepath);
+      location.href = entry.filepath;
     }
   }
 }
