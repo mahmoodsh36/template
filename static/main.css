@@ -78,7 +78,7 @@ html, body {
 
 
 /* otherwise images overflow out of screen */
-img, svg {
+img, svg, video {
     max-width: 100%;
     margin: auto;
 }
