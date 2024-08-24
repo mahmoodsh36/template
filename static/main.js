@@ -3,7 +3,7 @@ let data = [];
 
 window.onload = function(e) {
   // make all "math buttons" clickable
-  document.querySelectorAll(".math-button").forEach(elm => handleMathButton(elm));
+  document.querySelectorAll(".fancy-button").forEach(elm => handleMathButton(elm));
   // fetch the search data
   fetch("search.json").then(response => response.json()).then(json => {
     for (let entry of json) {
@@ -58,11 +58,11 @@ function randomString(length) {
 
 let popupElm;
 let toShow = true; /* we need this because by the time the web request is done the user might've moved the mouse and we no longer need to show the result */
-// so a "math button" is something that has a data-ref property and .math-button class, the "math" thing was because it started as a thing for math cross-references
+// so a "fancy button" is something that has a data-ref property and .fancy-button class
 function handleMathButton(node) {
   let ref = node.getAttribute('data-ref');
   let refId = ref.substr(4);
-  if (node.classList.contains('math-button')) {
+  if (node.classList.contains('fancy-button')) {
     let symbol = node.children[0];
     symbol.setAttribute('original-fill', symbol.getAttribute('fill'));
     node.onmouseover = function(event) {

@@ -1,6 +1,3 @@
-/* for nerd fonts, https://www.nerdfonts.com/cheat-sheet */
-@import "https://www.nerdfonts.com/assets/css/webfont.css";
-
 /* themes */
 :root {
   color-scheme: light dark;
@@ -20,13 +17,17 @@ html, body {
 .content {
     max-width: 700px;
     margin: auto;
+    margin-top: 15px;
 }
 
-.main-title, .desc {
+.main-title, .desc, .date {
     margin: auto;
     width: fit-content;
     display: block;
     text-align: center;
+}
+.date {
+    font-style: italic;
 }
 
 .navbar {
@@ -89,7 +90,7 @@ pre {
 }
 
 /* block styling */
-.math-block {
+.fancy-block {
     -moz-border-radius: 6px;
     -webkit-border-radius: 6px;
     background-color: var(--secondary-background);
@@ -98,12 +99,12 @@ pre {
     padding: 10px;
     margin: 5px;
 }
-.math-block:before {
+.fancy-block:before {
     content: attr(data-before);
     font-weight: bold;
     font-style: italic;
 }
-.math-block:after {
+.fancy-block:after {
     content: attr(data-after);
     font-weight: bold;
     font-style: italic;
@@ -151,6 +152,10 @@ a {
     content: attr(data-language);
     right: 20px;
 }
+code {
+    color: #DD6F48;
+}
+
 .equation {
     max-width: 100%;
     display: block;
