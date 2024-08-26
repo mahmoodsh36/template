@@ -15,6 +15,17 @@ window.onload = function(e) {
     search('');
   });
   document.querySelectorAll('svg').forEach(entry => randomizeSvgIds(entry)); // fix some rendering issues caused by conflicting id's
+
+  // for feather icons
+  feather.replace();
+
+  // sometimes org inserts redundant <br> that cause annoying visual breaks, gets rid of those
+  function removeTrailingBr(element) {
+    while (element.lastChild && element.lastChild.tagName === 'BR') {
+      element.removeChild(element.lastChild);
+    }
+  }
+  document.querySelectorAll('*').forEach(removeTrailingBr);
 }
 
 // when loading an svg from another page, we need to modify the id's that it uses for the elements to avoid conflicts with svg's we already have on the current page which may have similar ids and cause rendering issues.
@@ -127,7 +138,12 @@ function getElementByBlkId(id, cb) {
       let page = new DOMParser().parseFromString(text, "text/html");
       // the actual html entry from the other page
       let elm = page.getElementById(entry.id);
-      cb(elm);
+      document.a = elm;
+      if (elm && elm.parentElement.classList.contains('fancy-container')) {
+        cb(elm.parentElement)
+      } else {
+        cb(elm);
+      }
     });
   }
 }
@@ -221,4 +237,13 @@ function search(val) {
   // update numbers
   document.getElementById("search-numbers-results").innerHTML = '' + matchingEntries.length;
   document.getElementById("search-numbers-public").innerHTML = '' + data.length;
+}
+
+function copyAnchor(elm) {
+  const href = elm.getAttribute('href');
+  const toCopy = location.origin + location.pathname + href;
+  navigator.clipboard.writeText(toCopy)
+    .then(() => {
+      console.log(toCopy);
+    });
 }
