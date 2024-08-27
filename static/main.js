@@ -26,6 +26,13 @@ window.onload = function(e) {
     }
   }
   document.querySelectorAll('*').forEach(removeTrailingBr);
+
+  // i configured org to preserve linebreaks but it preserves those after svg.org-latex-block which results in weird spaces, get rid of those
+  document.querySelectorAll('svg.org-latex-block').forEach((elm) => {
+    let next = elm.nextSibling;
+    if (next && next.tagName === 'BR')
+      next.remove();
+  });
 }
 
 // when loading an svg from another page, we need to modify the id's that it uses for the elements to avoid conflicts with svg's we already have on the current page which may have similar ids and cause rendering issues.
