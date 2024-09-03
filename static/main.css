@@ -232,6 +232,9 @@ code {
 .popup {
     position: absolute;
     max-width: 400px;
+    background-color: var(--secondary-background);
+    padding: 5px;
+    border: 1px solid var(--tertiary-background);
 }
 
 p#search-numbers {
