@@ -4,7 +4,7 @@
   --primary-color: light-dark(#333, #888);
   --primary-background: light-dark(#fff8e8, #121212);
   --secondary-background: light-dark(#d1d9d9, #222223);
-  --tertiary-background: light-dark(#c3d6e7, #403131);
+  --tertiary-background: light-dark(#535657, #403131);
   --highlight-color: rgb(217, 70, 91);
 }
 
@@ -92,8 +92,8 @@ pre {
 
 /* block styling */
 .fancy-block {
-    background-color: var(--secondary-background);
-    border: solid 1px #3498db;
+    /* background-color: var(--secondary-background); */
+    /* border: solid 1px #3498db; */
     padding-left: 5px;
 }
 .fancy-before, .fancy-after {
@@ -102,13 +102,24 @@ pre {
 }
 .fancy-before {
     display: inline;
-    margin-left: 10px;
+    margin-left: 5px;
 }
 .fancy-container {
-    background-color: var(--tertiary-background);
+    position: relative;
+    border-left: 3px solid var(--tertiary-background); /* Adjust border width and color */
     margin: 5px;
-    padding: 5px;
+    padding-left: 5px;
 }
+.fancy-container::before {
+    content: "";
+    position: absolute;
+    left: -9px; /* Adjust according to border width */
+    width: 15px;
+    height: 15px;
+    background-color: var(--tertiary-background);
+    transform: rotate(45deg);
+}
+
 
 a {
     color: rgb(217, 70, 91);
@@ -234,6 +245,7 @@ p#search-numbers {
     border: none;
     color: blue;
     cursor: pointer;
+    margin-left: 5px;
     /* font-size: 1em; */
 }
 .copy-btn i {
