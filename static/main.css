@@ -8,6 +8,11 @@
   --highlight-color: rgb(217, 70, 91);
 }
 
+/* reduce the margins around paragraphs */
+p {
+    margin: 5px;
+}
+
 html, body {
     /* margin: 0; */
     /* padding: 0; */
