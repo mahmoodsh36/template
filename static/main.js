@@ -80,6 +80,10 @@ let toShow = true; /* we need this because by the time the web request is done t
 function handleMathButton(node) {
   let ref = node.getAttribute('data-ref');
   let refId = ref.substr(4);
+
+  // we can put something together with this to make the area bigger
+  // <rect onmouseover="alert('hi')" width="200" height="100" x="10" y="10" rx="20" ry="20" fill="transparent"/>
+
   if (node.classList.contains('fancy-button')) {
     let symbol = node.children[0];
     symbol.setAttribute('original-fill', symbol.getAttribute('fill'));

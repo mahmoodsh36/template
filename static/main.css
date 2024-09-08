@@ -79,6 +79,10 @@ html, body {
 /*     white-space: nowrap; */
 /*     text-overflow: ellipsis; */
 /* } */
+.collage .card-image:hover {
+    border-color: blue;
+    cursor: pointer;
+}
 .card-title {
     color: rgb(175, 39, 39);
 }
@@ -123,6 +127,12 @@ pre {
     height: 15px;
     background-color: var(--tertiary-background);
     transform: rotate(45deg);
+}
+/* org inserts data-before into a paragraph which results in odd alignment, fix it */
+.fancy-container p {
+    display: inline;
+    margin: 0px;
+    padding: 0px;
 }
 
 
@@ -183,7 +193,6 @@ code {
     padding-top: 5px;
     padding-bottom: 5px;
 }
-
 
 /* search page */
 .search-container {
