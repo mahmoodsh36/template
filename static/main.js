@@ -171,7 +171,7 @@ function search(val) {
   let matchingEntries = [];
   for (let entry of data) {
     const entryText = entry.title || entry.id;
-    if (entryText.includes(val)) {
+    if (entryText && entryText.includes(val)) {
       const container = document.createElement("div");
       const subcontainer = document.createElement("div");
       const span = document.createElement("span");
