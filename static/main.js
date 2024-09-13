@@ -16,9 +16,6 @@ window.onload = function(e) {
   });
   document.querySelectorAll('svg').forEach(entry => randomizeSvgIds(entry)); // fix some rendering issues caused by conflicting id's
 
-  // for feather icons
-  feather.replace();
-
   // sometimes org inserts redundant <br> that cause annoying visual breaks, gets rid of those
   function removeTrailingBr(element) {
     while (element.lastChild && element.lastChild.tagName === 'BR') {
@@ -26,6 +23,12 @@ window.onload = function(e) {
     }
   }
   document.querySelectorAll('*').forEach(removeTrailingBr);
+
+  // fancy blocks :D
+  fixFancyBlocks();
+
+  // for feather icons
+  feather.replace();
 
   // i configured org to preserve linebreaks but it preserves those after svg.org-latex-block which results in weird spaces, get rid of those
   document.querySelectorAll('svg.org-latex-block').forEach((elm) => {
@@ -257,4 +260,45 @@ function copyAnchor(elm) {
     .then(() => {
       console.log(toCopy);
     });
+}
+
+function fixFancyBlocks() {
+  let fancyBlocks = document.querySelectorAll('.fancy-block');
+  let handled = [];
+  for (let fancyBlock of fancyBlocks) {
+    if (handled.includes(fancyBlock))
+      continue;
+    let parent = fancyBlock.parentNode;
+    let container = document.createElement('div');
+    let before = document.createElement('div');
+
+    container.className = 'fancy-container';
+
+    // fancy-before
+    before.className = 'fancy-before';
+    before.innerHTML = fancyBlock.getAttribute('data-before');
+
+    // fancy-after
+    let after = document.createElement('div');
+    after.className = 'fancy-after';
+    after.innerHTML = fancyBlock.getAttribute('data-after');
+
+    // anchor link button
+    let link = document.createElement('a');
+    let anchor = fancyBlock.getAttribute('data-id');
+    link.href = anchor;
+    link.className = 'copy-btn feather-16'
+    link.onclick = () => { copyAnchor(this); };
+    link.setAttribute('data-feather', "link");
+
+    // set the wrapper as child (instead of the element)
+    parent.replaceChild(container, fancyBlock);
+    if (anchor)
+      container.appendChild(link);
+    container.appendChild(before);
+    container.appendChild(fancyBlock);
+    container.appendChild(after);
+
+    handled.push(fancyBlock);
+  }
 }
