@@ -275,3 +275,36 @@ p#search-numbers {
     width: 16px;
     height: 16px;
 }
+
+
+/* table of contents */
+.toc {
+    padding: 16px;
+    background-color: rgba(1, 1, 1, 0.2);
+    align-self: start;
+    position: fixed;
+    right: 10px;
+    border-radius: 0.2em;
+    margin: auto;
+    top: 130px;
+    overflow-y: scroll;
+    max-height: 80%;
+    ul {
+        li {
+            a {
+                text-transform: none;
+                display: inline-block;
+                transform-origin: left;
+                transition: transform 0.1s linear;
+                &.active {
+                    font-weight: bold;
+                }
+            }
+        }
+    }
+}
+@media only screen and (max-width: 1165px) {
+    .toc {
+        display: none;
+    }
+}

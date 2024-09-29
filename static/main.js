@@ -36,6 +36,8 @@ window.onload = function(e) {
     if (next && next.tagName === 'BR')
       next.remove();
   });
+
+  toc();
 }
 
 // when loading an svg from another page, we need to modify the id's that it uses for the elements to avoid conflicts with svg's we already have on the current page which may have similar ids and cause rendering issues.
@@ -301,4 +303,51 @@ function fixFancyBlocks() {
 
     handled.push(fancyBlock);
   }
+}
+
+// code for table of contents
+
+function toc() {
+  const headings = Array.from(document.querySelectorAll('h2,h3,h4,h5')); // do we care about even deeper nested headers?
+  if (headings.length == 0)
+    return;
+  const toc = document.querySelector(".toc");
+  const ulMain = document.createElement('ul'); // top-level <ul>;
+  toc.appendChild(ulMain);
+  let levelHolders = [ulMain]; // a subelement for each level (array)
+  let prevLevel = 0;
+  headings.map((heading) => {
+    const level = parseInt(heading.tagName.substring(heading.tagName.length - 1)) - 1; // -1 because headers start at level 2 (h2)
+    const id = heading.innerText.toLowerCase().replaceAll(" ", "_");
+    heading.setAttribute("id", id);
+    const anchorElement = `<a href="#${id}">${heading.textContent}</a>`;
+    const li = document.createElement("li");
+    li.innerHTML = anchorElement;
+    const ul = document.createElement("ul");
+    li.appendChild(ul);
+    levelHolders[level] = ul;
+    levelHolders[level - 1].appendChild(li);
+  });
+  const tocAnchors = toc.querySelectorAll("a");
+  const obFunc = (entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        const index = headings.indexOf(entry.target);
+        tocAnchors.forEach((tab) => {
+          tab.classList.remove("active");
+        });
+        tocAnchors[index].classList.add("active");
+        tocAnchors[index].scrollIntoView({
+          block: "nearest",
+          inline: "nearest"
+        });
+      }
+    });
+  };
+  const obOption = {
+    rootMargin: "-30px 0% -77%",
+    threshold: 1
+  };
+  const observer = new IntersectionObserver(obFunc, obOption);
+  headings.forEach((hTwo) => observer.observe(hTwo));
 }
