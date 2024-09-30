@@ -297,11 +297,14 @@ function fixFancyBlocks() {
 
     // anchor link button
     let link = document.createElement('a');
+    let icon = document.createElement('i');
+    link.appendChild(icon);
     let anchor = fancyBlock.getAttribute('data-id');
-    link.href = anchor;
-    link.className = 'copy-btn feather-16'
-    link.onclick = () => { copyAnchor(this); };
-    link.setAttribute('data-feather', "link");
+    link.href = "#" + anchor;
+    link.className = 'copy-btn'
+    link.onclick = () => { copyAnchor(link); };
+    icon.className = 'feather-16';
+    icon.setAttribute('data-feather', "link");
 
     // set the wrapper as child (instead of the element)
     parent.replaceChild(container, fancyBlock);

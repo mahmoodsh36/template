@@ -266,7 +266,7 @@ p#search-numbers {
     /* font-size: 1em; */
 }
 .copy-btn i {
-    margin-right: 5px; /* Space between icon and text */
+    margin-right: 5px; /* space between icon and text */
 }
 .copy-btn:hover {
     color: darkblue;
