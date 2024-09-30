@@ -38,6 +38,12 @@ window.onload = function(e) {
   });
 
   toc();
+
+  checkToc();
+
+  addEventListener("resize", (event) => {
+    checkToc();
+  });
 }
 
 // when loading an svg from another page, we need to modify the id's that it uses for the elements to avoid conflicts with svg's we already have on the current page which may have similar ids and cause rendering issues.
@@ -308,10 +314,10 @@ function fixFancyBlocks() {
 // code for table of contents
 
 function toc() {
-  const headings = Array.from(document.querySelectorAll('h2,h3,h4,h5')); // do we care about even deeper nested headers?
+  const headings = Array.from(document.querySelectorAll('h2,h3,h4,h5,h6,h7')); // do we care about even deeper nested headers?
   if (headings.length == 0)
     return;
-  const toc = document.querySelector(".toc");
+  const toc = document.querySelector(".toc-list");
   const ulMain = document.createElement('ul'); // top-level <ul>;
   toc.appendChild(ulMain);
   let levelHolders = [ulMain]; // a subelement for each level (array)
@@ -350,4 +356,32 @@ function toc() {
   };
   const observer = new IntersectionObserver(obFunc, obOption);
   headings.forEach((hTwo) => observer.observe(hTwo));
+}
+
+// https://www.quora.com/How-do-I-find-out-if-an-element-in-a-browser-touches-another-element-in-JavaScript
+function isOverlapping(element1, element2) {
+    const rect1 = element1.getBoundingClientRect();
+    const rect2 = element2.getBoundingClientRect();
+
+    return !(
+        rect1.right < rect2.left ||    // element 1 is left of element 2
+        rect1.left > rect2.right ||     // element 1 is right of element 2
+        rect1.bottom < rect2.top ||     // element 1 is above element 2
+        rect1.top > rect2.bottom         // element 1 is below element 2
+    );
+}
+
+function checkToc() {
+  if (isOverlapping(document.querySelector('.toc'), document.querySelector('.content'))) {
+    if (!document.querySelector(".toc-list").classList.contains('hides')) {
+      document.querySelector(".toc-list").classList.add('hides');
+      document.querySelector(".toc-title").classList.add('hides');
+    }
+  }
+  // this causes problems
+  // else {
+  //   if (!first)
+  //   document.querySelector(".toc-list").classList.remove('hides');
+  //   document.querySelector(".toc-title").classList.remove('hides');
+  // }
 }
