@@ -320,7 +320,7 @@ function fixFancyBlocks() {
 function toc() {
   const headings = Array.from(document.querySelectorAll('h2,h3,h4,h5,h6,h7')); // do we care about even deeper nested headers?
   if (headings.length == 0)
-    return;
+    return false;
   const toc = document.querySelector(".toc-list");
   const ulMain = document.createElement('ul'); // top-level <ul>;
   toc.appendChild(ulMain);
@@ -360,6 +360,7 @@ function toc() {
   };
   const observer = new IntersectionObserver(obFunc, obOption);
   headings.forEach((hTwo) => observer.observe(hTwo));
+  return true;
 }
 
 // https://www.quora.com/How-do-I-find-out-if-an-element-in-a-browser-touches-another-element-in-JavaScript
