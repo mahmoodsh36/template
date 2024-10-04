@@ -322,3 +322,8 @@ p#search-numbers {
 .toc-title {
     margin-left: 7px;
 }
+
+/* otherwise the embedded images are too small? */
+table {
+    width: 100%;
+}
