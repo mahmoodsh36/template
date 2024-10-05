@@ -48,6 +48,12 @@ window.onload = function(e) {
   } else {
     document.querySelector('.toc').style.display = 'none';
   }
+
+  // add 'svg' class to <img>'s with an href that ends with '.svg'
+  document.querySelectorAll('img').forEach(function (elm) {
+    if (elm.src.endsWith('.svg'))
+      elm.classList.add('svg');
+  });
 }
 
 // when loading an svg from another page, we need to modify the id's that it uses for the elements to avoid conflicts with svg's we already have on the current page which may have similar ids and cause rendering issues.

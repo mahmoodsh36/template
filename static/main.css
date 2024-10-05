@@ -150,6 +150,12 @@ a {
 :root.dark .org-latex {
     filter: invert(70%) sepia(10%) saturate(300%) hue-rotate(86deg) brightness(118%) contrast(119%);
 }
+:root.dark svg {
+    filter: invert(70%) sepia(10%) saturate(300%) hue-rotate(86deg) brightness(118%) contrast(119%);
+}
+:root.dark .svg {
+    filter: invert(70%) sepia(10%) saturate(300%) hue-rotate(86deg) brightness(118%) contrast(119%);
+}
 
 /* code block styling */
 .org-src-container {
