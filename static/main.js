@@ -16,7 +16,7 @@ window.onload = function(e) {
   });
   document.querySelectorAll('svg').forEach(entry => randomizeSvgIds(entry)); // fix some rendering issues caused by conflicting id's
 
-  // sometimes org inserts redundant <br> that cause annoying visual breaks, gets rid of those
+  // sometimes org inserts redundant <br>'s that cause annoying visual breaks, gets rid of those
   function removeTrailingBr(element) {
     while (element.lastChild && element.lastChild.tagName === 'BR') {
       element.removeChild(element.lastChild);
@@ -26,9 +26,6 @@ window.onload = function(e) {
 
   // fancy blocks :D
   fixFancyBlocks();
-
-  // for feather icons
-  feather.replace();
 
   // i configured org to preserve linebreaks but it preserves those after svg.org-latex-block which results in weird spaces, get rid of those
   document.querySelectorAll('svg.org-latex-block').forEach((elm) => {
@@ -54,6 +51,9 @@ window.onload = function(e) {
     if (elm.src.endsWith('.svg'))
       elm.classList.add('svg');
   });
+
+  // for feather icons
+  feather.replace();
 }
 
 // when loading an svg from another page, we need to modify the id's that it uses for the elements to avoid conflicts with svg's we already have on the current page which may have similar ids and cause rendering issues.

@@ -333,3 +333,9 @@ p#search-numbers {
 table {
     width: 100%;
 }
+
+
+.caption {
+    display: block;
+    text-align: center;
+}
