@@ -130,8 +130,12 @@ pre {
     transform: rotate(45deg);
 }
 /* org inserts data-before into a paragraph which results in odd alignment, fix it */
-.fancy-container p {
+.fancy-before p {
     display: inline;
+    margin: 0px;
+    padding: 0px;
+}
+.fancy-container p {
     margin: 0px;
     padding: 0px;
 }
