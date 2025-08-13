@@ -43,6 +43,19 @@
                   :regex ".*\\.org"
                   :format "org-mode")))))
     (cltpt/roam:convert-all rmr (cltpt/base:text-format-by-name "html")
-                            "%(identity cltpt/org-mode:*org-convert-dest-dir*)/%(cl-user::title-to-filename title).html")))
+                            "%(identity cltpt/org-mode:*org-convert-dest-dir*)/%(cl-user::title-to-filename title).html")
+    (mapc
+     (lambda (item)
+       (uiop:copy-file (uiop:merge-pathnames* template-dir item)
+                       (uiop:merge-pathnames* (truename "~/work/blog/")
+                                              item)))
+     (list "head.html" "preamble.html" "search.html"))
+    (cltpt/base:ensure-directory (truename "~/work/blog/static"))
+    (mapc
+     (lambda (item)
+       (uiop:copy-file (uiop:merge-pathnames* template-dir item)
+                       (uiop:merge-pathnames* (truename "~/work/blog/static/")
+                                              item)))
+     (directory (truename "~/work/template/static/")))))
 
 ;; (generate)
