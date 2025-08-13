@@ -54,7 +54,7 @@
     (mapc
      (lambda (item)
        (format t "hey ~A~%" item)
-       (uiop:copy-file (uiop:merge-pathnames* template-dir item)
+       (uiop:copy-file (uiop:merge-pathnames* (truename "~/work/blog/static/") item)
                        (uiop:merge-pathnames* (truename "~/work/blog/static/")
                                               item)))
      (uiop:directory-files (truename "~/work/template/static/")))))
