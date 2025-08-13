@@ -50,12 +50,13 @@
                        (uiop:merge-pathnames* (truename "~/work/blog/")
                                               item)))
      (list "head.html" "preamble.html" "search.html"))
-    (cltpt/base:ensure-directory (truename "~/work/blog/static"))
+    (cltpt/base:ensure-directory "/home/mahmooz/work/blog/static/")
     (mapc
      (lambda (item)
+       (format t "hey ~A~%" item)
        (uiop:copy-file (uiop:merge-pathnames* template-dir item)
                        (uiop:merge-pathnames* (truename "~/work/blog/static/")
                                               item)))
-     (directory (truename "~/work/template/static/")))))
+     (uiop:directory-files (truename "~/work/template/static/")))))
 
 ;; (generate)
