@@ -22,8 +22,6 @@
          (other-preamble-contents
            (uiop:read-file-string
             (uiop:merge-pathnames* template-dir "preamble.html")))
-         (cltpt/org-mode:*org-convert-dest-dir*
-           (truename "~/work/blog/"))
          (cltpt/html:*html-static-route* "/")
          (*my-metadata*
            (list :other-head-contents other-head-contents
@@ -42,8 +40,10 @@
                '((:path ("/home/mahmooz/brain/notes/")
                   :regex ".*\\.org"
                   :format "org-mode")))))
-    (cltpt/roam:convert-all rmr (cltpt/base:text-format-by-name "html")
-                            "%(identity cltpt/org-mode:*org-convert-dest-dir*)/%(cl-user::title-to-filename title).html")
+    (cltpt/roam:convert-all
+     rmr
+     (cltpt/base:text-format-by-name "html")
+     "/home/mahmooz/work/blog/%(cl-user::title-to-filename title).html")
     (mapc
      (lambda (item)
        (uiop:copy-file (uiop:merge-pathnames* template-dir item)
@@ -54,7 +54,8 @@
     (mapc
      (lambda (item)
        (format t "hey ~A~%" item)
-       (uiop:copy-file (uiop:merge-pathnames* (truename "~/work/blog/static/") item)
+       (uiop:copy-file (uiop:merge-pathnames* (truename "~/work/template/static/")
+                                              item)
                        (uiop:merge-pathnames* (truename "~/work/blog/static/")
                                               item)))
      (uiop:directory-files (truename "~/work/template/static/")))))
