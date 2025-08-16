@@ -281,7 +281,7 @@ function copyAnchor(elm) {
 }
 
 function fixFancyBlocks() {
-  let fancyBlocks = document.querySelectorAll('.fancy-block');
+  let fancyBlocks = document.querySelectorAll('.org-block');
   let handled = [];
   for (let fancyBlock of fancyBlocks) {
     if (handled.includes(fancyBlock))

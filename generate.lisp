@@ -1,3 +1,5 @@
+#!/usr/bin/env -S sbcl --script
+(require 'asdf)
 (asdf:load-system :cltpt)
 
 (defun title-to-filename (title)
@@ -30,14 +32,14 @@
                    :other-preamble-contents other-preamble-contents))
            (cltpt/html:*html-postamble* "</body></html>")
            (cltpt/html:*html-preamble*
-             "<html>
+             "<!DOCTYPE html>
+<html>
 <head>
   <title> %title </title>
   #(getf cl-user::*my-metadata* :other-head-contents)
 </head>
 <body>
-  #(getf cl-user::*my-metadata* :other-preamble-contents)
-")
+  #(getf cl-user::*my-metadata* :other-preamble-contents)")
            (rmr (cltpt/roam:from-files
                  '((:path ("/home/mahmooz/brain/notes/")
                     :regex ".*\\.org"
@@ -61,4 +63,4 @@
                                                 item)))
        (uiop:directory-files (truename "~/work/template/static/"))))))
 
-;; (generate)
+(generate)
