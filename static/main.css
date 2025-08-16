@@ -192,15 +192,15 @@ code {
     color: #DD6F48;
 }
 
-.equation {
+.display-math {
     max-width: 100%;
     display: block;
 }
-.equation svg {
+.display-math svg {
     display: block !important;
     margin: auto;
 }
-.org-latex-block, .equation svg {
+.org-latex-block, .display-math svg {
     padding-top: 5px;
     padding-bottom: 5px;
 }
