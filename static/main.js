@@ -399,3 +399,15 @@ function checkToc() {
   //   document.querySelector(".toc-title").classList.remove('hides');
   // }
 }
+
+// for now cltpt generates redundant sequences of <br>, remove em/**
+function removeSubsequentBreaks() {
+  const allBreaks = document.querySelectorAll('br');
+  for (let i = 1; i < allBreaks.length; i++) {
+    const breakElement = allBreaks[i];
+    if (breakElement.parentNode) {
+      breakElement.parentNode.removeChild(breakElement);
+    }
+  }
+}
+removeSubsequentBreaks();
