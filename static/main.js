@@ -1,7 +1,21 @@
 // search data
 let data = [];
 
+// for now cltpt generates redundant sequences of <br>, remove em
+function removeSubsequentBreaks() {
+  const allBreaks = document.querySelectorAll('br');
+  for (let i = 1; i < allBreaks.length; i++) {
+    const breakElement = allBreaks[i];
+    if (breakElement.parentNode) {
+      breakElement.parentNode.removeChild(breakElement);
+    }
+  }
+}
+
 window.onload = function(e) {
+  // for now cltpt generates redundant sequences of <br>, remove em
+  removeSubsequentBreaks();
+
   // make all "math buttons" clickable
   document.querySelectorAll(".fancy-button").forEach(elm => handleMathButton(elm));
   // fetch the search data
@@ -399,15 +413,3 @@ function checkToc() {
   //   document.querySelector(".toc-title").classList.remove('hides');
   // }
 }
-
-// for now cltpt generates redundant sequences of <br>, remove em/**
-function removeSubsequentBreaks() {
-  const allBreaks = document.querySelectorAll('br');
-  for (let i = 1; i < allBreaks.length; i++) {
-    const breakElement = allBreaks[i];
-    if (breakElement.parentNode) {
-      breakElement.parentNode.removeChild(breakElement);
-    }
-  }
-}
-removeSubsequentBreaks();

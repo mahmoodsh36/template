@@ -26,7 +26,8 @@
              (uiop:read-file-string
               (uiop:merge-pathnames* template-dir "preamble.html")))
            (cltpt/html:*html-static-route* "/")
-           (cltpt/latex:*latex-previews-cache-directory* #P"./")
+           ;; (cltpt/latex:*latex-previews-cache-directory* #P"./")
+           (cltpt/latex:*latex-previews-cache-directory* #P"")
            (*my-metadata*
              (list :other-head-contents other-head-contents
                    :other-preamble-contents other-preamble-contents))
@@ -35,6 +36,7 @@
              "<!DOCTYPE html>
 <html>
 <head>
+  <meta charset=\"UTF-8\">
   <title> %title </title>
   #(getf cl-user::*my-metadata* :other-head-contents)
 </head>
