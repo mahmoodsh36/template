@@ -1,5 +1,4 @@
 #!/usr/bin/env -S sbcl --script
-(in-package :cl-user)
 (require 'asdf)
 (asdf:load-system :cltpt)
 
