@@ -22,9 +22,10 @@
 
 (defun generate ()
   (cltpt/base:ensure-directory *blog-dir*)
+  (setf cltpt/org-mode::*org-enable-macros* t)
+  (cltpt/zoo::init)
   (uiop:with-current-directory (*blog-dir*)
-    (let* ((cltpt/org-mode::*org-enable-macros* t)
-           (other-head-contents
+    (let* ((other-head-contents
              (uiop:read-file-string
               (uiop:merge-pathnames* *template-dir* "head.html")))
            (other-preamble-contents
