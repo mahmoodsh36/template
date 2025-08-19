@@ -4,12 +4,18 @@ let data = [];
 // for now cltpt generates redundant sequences of <br>, remove em
 function removeSubsequentBreaks() {
   const allBreaks = document.querySelectorAll('br');
-  for (let i = 1; i < allBreaks.length; i++) {
-    const breakElement = allBreaks[i];
-    if (breakElement.parentNode) {
-      breakElement.parentNode.removeChild(breakElement);
+  allBreaks.forEach(brElement => {
+    // if this element was already removed in a previous step, skip it
+    if (!brElement.parentNode) {
+      return;
     }
-  }
+    let nextSibling = brElement.nextElementSibling;
+    while (nextSibling && nextSibling.tagName === 'BR') {
+      const breakToRemove = nextSibling;
+      nextSibling = nextSibling.nextElementSibling;
+      breakToRemove.remove();
+    }
+  });
 }
 
 window.onload = function(e) {
