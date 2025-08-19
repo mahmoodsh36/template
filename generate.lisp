@@ -1,4 +1,5 @@
 #!/usr/bin/env -S sbcl --script
+(in-package :cl-user)
 (require 'asdf)
 (asdf:load-system :cltpt)
 
@@ -15,16 +16,20 @@
                     (write-char #\_ out))))))
 
 (defvar *my-metadata* nil)
+(defvar *blog-dir* "/home/mahmooz/work/blog/")
+(defvar *blog-static-dir* "/home/mahmooz/work/blog/static/")
+(defvar *template-dir* (truename "~/work/template/"))
+(defvar *template-static-dir* (truename "~/work/template/static/"))
 
 (defun generate ()
-  (uiop:with-current-directory ((truename "~/work/blog/"))
-    (let* ((template-dir (truename "~/work/template/"))
-           (other-head-contents
+  (cltpt/base:ensure-directory *blog-dir*)
+  (uiop:with-current-directory (*blog-dir*)
+    (let* ((other-head-contents
              (uiop:read-file-string
-              (uiop:merge-pathnames* template-dir "head.html")))
+              (uiop:merge-pathnames* *template-dir* "head.html")))
            (other-preamble-contents
              (uiop:read-file-string
-              (uiop:merge-pathnames* template-dir "preamble.html")))
+              (uiop:merge-pathnames* *template-dir* "preamble.html")))
            (cltpt/html:*html-static-route* "/")
            ;; (cltpt/latex:*latex-previews-cache-directory* #P"./")
            (cltpt/latex:*latex-previews-cache-directory* #P"")
@@ -49,20 +54,22 @@
       (cltpt/roam:convert-all
        rmr
        (cltpt/base:text-format-by-name "html")
-       "/home/mahmooz/work/blog/%(cl-user::title-to-filename title).html")
+       "%(identity cl-user::*blog-dir*)%(cl-user::title-to-filename title).html")
       (mapc
        (lambda (item)
-         (uiop:copy-file (uiop:merge-pathnames* template-dir item)
+         (uiop:copy-file (uiop:merge-pathnames* *template-dir* item)
                          (uiop:merge-pathnames* (truename "~/work/blog/")
                                                 item)))
        (list "head.html" "preamble.html" "search.html"))
-      (cltpt/base:ensure-directory "/home/mahmooz/work/blog/static/")
+      (cltpt/base:ensure-directory *blog-static-dir*)
       (mapc
        (lambda (item)
-         (uiop:copy-file (uiop:merge-pathnames* (truename "~/work/template/static/")
-                                                item)
-                         (uiop:merge-pathnames* (truename "~/work/blog/static/")
-                                                item)))
-       (uiop:directory-files (truename "~/work/template/static/"))))))
+         (uiop:copy-file (uiop:merge-pathnames*
+                          (truename *template-static-dir*)
+                          item)
+                         (uiop:merge-pathnames*
+                          (truename *blog-static-dir*)
+                          item)))
+       (uiop:directory-files *template-static-dir*)))))
 
 (generate)
