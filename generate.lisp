@@ -26,7 +26,7 @@
           do (cltpt/latex:generate-svgs-for-latex
               (subseq all-snippets
                       i
-                      (max (+ i snippets-at-once)
+                      (min (+ i snippets-at-once)
                            (length all-snippets)))))))
 
 (defun title-to-filename (title)
