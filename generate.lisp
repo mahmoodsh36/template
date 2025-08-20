@@ -6,7 +6,13 @@
 ;; before exporting. this is to speed things up. one latex conversion commands
 ;; is faster than running it once for every file independently.
 (defun compile-all-latex-previews (rmr)
-  (let ((all-snippets))
+  (let ((all-snippets)
+        ;; snippets-at-once is how many snippets should be compiled at the same time.
+        ;; one case in which this is helpful is when there are too many errors (>100)
+        ;; and latex refuses to compile all previews at once and exits. so we
+        ;; break them into batches, which make it more likely that more latex
+        ;; previews will be rendered overall.
+        (snippets-at-once 5000))
     (loop for node in (cltpt/roam:roamer-nodes rmr)
           for this-tree = (cltpt/roam:node-text-obj node)
           do (cltpt/base:map-text-object
@@ -16,7 +22,12 @@
                           (typep obj 'cltpt/latex:display-math)
                           (typep obj 'cltpt/latex:latex-env))
                   (push (cltpt/base:text-object-text obj) all-snippets)))))
-    (cltpt/latex:generate-svgs-for-latex all-snippets)))
+    (loop for i from 0 to (length all-snippets) by snippets-at-once
+          do (cltpt/latex:generate-svgs-for-latex
+              (subseq all-snippets
+                      i
+                      (max (+ i snippets-at-once)
+                           (length all-snippets)))))))
 
 (defun title-to-filename (title)
   (with-output-to-string (out)
