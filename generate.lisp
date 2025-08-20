@@ -2,6 +2,22 @@
 (require 'asdf)
 (asdf:load-system :cltpt)
 
+;; this is a hack to gather all latex previews and compile them all at once
+;; before exporting. this is to speed things up. one latex conversion commands
+;; is faster than running it once for every file independently.
+(defun compile-all-latex-previews (rmr)
+  (let ((all-snippets))
+    (loop for node in (cltpt/roam:roamer-nodes rmr)
+          for this-tree = (cltpt/roam:node-text-obj node)
+          do (cltpt/base:map-text-object
+              this-tree
+              (lambda (obj)
+                (when (or (typep obj 'cltpt/latex:inline-math)
+                          (typep obj 'cltpt/latex:display-math)
+                          (typep obj 'cltpt/latex:latex-env))
+                  (push (cltpt/base:text-object-text obj) all-snippets)))))
+    (cltpt/latex:generate-svgs-for-latex all-snippets)))
+
 (defun title-to-filename (title)
   (with-output-to-string (out)
     (loop for char across (string-downcase title)
@@ -52,6 +68,7 @@
                  '((:path ("/home/mahmooz/brain/notes/")
                     :regex ".*\\.org"
                     :format "org-mode")))))
+      (compile-all-latex-previews rmr)
       (cltpt/roam:convert-all
        rmr
        (cltpt/base:text-format-by-name "html")
