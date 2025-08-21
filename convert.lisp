@@ -46,6 +46,7 @@
 (defun generate ()
   (cltpt/base:ensure-directory *blog-dir*)
   (setf cltpt/org-mode::*org-enable-macros* t)
+  (setf cltpt:*debug* 1)
   (cltpt/zoo::init)
   (uiop:with-current-directory (*blog-dir*)
     (let* ((other-head-contents
