@@ -97,5 +97,3 @@
                           (truename *blog-static-dir*)
                           item)))
        (uiop:directory-files *template-static-dir*)))))
-
-(generate)
