@@ -97,3 +97,43 @@
                           (truename *blog-static-dir*)
                           item)))
        (uiop:directory-files *template-static-dir*)))))
+
+;; should place the static file in the dir and return the href to it
+(defun export-static-file (filepath)
+  (uiop:copy-file
+   filepath
+   (cltpt/base:change-dir filepath *blog-dir*))
+  (pathname-name filepath))
+
+;; find "entries", files tagged with 'entry', as in 'blog entry'
+(defun entry-nodes (rmr)
+  (let ((final-nodes))
+    (loop for node in (cltpt/roam:roamer-nodes rmr)
+          for text-obj = (cltpt/roam:node-text-obj node)
+          when (typep text-obj 'cltpt/org-mode::org-document)
+            do (let ((tags (cltpt/base:text-object-property text-obj :tags)))
+                 (when (member "entry" tags :test 'equal)
+                   (push node final-nodes))))
+    final-nodes))
+
+;; /home/mahmooz/work/emacs.d/lisp/config-org.el
+(defun generate-collage-html (entries)
+  (with-output-to-string (out)
+    (write-sequence "<div class=\"collage\">" out)
+    (loop for entry in entries
+          do (format nil "<div class='card fancy-button' data-ref='blk:~A'>
+  <img src='~A' class='card-image' />
+  <span class='card-title'>~A</span>
+  <span class='card-subtitle'>~A</span>
+  <span class='card-subtitle'>~A</span>
+</div>"
+                     (getf entry :id)
+                     (when (getf entry :id)
+                       (if (file-exists-p (getf entry :image))
+                           (export-static-file (getf entry :image))
+                           (format t "collage image ~A doesnt exist~%"
+                                   (getf entry :image))))
+                     (getf entry :title)
+                     (or (getf entry :subtitle) "")
+                     (or (getf entry :subsubtitle) "")))
+    (write-sequence  "</div>" out)))
