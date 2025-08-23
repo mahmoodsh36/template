@@ -76,11 +76,13 @@
                  '((:path ("/home/mahmooz/brain/notes/")
                     :regex ".*\\.org"
                     :format "org-mode")))))
+      (setf my-rmr rmr)
       (compile-all-latex-previews rmr)
-      (cltpt/roam:convert-all
-       rmr
-       (cltpt/base:text-format-by-name "html")
-       "%(identity cl-user::*blog-dir*)%(cl-user::title-to-filename title).html")
+      (generate-index rmr)
+      ;; (cltpt/roam:convert-all
+      ;;  rmr
+      ;;  (cltpt/base:text-format-by-name "html")
+      ;;  "%(identity cl-user::*blog-dir*)%(cl-user::title-to-filename title).html")
       (mapc
        (lambda (item)
          (uiop:copy-file (uiop:merge-pathnames* *template-dir* item)
@@ -112,6 +114,7 @@
           for text-obj = (cltpt/roam:node-text-obj node)
           when (typep text-obj 'cltpt/org-mode::org-document)
             do (let ((tags (cltpt/base:text-object-property text-obj :tags)))
+                 (format t "heyyyyy ~A~%" (cltpt/base:text-object-property text-obj :tags))
                  (when (member "entry" tags :test 'equal)
                    (push node final-nodes))))
     final-nodes))
@@ -137,3 +140,30 @@
                      (or (getf entry :subtitle) "")
                      (or (getf entry :subsubtitle) "")))
     (write-sequence  "</div>" out)))
+
+(defun generate-index (rmr)
+  (let* ((entries (entry-nodes rmr))
+         (index-file (uiop:merge-pathnames* *blog-dir* "index.html"))
+         (entries-html
+           (loop for entry in entries
+                 collect (format
+                          nil
+                          "title: ~A~%"
+                          (cltpt/roam:node-title entry))
+                   into strings
+                 finally (return (apply 'concatenate 'string strings)))))
+
+    (with-open-file (f (uiop:parse-unix-namestring index-file)
+                       :direction :output
+                       :if-exists :supersede
+                       :if-does-not-exist :create)
+      (write-sequence
+       (cltpt/base::convert-text
+        (cltpt/base:text-format-by-name "org-mode")
+        (cltpt/base:text-format-by-name "html")
+        (format nil
+                "~A~%~A~%~A"
+                "#+begin_export html"
+                entries-html
+                "#+end_export"))
+       f))))
