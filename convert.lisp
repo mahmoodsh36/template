@@ -76,13 +76,12 @@
                  '((:path ("/home/mahmooz/brain/notes/")
                     :regex ".*\\.org"
                     :format "org-mode")))))
-      (setf my-rmr rmr)
       (compile-all-latex-previews rmr)
       (generate-index rmr)
-      ;; (cltpt/roam:convert-all
-      ;;  rmr
-      ;;  (cltpt/base:text-format-by-name "html")
-      ;;  "%(identity cl-user::*blog-dir*)%(cl-user::title-to-filename title).html")
+      (cltpt/roam:convert-all
+       rmr
+       (cltpt/base:text-format-by-name "html")
+       "%(identity cl-user::*blog-dir*)%(cl-user::title-to-filename title).html")
       (mapc
        (lambda (item)
          (uiop:copy-file (uiop:merge-pathnames* *template-dir* item)
@@ -102,10 +101,11 @@
 
 ;; should place the static file in the dir and return the href to it
 (defun export-static-file (filepath)
-  (uiop:copy-file
-   filepath
-   (cltpt/base:change-dir filepath *blog-dir*))
-  (pathname-name filepath))
+  (when (and filepath (uiop:probe-file* filepath))
+    (uiop:copy-file
+     filepath
+     (cltpt/base:change-dir filepath *blog-dir*))
+    (cltpt/base:file-basename filepath)))
 
 ;; find "entries", files tagged with 'entry', as in 'blog entry'
 (defun entry-nodes (rmr)
@@ -114,7 +114,6 @@
           for text-obj = (cltpt/roam:node-text-obj node)
           when (typep text-obj 'cltpt/org-mode::org-document)
             do (let ((tags (cltpt/base:text-object-property text-obj :tags)))
-                 (format t "heyyyyy ~A~%" (cltpt/base:text-object-property text-obj :tags))
                  (when (member "entry" tags :test 'equal)
                    (push node final-nodes))))
     final-nodes))
@@ -124,7 +123,7 @@
   (with-output-to-string (out)
     (write-sequence "<div class=\"collage\">" out)
     (loop for entry in entries
-          do (format nil "<div class='card fancy-button' data-ref='blk:~A'>
+          do (format out "<div class='card fancy-button' data-ref='blk:~A'>
   <img src='~A' class='card-image' />
   <span class='card-title'>~A</span>
   <span class='card-subtitle'>~A</span>
@@ -132,27 +131,34 @@
 </div>"
                      (getf entry :id)
                      (when (getf entry :id)
-                       (if (file-exists-p (getf entry :image))
+                       (format t "here ~A~%" (export-static-file (getf entry :image)))
+                       (if (uiop:probe-file* (getf entry :image))
                            (export-static-file (getf entry :image))
                            (format t "collage image ~A doesnt exist~%"
                                    (getf entry :image))))
                      (getf entry :title)
                      (or (getf entry :subtitle) "")
                      (or (getf entry :subsubtitle) "")))
-    (write-sequence  "</div>" out)))
+    (write-sequence "</div>" out)
+    out))
 
 (defun generate-index (rmr)
   (let* ((entries (entry-nodes rmr))
          (index-file (uiop:merge-pathnames* *blog-dir* "index.html"))
+         ;; (entries-html
+         ;;   (loop for entry in entries
+         ;;         collect (format
+         ;;                  nil
+         ;;                  "title: ~A~%"
+         ;;                  (cltpt/roam:node-title entry))
+         ;;           into strings
+         ;;         finally (return (apply 'concatenate 'string strings))))
          (entries-html
-           (loop for entry in entries
-                 collect (format
-                          nil
-                          "title: ~A~%"
-                          (cltpt/roam:node-title entry))
-                   into strings
-                 finally (return (apply 'concatenate 'string strings)))))
-
+           (generate-collage-html
+            (loop for entry in entries
+                  collect (list :title (cltpt/roam:node-title entry)
+                                :id (cltpt/roam:node-id entry)
+                                :image (cdr (assoc "image" (cltpt/base:text-object-property (cltpt/roam:node-text-obj entry) :keywords-alist) :test 'equal)))))))
     (with-open-file (f (uiop:parse-unix-namestring index-file)
                        :direction :output
                        :if-exists :supersede
