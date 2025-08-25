@@ -42,12 +42,45 @@
 (defvar *blog-static-dir* "/home/mahmooz/work/blog/static/")
 (defvar *template-dir* (truename "~/work/template/"))
 (defvar *template-static-dir* (truename "~/work/template/static/"))
+(defvar *rmr*)
+
+(defun from-brain (filepath)
+  (cltpt/file-utils:join-paths "/home/mahmooz/brain/" filepath))
+
+;; get svg by #+name: or whatever?
+(defun get-latex-preview-svg-by-blk-id (blk-id)
+  (let* ((dest-node (cltpt/roam:get-node-by-id (cltpt/roam:current-roamer) blk-id)))
+    (when dest-node
+      (let* ((text-obj (cltpt/roam:node-text-obj dest-node))
+             (match (cltpt/base:text-object-property text-obj :combinator-match))
+             (latex-env-match
+               (or (car (cltpt/combinator:find-submatch
+                         match
+                         'cltpt/org-mode::latex-env-1))
+                   (car (cltpt/combinator:find-submatch
+                         match
+                         'cltpt/org-mode::latex-env))))
+             (latex-env-text (getf latex-env-match :match)))
+        (cdar (cltpt/latex:generate-svgs-for-latex (list latex-env-text)))))))
+
+;; this is for postponing the execution to after roamer is done.
+(defun get-latex-preview-svg-by-blk-id-1 (blk-id)
+  (cons
+   'after-roam
+   (lambda ()
+     (get-latex-preview-svg-by-blk-id blk-id))))
+
 
 (defun generate ()
-  (cltpt/base:ensure-directory *blog-dir*)
+  (cltpt/file-utils:ensure-directory *blog-dir*)
   (setf cltpt/org-mode::*org-enable-macros* t)
   (setf cltpt:*debug* 1)
   (cltpt/zoo::init)
+  (setf *rmr*
+        (cltpt/roam:from-files
+         '((:path ("/home/mahmooz/brain/notes/")
+            :regex ".*\\.org"
+            :format "org-mode"))))
   (uiop:with-current-directory (*blog-dir*)
     (let* ((other-head-contents
              (uiop:read-file-string
@@ -71,24 +104,20 @@
   #(getf cl-user::*my-metadata* :other-head-contents)
 </head>
 <body>
-  #(getf cl-user::*my-metadata* :other-preamble-contents)")
-           (rmr (cltpt/roam:from-files
-                 '((:path ("/home/mahmooz/brain/notes/")
-                    :regex ".*\\.org"
-                    :format "org-mode")))))
-      (compile-all-latex-previews rmr)
-      (generate-index rmr)
-      (cltpt/roam:convert-all
-       rmr
-       (cltpt/base:text-format-by-name "html")
-       "%(identity cl-user::*blog-dir*)%(cl-user::title-to-filename title).html")
+  #(getf cl-user::*my-metadata* :other-preamble-contents)"))
+      (compile-all-latex-previews *rmr*)
+      (generate-index *rmr*)
+      ;; (cltpt/roam:convert-all
+      ;;  *rmr*
+      ;;  (cltpt/base:text-format-by-name "html")
+      ;;  "%(identity cl-user::*blog-dir*)%(cl-user::title-to-filename title).html")
       (mapc
        (lambda (item)
          (uiop:copy-file (uiop:merge-pathnames* *template-dir* item)
                          (uiop:merge-pathnames* (truename "~/work/blog/")
                                                 item)))
        (list "head.html" "preamble.html" "search.html"))
-      (cltpt/base:ensure-directory *blog-static-dir*)
+      (cltpt/file-utils:ensure-directory *blog-static-dir*)
       (mapc
        (lambda (item)
          (uiop:copy-file (uiop:merge-pathnames*
@@ -104,8 +133,8 @@
   (when (and filepath (uiop:probe-file* filepath))
     (uiop:copy-file
      filepath
-     (cltpt/base:change-dir filepath *blog-dir*))
-    (cltpt/base:file-basename filepath)))
+     (cltpt/file-utils:change-dir filepath *blog-dir*))
+    (cltpt/file-utils:file-basename filepath)))
 
 ;; find "entries", files tagged with 'entry', as in 'blog entry'
 (defun entry-nodes (rmr)
@@ -131,7 +160,6 @@
 </div>"
                      (getf entry :id)
                      (when (getf entry :id)
-                       (format t "here ~A~%" (export-static-file (getf entry :image)))
                        (if (uiop:probe-file* (getf entry :image))
                            (export-static-file (getf entry :image))
                            (format t "collage image ~A doesnt exist~%"
@@ -158,18 +186,15 @@
             (loop for entry in entries
                   collect (list :title (cltpt/roam:node-title entry)
                                 :id (cltpt/roam:node-id entry)
-                                :image (cdr (assoc "image" (cltpt/base:text-object-property (cltpt/roam:node-text-obj entry) :keywords-alist) :test 'equal)))))))
-    (with-open-file (f (uiop:parse-unix-namestring index-file)
-                       :direction :output
-                       :if-exists :supersede
-                       :if-does-not-exist :create)
-      (write-sequence
-       (cltpt/base::convert-text
-        (cltpt/base:text-format-by-name "org-mode")
-        (cltpt/base:text-format-by-name "html")
-        (format nil
-                "~A~%~A~%~A"
-                "#+begin_export html"
-                entries-html
-                "#+end_export"))
-       f))))
+                                :image (cltpt/org-mode::text-object-org-keyword-value (cltpt/roam:node-text-obj entry) "image")
+                                )))))
+    (cltpt/file-utils:write-file
+     index-file
+     (cltpt/base::convert-text
+      (cltpt/base:text-format-by-name "org-mode")
+      (cltpt/base:text-format-by-name "html")
+      (format nil
+              "~A~%~A~%~A"
+              "#+begin_export html"
+              entries-html
+              "#+end_export")))))
