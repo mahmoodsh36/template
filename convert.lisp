@@ -107,10 +107,10 @@
   #(getf cl-user::*my-metadata* :other-preamble-contents)"))
       (compile-all-latex-previews *rmr*)
       (generate-index *rmr*)
-      ;; (cltpt/roam:convert-all
-      ;;  *rmr*
-      ;;  (cltpt/base:text-format-by-name "html")
-      ;;  "%(identity cl-user::*blog-dir*)%(cl-user::title-to-filename title).html")
+      (cltpt/roam:convert-all
+       *rmr*
+       (cltpt/base:text-format-by-name "html")
+       "%(identity cl-user::*blog-dir*)%(cl-user::title-to-filename title).html")
       (mapc
        (lambda (item)
          (uiop:copy-file (uiop:merge-pathnames* *template-dir* item)
