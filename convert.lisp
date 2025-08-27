@@ -48,7 +48,7 @@
 (defvar *main-files*
   '("/home/mahmooz/brain/notes/1678745440.org"))
 (defvar *filepath-format*
-  "%(cl-user::title-to-filename title).html")
+  "%(cl-user::title-to-filename root-title).html")
 
 (defun from-brain (filepath)
   (cltpt/file-utils:join-paths "/home/mahmooz/brain/" filepath))
