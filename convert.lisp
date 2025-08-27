@@ -221,26 +221,37 @@
               entries-html
               "#+end_export")))))
 
-(defun find-linked-files (rmr node)
+(defun find-linked-files (rmr root)
   "helper function to find all linked files from a node."
-  (let ((text-obj (cltpt/roam:node-text-obj node))
-        (linked-files))
+  (let ((linked-files)
+        (nodes-left (list root)))
     (loop
-      for link-obj
-        in (cltpt/base:find-children-recursively
-            text-obj
-            (lambda (child)
-              (cltpt/base:text-object-property child :dest)))
-      do (let* ((link (cltpt/roam:resolve-link
-                       rmr
-                       node
-                       link-obj
-                       (if (cltpt/base:text-object-property link-obj :type)
-                           (intern (cltpt/base:text-object-property link-obj :type))
-                           'cltpt/roam::id)
-                       (cltpt/base:text-object-property link-obj :dest)))
-                (linked-file (cltpt/roam:node-file (cltpt/roam:link-dest-node link))))
-           (push linked-file linked-files)))
+      while nodes-left
+      for node = (pop nodes-left)
+      for text-obj = (cltpt/roam:node-text-obj node)
+      do (loop
+           for link-obj
+             in (cltpt/base:find-children-recursively
+                 text-obj
+                 (lambda (child)
+                   (cltpt/base:text-object-property child :dest)))
+           do (let* ((link (cltpt/roam:resolve-link
+                            rmr
+                            node
+                            link-obj
+                            (if (cltpt/base:text-object-property link-obj :type)
+                                (intern (cltpt/base:text-object-property link-obj :type))
+                                'cltpt/roam::id)
+                            (cltpt/base:text-object-property link-obj :dest)))
+                     (linked-file
+                       (when link
+                         (cltpt/roam:node-file (cltpt/roam:link-dest-node link)))))
+                (when linked-file
+                  (unless (member linked-file
+                                  (cons (cltpt/roam:node-file node) linked-files)
+                                  :test 'string=)
+                    (push linked-file linked-files)
+                    (push (cltpt/roam:link-dest-node link) nodes-left))))))
     linked-files))
 
 (defun encode-list-of-plists-to-json (list-of-plists)
