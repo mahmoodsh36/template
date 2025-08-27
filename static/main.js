@@ -25,16 +25,16 @@ window.onload = function(e) {
   // make all "math buttons" clickable
   document.querySelectorAll(".fancy-button").forEach(elm => handleMathButton(elm));
   // fetch the search data
-  // fetch("search.json").then(response => response.json()).then(json => {
-  //   for (let entry of json) {
-  //     let entryText = entry.id || entry.title;
-  //     if (entryText !== undefined && entryText !== null) {
-  //       data.push(entry);
-  //     }
-  //   }
-  //   search('');
-  // });
-  // document.querySelectorAll('svg').forEach(entry => randomizeSvgIds(entry)); // fix some rendering issues caused by conflicting id's
+  fetch("search.json").then(response => response.json()).then(json => {
+    for (let entry of json) {
+      let entryText = entry.id || entry.title;
+      if (entryText !== undefined && entryText !== null) {
+        data.push(entry);
+      }
+    }
+    search('');
+  });
+  document.querySelectorAll('svg').forEach(entry => randomizeSvgIds(entry)); // fix some rendering issues caused by conflicting id's
 
   // sometimes org inserts redundant <br>'s that cause annoying visual breaks, gets rid of those
   // function removeTrailingBr(element) {

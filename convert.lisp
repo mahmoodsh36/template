@@ -1,3 +1,5 @@
+(asdf:load-system :cl-json)
+
 ;; this is a hack to gather all latex previews and compile them all at once
 ;; before exporting. this is to speed things up. one latex conversion commands
 ;; is faster than running it once for every file independently.
@@ -43,6 +45,10 @@
 (defvar *template-dir* (truename "~/work/template/"))
 (defvar *template-static-dir* (truename "~/work/template/static/"))
 (defvar *rmr*)
+(defvar *main-files*
+  '("/home/mahmooz/brain/notes/1678745440.org"))
+(defvar *filepath-format*
+  "%(cl-user::title-to-filename title).html")
 
 (defun from-brain (filepath)
   (cltpt/file-utils:join-paths "/home/mahmooz/brain/" filepath))
@@ -74,7 +80,7 @@
 (defun generate ()
   (cltpt/file-utils:ensure-directory *blog-dir*)
   (setf cltpt/org-mode::*org-enable-macros* t)
-  (setf cltpt:*debug* 1)
+  (setf cltpt:*debug* nil)
   (cltpt/zoo::init)
   (setf *rmr*
         (cltpt/roam:from-files
@@ -82,7 +88,15 @@
             :regex ".*\\.org"
             :format "org-mode"))))
   (uiop:with-current-directory (*blog-dir*)
-    (let* ((other-head-contents
+    (let* ((files-to-convert
+             (loop for main-file in *main-files*
+                   for node = (find main-file
+                                    (cltpt/roam:roamer-nodes *rmr*)
+                                    :key (lambda (node)
+                                           (cltpt/roam:node-file node))
+                                    :test 'string=)
+                   append (cons main-file (find-linked-files *rmr* node))))
+           (other-head-contents
              (uiop:read-file-string
               (uiop:merge-pathnames* *template-dir* "head.html")))
            (other-preamble-contents
@@ -104,13 +118,21 @@
   #(getf cl-user::*my-metadata* :other-head-contents)
 </head>
 <body>
-  #(getf cl-user::*my-metadata* :other-preamble-contents)"))
+  #(getf cl-user::*my-metadata* :other-preamble-contents)")
+           )
       (compile-all-latex-previews *rmr*)
       (generate-index *rmr*)
       (cltpt/roam:convert-all
        *rmr*
        (cltpt/base:text-format-by-name "html")
-       "%(identity cl-user::*blog-dir*)%(cl-user::title-to-filename title).html")
+       *filepath-format*
+       (lambda (filepath)
+         (member filepath files-to-convert :test 'string=)))
+      (export-metadata-to-json
+       *rmr*
+       "search.json"
+       (lambda (filepath)
+         (member filepath files-to-convert :test 'string=)))
       (mapc
        (lambda (item)
          (uiop:copy-file (uiop:merge-pathnames* *template-dir* item)
@@ -198,3 +220,48 @@
               "#+begin_export html"
               entries-html
               "#+end_export")))))
+
+(defun find-linked-files (rmr node)
+  "helper function to find all linked files from a node."
+  (let ((text-obj (cltpt/roam:node-text-obj node))
+        (linked-files))
+    (loop
+      for link-obj
+        in (cltpt/base:find-children-recursively
+            text-obj
+            (lambda (child)
+              (cltpt/base:text-object-property child :dest)))
+      do (let* ((link (cltpt/roam:resolve-link
+                       rmr
+                       node
+                       link-obj
+                       (if (cltpt/base:text-object-property link-obj :type)
+                           (intern (cltpt/base:text-object-property link-obj :type))
+                           'cltpt/roam::id)
+                       (cltpt/base:text-object-property link-obj :dest)))
+                (linked-file (cltpt/roam:node-file (cltpt/roam:link-dest-node link))))
+           (push linked-file linked-files)))
+    linked-files))
+
+(defun encode-list-of-plists-to-json (list-of-plists)
+  "encodes a list of plists to a JSON string using cl-json's explicit encoder."
+  (cl-json:with-explicit-encoder
+    (cl-json:encode-json-to-string
+      `(:array ,@(loop for plist in list-of-plists
+                       collect `(:plist ,@plist))))))
+
+(defun export-metadata-to-json (rmr output-file file-predicate)
+  (let* ((metadata
+           (loop for node in (cltpt/roam:roamer-nodes rmr)
+                 when (funcall file-predicate (cltpt/roam:node-file node))
+                 collect (list
+                          :id (cltpt/roam:node-id node)
+                          :title (cltpt/roam:node-title node)
+                          :filepath (cltpt/roam:node-info-format-str node *filepath-format*)
+                          :description (cltpt/roam:node-desc node)))))
+    (with-open-file (stream output-file
+                            :direction :output
+                            :if-exists :supersede
+                            :if-does-not-exist :create)
+      (write-string (encode-list-of-plists-to-json metadata)
+                    stream))))
