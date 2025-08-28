@@ -172,15 +172,7 @@
        (lambda (filepath)
          (if full-export
              t
-             (member filepath files-to-convert :test 'string=))))
-      ;; lol we dont need to copy these
-      ;; (mapc
-      ;;  (lambda (item)
-      ;;    (uiop:copy-file (uiop:merge-pathnames* *template-dir* item)
-      ;;                    (uiop:merge-pathnames* (truename "~/work/blog/")
-      ;;                                           item)))
-      ;;  (list "head.html" "preamble.html" "search.html"))
-      )))
+             (member filepath files-to-convert :test 'string=)))))))
 
 ;; should place the static file in the dir and return the href to it
 (defun export-static-file (filepath)
