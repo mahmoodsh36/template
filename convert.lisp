@@ -53,6 +53,9 @@
     "/home/mahmooz/brain/notes/1723812143.2079227.org" ;; theory of computation
     "/home/mahmooz/brain/notes/1712601655.org" ;; programming
     "/home/mahmooz/brain/notes/1725811841.8613749.org" ;; media
+    "/home/mahmooz/brain/notes/1725958715.1511376.org" ;; formal logic
+    "/home/mahmooz/brain/notes/1709021041.org" ;; calculus
+    "/home/mahmooz/brain/notes/1677361099.org" ;; machine learning
     ))
 (defvar *filepath-format*
   "%(cl-user::title-to-filename root-title).html")
