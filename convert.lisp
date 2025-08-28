@@ -89,11 +89,11 @@
   (setf cltpt:*debug* nil)
   (cltpt/zoo::init)
   ;; generation with "restrictions" to the "main files/entries"
-  ;; (let ((rmr (cltpt/roam:from-files
-  ;;        '((:path ("/home/mahmooz/brain/notes/")
-  ;;           :regex ".*\\.org"
-  ;;           :format "org-mode")))))
-  ;;   (generate-for-roamer-to-dir rmr *blog-dir*))
+  (let ((rmr (cltpt/roam:from-files
+         '((:path ("/home/mahmooz/brain/notes/")
+            :regex ".*\\.org"
+            :format "org-mode")))))
+    (generate-for-roamer-to-dir rmr *blog-dir*))
   ;; convert everything for local browsing
   (let ((rmr (cltpt/roam:from-files
          '((:path ("/home/mahmooz/brain/notes/")
