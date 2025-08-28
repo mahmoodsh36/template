@@ -164,13 +164,15 @@
        *filepath-format*
        (lambda (filepath)
          (if full-export
-             (member filepath files-to-convert :test 'string=)
-             t)))
+             t
+             (member filepath files-to-convert :test 'string=))))
       (export-metadata-to-json
        rmr
        "search.json"
        (lambda (filepath)
-         (member filepath files-to-convert :test 'string=)))
+         (if full-export
+             t
+             (member filepath files-to-convert :test 'string=))))
       ;; lol we dont need to copy these
       ;; (mapc
       ;;  (lambda (item)
