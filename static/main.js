@@ -316,7 +316,8 @@ function fixFancyBlocks() {
 
     // fancy-before
     before.className = 'fancy-before';
-    before.innerHTML = fancyBlock.getAttribute('data-before');
+    // before.innerHTML = fancyBlock.getAttribute('data-before');
+    before.innerHTML = fancyBlock.getAttribute('data-type');
 
     // fancy-after
     let after = document.createElement('div');
