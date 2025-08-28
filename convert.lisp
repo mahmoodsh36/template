@@ -89,11 +89,11 @@
   (setf cltpt:*debug* nil)
   (cltpt/zoo::init)
   ;; generation with "restrictions" to the "main files/entries"
-  (let ((rmr (cltpt/roam:from-files
-         '((:path ("/home/mahmooz/brain/notes/")
-            :regex ".*\\.org"
-            :format "org-mode")))))
-    (generate-for-roamer-to-dir rmr *blog-dir*))
+  ;; (let ((rmr (cltpt/roam:from-files
+  ;;        '((:path ("/home/mahmooz/brain/notes/")
+  ;;           :regex ".*\\.org"
+  ;;           :format "org-mode")))))
+  ;;   (generate-for-roamer-to-dir rmr *blog-dir*))
   ;; convert everything for local browsing
   (let ((rmr (cltpt/roam:from-files
          '((:path ("/home/mahmooz/brain/notes/")
@@ -113,7 +113,7 @@
                                            (cltpt/roam:node-file node))
                                     :test 'string=)
                    append (cons main-file (find-linked-files rmr node))))
-           (dest-dir-static (uiop:merge-pathnames* dest-dir "static"))
+           (dest-dir-static (cltpt/file-utils:join-paths dest-dir "static"))
            (cltpt/latex:*latex-preamble*
              "\\documentclass[11pt]{article}
 \\usepackage{\\string~/.emacs.d/common}")
@@ -143,16 +143,22 @@
 </head>
 <body>
   #(getf cl-user::*my-metadata* :other-preamble-contents)"))
-      (compile-all-latex-previews rmr)
       (generate-index rmr dest-dir)
       (generate-search rmr dest-dir)
-      (cltpt/file-utils:ensure-directory dest-dir-static)
+      (format t "hereee ~A~%" dest-dir-static)
+      ;; apparently it doesnt work unless theres a '/' at the end.
+      (cltpt/file-utils:ensure-directory (concatenate 'string dest-dir-static "/"))
       ;; copy files from static dir of the template dir (js, css, etc)
       (mapc
        (lambda (item)
-         (uiop:copy-file (uiop:merge-pathnames* *template-static-dir* item)
-                         (uiop:merge-pathnames* dest-dir-static item)))
+         (setf item (uiop:unix-namestring item))
+         (uiop:copy-file
+          item
+          (cltpt/file-utils:join-paths
+           dest-dir-static
+           (cltpt/file-utils:file-basename item))))
        (uiop:directory-files *template-static-dir*))
+      (compile-all-latex-previews rmr)
       (cltpt/roam:convert-all
        rmr
        (cltpt/base:text-format-by-name "html")
