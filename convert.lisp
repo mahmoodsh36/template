@@ -103,6 +103,12 @@
                                            (cltpt/roam:node-file node))
                                     :test 'string=)
                    append (cons main-file (find-linked-files *rmr* node))))
+           (cltpt/latex:*latex-preamble*
+            "\\documentclass[11pt]{article}
+\\usepackage{\\string~/.emacs.d/common}")
+           (cltpt/latex:*latex-preview-preamble*
+            "\\documentclass[11pt]{article}
+\\usepackage{\\string~/.emacs.d/common}")
            (other-head-contents
              (uiop:read-file-string
               (uiop:merge-pathnames* *template-dir* "head.html")))
