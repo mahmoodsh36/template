@@ -99,7 +99,7 @@
          '((:path ("/home/mahmooz/brain/notes/")
             :regex ".*\\.org"
             :format "org-mode")))))
-    (generate-for-roamer-to-dir rmr "/home/mahmooz/work/local/")))
+    (generate-for-roamer-to-dir rmr "/home/mahmooz/work/local/" t)))
 
 ;; named it "to-dir", but some functionality in this file depends on CWD
 (defun generate-for-roamer-to-dir (rmr dest-dir &optional (full-export))
@@ -145,7 +145,6 @@
   #(getf cl-user::*my-metadata* :other-preamble-contents)"))
       (generate-index rmr dest-dir)
       (generate-search rmr dest-dir)
-      (format t "hereee ~A~%" dest-dir-static)
       ;; apparently it doesnt work unless theres a '/' at the end.
       (cltpt/file-utils:ensure-directory (concatenate 'string dest-dir-static "/"))
       ;; copy files from static dir of the template dir (js, css, etc)
