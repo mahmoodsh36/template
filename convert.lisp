@@ -10,7 +10,7 @@
         ;; and latex refuses to compile all previews at once and exits. so we
         ;; break them into batches, which make it more likely that more latex
         ;; previews will be rendered overall.
-        (snippets-at-once 2500))
+        (snippets-at-once 1000))
     (loop for node in (cltpt/roam:roamer-nodes rmr)
           for this-tree = (cltpt/roam:node-text-obj node)
           do (cltpt/base:map-text-object
@@ -19,7 +19,7 @@
                 (when (or (typep obj 'cltpt/latex:inline-math)
                           (typep obj 'cltpt/latex:display-math)
                           (typep obj 'cltpt/latex:latex-env))
-                  (push (cltpt/base:text-object-text obj) all-snippets)))))
+                  (push (cltpt/base:text-object-contents obj) all-snippets)))))
     (loop for i from 0 to (length all-snippets) by snippets-at-once
           do (cltpt/latex:generate-svgs-for-latex
               (subseq all-snippets
