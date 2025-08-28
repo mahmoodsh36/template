@@ -41,7 +41,6 @@
 
 (defvar *my-metadata* nil)
 (defvar *blog-dir* "/home/mahmooz/work/blog/")
-(defvar *blog-static-dir* "/home/mahmooz/work/blog/static/")
 (defvar *template-dir* (truename "~/work/template/"))
 (defvar *template-static-dir* (truename "~/work/template/static/"))
 (defvar *main-files*
@@ -114,6 +113,7 @@
                                            (cltpt/roam:node-file node))
                                     :test 'string=)
                    append (cons main-file (find-linked-files rmr node))))
+           (dest-dir-static (uiop:merge-pathnames* dest-dir "static"))
            (cltpt/latex:*latex-preamble*
              "\\documentclass[11pt]{article}
 \\usepackage{\\string~/.emacs.d/common}")
@@ -145,6 +145,14 @@
   #(getf cl-user::*my-metadata* :other-preamble-contents)"))
       (compile-all-latex-previews rmr)
       (generate-index rmr dest-dir)
+      (generate-search rmr dest-dir)
+      (cltpt/file-utils:ensure-directory dest-dir-static)
+      ;; copy files from static dir of the template dir (js, css, etc)
+      (mapc
+       (lambda (item)
+         (uiop:copy-file (uiop:merge-pathnames* *template-static-dir* item)
+                         (uiop:merge-pathnames* dest-dir-static item)))
+       (uiop:directory-files *template-static-dir*))
       (cltpt/roam:convert-all
        rmr
        (cltpt/base:text-format-by-name "html")
@@ -158,22 +166,14 @@
        "search.json"
        (lambda (filepath)
          (member filepath files-to-convert :test 'string=)))
-      (mapc
-       (lambda (item)
-         (uiop:copy-file (uiop:merge-pathnames* *template-dir* item)
-                         (uiop:merge-pathnames* (truename "~/work/blog/")
-                                                item)))
-       (list "head.html" "preamble.html" "search.html"))
-      (cltpt/file-utils:ensure-directory *blog-static-dir*)
-      (mapc
-       (lambda (item)
-         (uiop:copy-file (uiop:merge-pathnames*
-                          (truename *template-static-dir*)
-                          item)
-                         (uiop:merge-pathnames*
-                          (truename *blog-static-dir*)
-                          item)))
-       (uiop:directory-files *template-static-dir*)))))
+      ;; lol we dont need to copy these
+      ;; (mapc
+      ;;  (lambda (item)
+      ;;    (uiop:copy-file (uiop:merge-pathnames* *template-dir* item)
+      ;;                    (uiop:merge-pathnames* (truename "~/work/blog/")
+      ;;                                           item)))
+      ;;  (list "head.html" "preamble.html" "search.html"))
+      )))
 
 ;; should place the static file in the dir and return the href to it
 (defun export-static-file (filepath)
@@ -220,14 +220,6 @@
 (defun generate-index (rmr dest-dir)
   (let* ((entries (entry-nodes rmr))
          (index-file (uiop:merge-pathnames* dest-dir "index.html"))
-         ;; (entries-html
-         ;;   (loop for entry in entries
-         ;;         collect (format
-         ;;                  nil
-         ;;                  "title: ~A~%"
-         ;;                  (cltpt/roam:node-title entry))
-         ;;           into strings
-         ;;         finally (return (apply 'concatenate 'string strings))))
          (entries-html
            (generate-collage-html
             (loop for entry in entries
@@ -244,6 +236,23 @@
               "~A~%~A~%~A"
               "#+begin_export html"
               entries-html
+              "#+end_export")))))
+
+;; generate search.html
+(defun generate-search (rmr dest-dir)
+  (let* ((index-file (uiop:merge-pathnames* dest-dir "search.html"))
+         (base-contents
+           (uiop:read-file-string
+            (uiop:merge-pathnames* *template-dir* "search.html"))))
+    (cltpt/file-utils:write-file
+     index-file
+     (cltpt/base::convert-text
+      (cltpt/base:text-format-by-name "org-mode")
+      (cltpt/base:text-format-by-name "html")
+      (format nil
+              "~A~%~A~%~A"
+              "#+begin_export html"
+              base-contents
               "#+end_export")))))
 
 (defun find-linked-files (rmr root)

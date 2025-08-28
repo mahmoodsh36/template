@@ -253,11 +253,13 @@ function search(val) {
             let topRow = document.createElement('div');
             topRow.className = 'separated-row';
 
+            // undone for now
             // insert the info
-            if (entry['matched-pattern']['shared-name'] === 'blk-org-file-rule')
-              mytype = 'document';
-            if (docElm !== null)
-              mytype = 'reference';
+            // if (entry['matched-pattern']['shared-name'] === 'blk-org-file-rule')
+            //   mytype = 'document';
+            // if (docElm !== null)
+            //   mytype = 'reference';
+            mytype = 'document';
             if (mytype)
               topRow.appendChild(document.createTextNode('type: ' + mytype));
             else
