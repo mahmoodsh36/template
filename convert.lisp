@@ -44,7 +44,6 @@
 (defvar *blog-static-dir* "/home/mahmooz/work/blog/static/")
 (defvar *template-dir* (truename "~/work/template/"))
 (defvar *template-static-dir* (truename "~/work/template/static/"))
-(defvar *rmr*)
 (defvar *main-files*
   '("/home/mahmooz/brain/notes/1678745440.org" ;; graph theory
     "/home/mahmooz/brain/notes/1656514223.org" ;; blog
@@ -86,31 +85,40 @@
    (lambda ()
      (get-latex-preview-svg-by-blk-id blk-id))))
 
-
 (defun generate ()
-  (cltpt/file-utils:ensure-directory *blog-dir*)
   (setf cltpt/org-mode::*org-enable-macros* t)
   (setf cltpt:*debug* nil)
   (cltpt/zoo::init)
-  (setf *rmr*
-        (cltpt/roam:from-files
+  ;; generation with "restrictions" to the "main files/entries"
+  (let ((rmr (cltpt/roam:from-files
          '((:path ("/home/mahmooz/brain/notes/")
             :regex ".*\\.org"
-            :format "org-mode"))))
-  (uiop:with-current-directory (*blog-dir*)
+            :format "org-mode")))))
+    (generate-for-roamer-to-dir rmr *blog-dir*))
+  ;; convert everything for local browsing
+  (let ((rmr (cltpt/roam:from-files
+         '((:path ("/home/mahmooz/brain/notes/")
+            :regex ".*\\.org"
+            :format "org-mode")))))
+    (generate-for-roamer-to-dir rmr "/home/mahmooz/work/local/")))
+
+;; named it "to-dir", but some functionality in this file depends on CWD
+(defun generate-for-roamer-to-dir (rmr dest-dir &optional (full-export))
+  (cltpt/file-utils:ensure-directory dest-dir)
+  (uiop:with-current-directory (dest-dir)
     (let* ((files-to-convert
              (loop for main-file in *main-files*
                    for node = (find main-file
-                                    (cltpt/roam:roamer-nodes *rmr*)
+                                    (cltpt/roam:roamer-nodes rmr)
                                     :key (lambda (node)
                                            (cltpt/roam:node-file node))
                                     :test 'string=)
-                   append (cons main-file (find-linked-files *rmr* node))))
+                   append (cons main-file (find-linked-files rmr node))))
            (cltpt/latex:*latex-preamble*
-            "\\documentclass[11pt]{article}
+             "\\documentclass[11pt]{article}
 \\usepackage{\\string~/.emacs.d/common}")
            (cltpt/latex:*latex-preview-preamble*
-            "\\documentclass[11pt]{article}
+             "\\documentclass[11pt]{article}
 \\usepackage{\\string~/.emacs.d/common}")
            (other-head-contents
              (uiop:read-file-string
@@ -135,16 +143,18 @@
 </head>
 <body>
   #(getf cl-user::*my-metadata* :other-preamble-contents)"))
-      (compile-all-latex-previews *rmr*)
-      (generate-index *rmr*)
+      (compile-all-latex-previews rmr)
+      (generate-index rmr dest-dir)
       (cltpt/roam:convert-all
-       *rmr*
+       rmr
        (cltpt/base:text-format-by-name "html")
        *filepath-format*
        (lambda (filepath)
-         (member filepath files-to-convert :test 'string=)))
+         (if full-export
+             (member filepath files-to-convert :test 'string=)
+             t)))
       (export-metadata-to-json
-       *rmr*
+       rmr
        "search.json"
        (lambda (filepath)
          (member filepath files-to-convert :test 'string=)))
@@ -170,7 +180,7 @@
   (when (and filepath (uiop:probe-file* filepath))
     (uiop:copy-file
      filepath
-     (cltpt/file-utils:change-dir filepath *blog-dir*))
+     (cltpt/file-utils:change-dir filepath (uiop/os:getcwd)))
     (cltpt/file-utils:file-basename filepath)))
 
 ;; find "entries", files tagged with 'entry', as in 'blog entry'
@@ -207,9 +217,9 @@
     (write-sequence "</div>" out)
     out))
 
-(defun generate-index (rmr)
+(defun generate-index (rmr dest-dir)
   (let* ((entries (entry-nodes rmr))
-         (index-file (uiop:merge-pathnames* *blog-dir* "index.html"))
+         (index-file (uiop:merge-pathnames* dest-dir "index.html"))
          ;; (entries-html
          ;;   (loop for entry in entries
          ;;         collect (format
