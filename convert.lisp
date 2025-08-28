@@ -46,7 +46,14 @@
 (defvar *template-static-dir* (truename "~/work/template/static/"))
 (defvar *rmr*)
 (defvar *main-files*
-  '("/home/mahmooz/brain/notes/1678745440.org"))
+  '("/home/mahmooz/brain/notes/1678745440.org" ;; graph theory
+    "/home/mahmooz/brain/notes/1656514223.org" ;; blog
+    "/home/mahmooz/brain/notes/1729677442.6352403.org" ;; circuit complexity
+    "/home/mahmooz/brain/notes/1709969723.org" ;; computability theory
+    "/home/mahmooz/brain/notes/1723812143.2079227.org" ;; theory of computation
+    "/home/mahmooz/brain/notes/1712601655.org" ;; programming
+    "/home/mahmooz/brain/notes/1725811841.8613749.org" ;; media
+    ))
 (defvar *filepath-format*
   "%(cl-user::title-to-filename root-title).html")
 
@@ -118,8 +125,7 @@
   #(getf cl-user::*my-metadata* :other-head-contents)
 </head>
 <body>
-  #(getf cl-user::*my-metadata* :other-preamble-contents)")
-           )
+  #(getf cl-user::*my-metadata* :other-preamble-contents)"))
       (compile-all-latex-previews *rmr*)
       (generate-index *rmr*)
       (cltpt/roam:convert-all
