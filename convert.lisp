@@ -70,15 +70,7 @@
   (let* ((dest-node (cltpt/roam:get-node-by-id (cltpt/roam:current-roamer) blk-id)))
     (when dest-node
       (let* ((text-obj (cltpt/roam:node-text-obj dest-node))
-             (match (cltpt/base:text-object-property text-obj :combinator-match))
-             (latex-env-match
-               (or (car (cltpt/combinator:find-submatch
-                         match
-                         'cltpt/org-mode::latex-env-1))
-                   (car (cltpt/combinator:find-submatch
-                         match
-                         'cltpt/org-mode::latex-env))))
-             (latex-env-text (getf latex-env-match :match)))
+             (latex-env-text (cltpt/base:text-object-contents text-obj)))
         (cdar (cltpt/latex:generate-previews-for-latex (list latex-env-text)))))))
 
 ;; this is for postponing the execution to after roamer is done.
@@ -168,7 +160,8 @@
            dest-dir-static
            (cltpt/file-utils:file-basename item))))
        (uiop:directory-files *template-static-dir*))
-      (compile-all-latex-previews rmr file-predicate)
+      ;; (compile-all-latex-previews rmr file-predicate)
+      (compile-all-latex-previews rmr (lambda (x) t))
       (cltpt/roam:convert-all
        rmr
        (cltpt/base:text-format-by-name "html")
