@@ -15,15 +15,15 @@
           for this-tree = (cltpt/roam:node-text-obj node)
           for node-file = (cltpt/roam:node-file node)
           when (funcall file-predicate node-file)
-          do (cltpt/base:map-text-object
-              this-tree
-              (lambda (obj)
-                (when (or (typep obj 'cltpt/latex:inline-math)
-                          (typep obj 'cltpt/latex:display-math)
-                          (typep obj 'cltpt/latex:latex-env))
-                  (pushnew (cltpt/base:text-object-contents obj)
-                           all-snippets
-                           :test 'string=)))))
+            do (cltpt/base:map-text-object
+                this-tree
+                (lambda (obj)
+                  (when (or (typep obj 'cltpt/latex:inline-math)
+                            (typep obj 'cltpt/latex:display-math)
+                            (typep obj 'cltpt/latex:latex-env))
+                    (pushnew (cltpt/base:text-object-contents obj)
+                             all-snippets
+                             :test 'string=)))))
     (loop for i from 0 to (length all-snippets) by snippets-at-once
           do (cltpt/latex:generate-previews-for-latex
               (subseq all-snippets
@@ -93,23 +93,34 @@
   (setf cltpt:*debug* nil)
   (cltpt/zoo::init)
   ;; generation with "restrictions" to the "main files/entries"
-  (let ((rmr (cltpt/roam:from-files
-         '((:path ("/home/mahmooz/brain/notes/")
-            :regex ".*\\.org"
-            :format "org-mode")))))
-    (generate-for-roamer-to-dir rmr *blog-dir*))
+  (let ((rmr-files '((:path ("/home/mahmooz/brain/notes/")
+                      :regex ".*\\.org"
+                      :format "org-mode"))))
+    (generate-from-files-to-dir rmr-files *blog-dir*))
   ;; convert everything for local browsing
-  (let ((rmr (cltpt/roam:from-files
-         '((:path ("/home/mahmooz/brain/notes/")
-            :regex ".*\\.org"
-            :format "org-mode")))))
-    (generate-for-roamer-to-dir rmr "/home/mahmooz/work/local/" t)))
+  (let ((rmr-files '((:path ("/home/mahmooz/brain/notes/")
+                      :regex ".*\\.org"
+                      :format "org-mode"))))
+    (generate-from-files-to-dir rmr-files "/home/mahmooz/work/local/" t)))
 
 ;; named it "to-dir", but some functionality in this file depends on CWD
-(defun generate-for-roamer-to-dir (rmr dest-dir &optional (full-export))
+(defun generate-from-files-to-dir (rmr-files dest-dir &optional (full-export))
   (cltpt/file-utils:ensure-directory dest-dir)
   (uiop:with-current-directory (dest-dir)
-    (let* ((files-to-convert
+    (let* ((cltpt/html:*html-static-route* "/")
+           (cltpt/latex:*latex-preamble*
+             "\\documentclass[11pt]{article}
+\\usepackage{\\string~/.emacs.d/common}")
+           (cltpt/latex::*latex-preview-preamble*
+             "\\documentclass[11pt]{article}
+\\usepackage{\\string~/.emacs.d/common}")
+           (cltpt/html:*html-static-dir* dest-dir)
+           ;; (cltpt/latex:*latex-previews-cache-directory* "./")
+           (cltpt/latex:*latex-previews-cache-directory* "")
+           (cltpt/latex:*latex-compiler-key* :lualatex)
+           (cltpt/latex::*latex-preview-pipeline-key* :dvisvgm)
+           (rmr (cltpt/roam:from-files rmr-files))
+           (files-to-convert
              (loop for main-file in *main-files*
                    for node = (find main-file
                                     (cltpt/roam:roamer-nodes rmr)
@@ -118,23 +129,12 @@
                                     :test 'string=)
                    append (cons main-file (find-linked-files rmr node))))
            (dest-dir-static (cltpt/file-utils:join-paths dest-dir "static"))
-           (cltpt/latex:*latex-preamble*
-             "\\documentclass[11pt]{article}
-\\usepackage{\\string~/.emacs.d/common}")
-           (cltpt/latex:*latex-preview-preamble*
-             "\\documentclass[11pt]{article}
-\\usepackage{\\string~/.emacs.d/common}")
            (other-head-contents
              (uiop:read-file-string
               (uiop:merge-pathnames* *template-dir* "head.html")))
            (other-preamble-contents
              (uiop:read-file-string
               (uiop:merge-pathnames* *template-dir* "preamble.html")))
-           (cltpt/html:*html-static-route* "/")
-           (cltpt/html:*html-static-dir* dest-dir)
-           ;; (cltpt/latex:*latex-previews-cache-directory* "./")
-           (cltpt/latex:*latex-previews-cache-directory* "")
-           (cltpt/latex:*latex-compiler-key* :lualatex)
            (*my-metadata*
              (list :other-head-contents other-head-contents
                    :other-preamble-contents other-preamble-contents))
@@ -295,19 +295,19 @@
 (defun encode-list-of-plists-to-json (list-of-plists)
   "encodes a list of plists to a JSON string using cl-json's explicit encoder."
   (cl-json:with-explicit-encoder
-    (cl-json:encode-json-to-string
-      `(:array ,@(loop for plist in list-of-plists
-                       collect `(:plist ,@plist))))))
+      (cl-json:encode-json-to-string
+       `(:array ,@(loop for plist in list-of-plists
+                        collect `(:plist ,@plist))))))
 
 (defun export-metadata-to-json (rmr output-file file-predicate)
   (let* ((metadata
            (loop for node in (cltpt/roam:roamer-nodes rmr)
                  when (funcall file-predicate (cltpt/roam:node-file node))
-                 collect (list
-                          :id (cltpt/roam:node-id node)
-                          :title (cltpt/roam:node-title node)
-                          :filepath (cltpt/roam:node-info-format-str node *filepath-format*)
-                          :description (cltpt/roam:node-desc node)))))
+                   collect (list
+                            :id (cltpt/roam:node-id node)
+                            :title (cltpt/roam:node-title node)
+                            :filepath (cltpt/roam:node-info-format-str node *filepath-format*)
+                            :description (cltpt/roam:node-desc node)))))
     (with-open-file (stream output-file
                             :direction :output
                             :if-exists :supersede
