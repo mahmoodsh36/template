@@ -21,7 +21,9 @@
                 (when (or (typep obj 'cltpt/latex:inline-math)
                           (typep obj 'cltpt/latex:display-math)
                           (typep obj 'cltpt/latex:latex-env))
-                  (pushnew (cltpt/base:text-object-contents obj) all-snippets :test 'string=)))))
+                  (pushnew (cltpt/base:text-object-contents obj)
+                           all-snippets
+                           :test 'string=)))))
     (loop for i from 0 to (length all-snippets) by snippets-at-once
           do (cltpt/latex:generate-previews-for-latex
               (subseq all-snippets
