@@ -127,6 +127,7 @@
              (uiop:read-file-string
               (uiop:merge-pathnames* *template-dir* "preamble.html")))
            (cltpt/html:*html-static-route* "/")
+           (cltpt/html:*html-static-dir* dest-dir)
            ;; (cltpt/latex:*latex-previews-cache-directory* #P"./")
            (cltpt/latex:*latex-previews-cache-directory* #P"")
            (*my-metadata*
