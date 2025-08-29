@@ -3,7 +3,7 @@
 ;; this is a hack to gather all latex previews and compile them all at once
 ;; before exporting. this is to speed things up. one latex conversion commands
 ;; is faster than running it once for every file independently.
-(defun compile-all-latex-previews (rmr)
+(defun compile-all-latex-previews (rmr file-predicate)
   (let ((all-snippets)
         ;; snippets-at-once is how many snippets should be compiled at the same time.
         ;; one case in which this is helpful is when there are too many errors (>100)
@@ -13,6 +13,8 @@
         (snippets-at-once 1000))
     (loop for node in (cltpt/roam:roamer-nodes rmr)
           for this-tree = (cltpt/roam:node-text-obj node)
+          for node-file = (cltpt/roam:node-file node)
+          when (funcall file-predicate node-file)
           do (cltpt/base:map-text-object
               this-tree
               (lambda (obj)
@@ -21,7 +23,7 @@
                           (typep obj 'cltpt/latex:latex-env))
                   (push (cltpt/base:text-object-contents obj) all-snippets)))))
     (loop for i from 0 to (length all-snippets) by snippets-at-once
-          do (cltpt/latex:generate-svgs-for-latex
+          do (cltpt/latex:generate-previews-for-latex
               (subseq all-snippets
                       i
                       (min (+ i snippets-at-once)
@@ -75,7 +77,7 @@
                          match
                          'cltpt/org-mode::latex-env))))
              (latex-env-text (getf latex-env-match :match)))
-        (cdar (cltpt/latex:generate-svgs-for-latex (list latex-env-text)))))))
+        (cdar (cltpt/latex:generate-previews-for-latex (list latex-env-text)))))))
 
 ;; this is for postponing the execution to after roamer is done.
 (defun get-latex-preview-svg-by-blk-id-1 (blk-id)
@@ -128,12 +130,18 @@
               (uiop:merge-pathnames* *template-dir* "preamble.html")))
            (cltpt/html:*html-static-route* "/")
            (cltpt/html:*html-static-dir* dest-dir)
-           ;; (cltpt/latex:*latex-previews-cache-directory* #P"./")
-           (cltpt/latex:*latex-previews-cache-directory* #P"")
+           ;; (cltpt/latex:*latex-previews-cache-directory* "./")
+           (cltpt/latex:*latex-previews-cache-directory* "")
+           (cltpt/latex:*latex-compiler-key* :lualatex)
            (*my-metadata*
              (list :other-head-contents other-head-contents
                    :other-preamble-contents other-preamble-contents))
            (cltpt/html:*html-postamble* "</body></html>")
+           (file-predicate
+             (lambda (filepath)
+               (if full-export
+                   t
+                   (member filepath files-to-convert :test 'string=))))
            (cltpt/html:*html-preamble*
              "<!DOCTYPE html>
 <html>
@@ -158,22 +166,16 @@
            dest-dir-static
            (cltpt/file-utils:file-basename item))))
        (uiop:directory-files *template-static-dir*))
-      (compile-all-latex-previews rmr)
+      (compile-all-latex-previews rmr file-predicate)
       (cltpt/roam:convert-all
        rmr
        (cltpt/base:text-format-by-name "html")
        *filepath-format*
-       (lambda (filepath)
-         (if full-export
-             t
-             (member filepath files-to-convert :test 'string=))))
+       file-predicate)
       (export-metadata-to-json
        rmr
        "search.json"
-       (lambda (filepath)
-         (if full-export
-             t
-             (member filepath files-to-convert :test 'string=)))))))
+       file-predicate))))
 
 ;; should place the static file in the dir and return the href to it
 (defun export-static-file (filepath)
