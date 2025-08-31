@@ -49,7 +49,6 @@
 (defvar *template-static-dir* (truename "~/work/template/static/"))
 (defvar *main-files*
   '("/home/mahmooz/brain/notes/1678745440.org" ;; graph theory
-    "/home/mahmooz/brain/notes/1656514223.org" ;; blog
     "/home/mahmooz/brain/notes/1729677442.6352403.org" ;; circuit complexity
     "/home/mahmooz/brain/notes/1709969723.org" ;; computability theory
     "/home/mahmooz/brain/notes/1723812143.2079227.org" ;; theory of computation
@@ -57,8 +56,12 @@
     "/home/mahmooz/brain/notes/1725811841.8613749.org" ;; media
     "/home/mahmooz/brain/notes/1725958715.1511376.org" ;; formal logic
     "/home/mahmooz/brain/notes/1709021041.org" ;; calculus
+    "/home/mahmooz/brain/notes/1725810860.5115163.org" ;; databases
     "/home/mahmooz/brain/notes/1677361099.org" ;; machine learning
+    "/home/mahmooz/brain/notes/1709021027.org" ;; linear algebra
     ))
+(defvar *excluded-files*
+  )
 (defvar *filepath-format*
   "%(cl-user::title-to-filename root-title).html")
 
@@ -147,6 +150,7 @@
 <body>
   #(getf cl-user::*my-metadata* :other-preamble-contents)"))
       (generate-index rmr dest-dir)
+      (generate-blog rmr dest-dir)
       (generate-search rmr dest-dir)
       ;; apparently it doesnt work unless theres a '/' at the end.
       (cltpt/file-utils:ensure-dir-exists (concatenate 'string dest-dir-static "/"))
@@ -244,22 +248,92 @@
               entries-html
               "#+end_export")))))
 
-;; generate search.html
-(defun generate-search (rmr dest-dir)
-  (let* ((index-file (uiop:merge-pathnames* dest-dir "search.html"))
-         (base-contents
-           (uiop:read-file-string
-            (uiop:merge-pathnames* *template-dir* "search.html"))))
+;; takes html code, converts it to a page through org-mode->conversion, so that
+;; it behaves as if it was exported from an org file.
+(defun generate-page (rmr dest-dir html page-title)
+  (let* ((dest-file (uiop:merge-pathnames*
+                     dest-dir
+                     (format nil "~A.html" (title-to-filename page-title)))))
     (cltpt/file-utils:write-file
-     index-file
+     dest-file
      (cltpt/base::convert-text
       (cltpt/base:text-format-by-name "org-mode")
       (cltpt/base:text-format-by-name "html")
       (format nil
               "~A~%~A~%~A"
               "#+begin_export html"
-              base-contents
+              html
               "#+end_export")))))
+
+;; generate search.html
+(defun generate-search (rmr dest-dir)
+  (generate-page
+   rmr
+   dest-dir
+   (uiop:read-file-string
+    (uiop:merge-pathnames* *template-dir* "search.html"))
+   "search"))
+
+(defun node-date (node)
+  (let* ((text-obj (cltpt/roam:node-text-obj node))
+         (actual-date-str (cltpt/base:alist-get
+                           (cltpt/base:text-object-property
+                            text-obj
+                            :keywords-alist)
+                           "actual_date"))
+         (date-str
+           (or actual-date-str
+               (cltpt/base:text-object-property text-obj :date)))
+         (timestamp-match
+           (cltpt/combinator:match-rule
+            nil
+            cltpt/org-mode::*org-timestamp-rule*
+            date-str
+            0))
+         (date (cltpt/org-mode::org-timestamp-match-to-time
+                timestamp-match)))
+    date))
+
+;; generate blog.html
+(defun generate-blog (rmr dest-dir)
+  (let* ((nodes
+           (sort
+            (loop for node in (cltpt/roam:roamer-nodes rmr)
+                  for text-obj = (cltpt/roam:node-text-obj node)
+                  for val = (cltpt/base:alist-get
+                             (cltpt/base:text-object-property
+                              text-obj
+                              :keywords-alist)
+                             "export_section")
+                  when (and (equal val "blog")
+                            (node-date node))
+                    collect node)
+            'local-time:timestamp>
+            :key #'node-date))
+         (blog-html
+           (cltpt/base:concat
+            (loop for node in nodes
+                  for filepath = (cltpt/roam:node-file node)
+                  for title = (cltpt/roam:node-title node)
+                  for text-obj = (cltpt/roam:node-text-obj node)
+                  for date-str = (local-time:format-timestring
+                                  nil
+                                  (node-date node)
+                                  :format '(:short-weekday ", "
+                                            (:DAY 2) #\space
+                                            :SHORT-MONTH #\space
+                                            (:YEAR 4)))
+                  collect (format
+                           nil
+                           "<div class=\"list-item\">
+<a href=\"~A~A.html\">~A</a>
+<span>~A</span>
+</div>"
+                           cltpt/html:*html-static-route*
+                           (title-to-filename title)
+                           title
+                           date-str)))))
+    (generate-page rmr dest-dir blog-html "blog")))
 
 (defun find-linked-files (rmr root)
   "helper function to find all linked files from a node."
