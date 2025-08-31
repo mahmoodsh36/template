@@ -97,7 +97,7 @@
 
 ;; named it "to-dir", but some functionality in this file depends on CWD
 (defun generate-from-files-to-dir (rmr-files dest-dir &optional (full-export))
-  (cltpt/file-utils:ensure-directory dest-dir)
+  (cltpt/file-utils:ensure-dir-exists dest-dir)
   (uiop:with-current-directory (dest-dir)
     (let* ((cltpt/html:*html-static-route* "/")
            (cltpt/latex:*latex-preamble*
@@ -149,7 +149,7 @@
       (generate-index rmr dest-dir)
       (generate-search rmr dest-dir)
       ;; apparently it doesnt work unless theres a '/' at the end.
-      (cltpt/file-utils:ensure-directory (concatenate 'string dest-dir-static "/"))
+      (cltpt/file-utils:ensure-dir-exists (concatenate 'string dest-dir-static "/"))
       ;; copy files from static dir of the template dir (js, css, etc)
       (mapc
        (lambda (item)
