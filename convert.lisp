@@ -1,5 +1,7 @@
 (asdf:load-system :cl-json)
 
+;; the code here is unorganized and full of hacks.
+
 ;; this is a hack to gather all latex previews and compile them all at once
 ;; before exporting. this is to speed things up. one latex conversion commands
 ;; is faster than running it once for every file independently.
@@ -116,7 +118,11 @@
            (cltpt/latex::*latex-preview-pipeline-key* :dvisvgm)
            (rmr (cltpt/roam:from-files rmr-files))
            (files-to-convert
-             (loop for main-file in *main-files*
+             (loop for main-file in (cltpt/base:concat
+                                     (list *main-files*
+                                           (mapcar
+                                            'cltpt/roam:node-file
+                                            (blog-nodes rmr))))
                    for node = (find main-file
                                     (cltpt/roam:roamer-nodes rmr)
                                     :key (lambda (node)
@@ -152,6 +158,11 @@
       (generate-index rmr dest-dir)
       (generate-blog rmr dest-dir)
       (generate-search rmr dest-dir)
+      (generate-page
+       rmr
+       dest-dir
+       "im a cs student, this is my personal website, it may also serve as a journal or as a blog. im actually not really sure what it is yet."
+       "about")
       ;; apparently it doesnt work unless theres a '/' at the end.
       (cltpt/file-utils:ensure-dir-exists (concatenate 'string dest-dir-static "/"))
       ;; copy files from static dir of the template dir (js, css, etc)
@@ -294,22 +305,24 @@
                 timestamp-match)))
     date))
 
+(defun blog-nodes (rmr)
+  (sort
+   (loop for node in (cltpt/roam:roamer-nodes rmr)
+         for text-obj = (cltpt/roam:node-text-obj node)
+         for val = (cltpt/base:alist-get
+                    (cltpt/base:text-object-property
+                     text-obj
+                     :keywords-alist)
+                    "export_section")
+         when (and (equal val "blog")
+                   (node-date node))
+           collect node)
+   'local-time:timestamp>
+   :key #'node-date))
+
 ;; generate blog.html
 (defun generate-blog (rmr dest-dir)
-  (let* ((nodes
-           (sort
-            (loop for node in (cltpt/roam:roamer-nodes rmr)
-                  for text-obj = (cltpt/roam:node-text-obj node)
-                  for val = (cltpt/base:alist-get
-                             (cltpt/base:text-object-property
-                              text-obj
-                              :keywords-alist)
-                             "export_section")
-                  when (and (equal val "blog")
-                            (node-date node))
-                    collect node)
-            'local-time:timestamp>
-            :key #'node-date))
+  (let* ((nodes (blog-nodes rmr))
          (blog-html
            (cltpt/base:concat
             (loop for node in nodes
