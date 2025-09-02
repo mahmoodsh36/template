@@ -139,13 +139,12 @@
            (*my-metadata*
              (list :other-head-contents other-head-contents
                    :other-preamble-contents other-preamble-contents))
-           (cltpt/html:*html-postamble* "</body></html>")
            (file-predicate
              (lambda (filepath)
                (if full-export
                    t
                    (member filepath files-to-convert :test 'string=))))
-           (cltpt/html:*html-preamble*
+           (cltpt/html:*html-template*
              "<!DOCTYPE html>
 <html>
 <head>
@@ -154,7 +153,13 @@
   #(getf cl-user::*my-metadata* :other-head-contents)
 </head>
 <body>
-  #(getf cl-user::*my-metadata* :other-preamble-contents)"))
+  #(getf cl-user::*my-metadata* :other-preamble-contents)
+  <div class='content'>
+    <h1> %title - %date </h1>
+    %contents
+  </div>
+</body>
+</html>"))
       (generate-index rmr dest-dir)
       (generate-blog rmr dest-dir)
       (generate-search rmr dest-dir)
