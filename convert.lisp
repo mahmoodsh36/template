@@ -87,7 +87,7 @@
 
 (defun generate ()
   (setf cltpt/org-mode::*org-enable-macros* t)
-  (setf cltpt:*debug* nil)
+  ;; (setf (getf cltpt:*debug* :convert) t)
   (cltpt/zoo::init)
   ;; generation with "restrictions" to the "main files/entries"
   (let ((rmr-files '((:path ("/home/mahmooz/brain/notes/")
@@ -155,7 +155,13 @@
 <body>
   #(getf cl-user::*my-metadata* :other-preamble-contents)
   <div class='content'>
-    <h1> %title - %date </h1>
+    #(cltpt/base::make-block :type 'dummy
+                 :let* `((my-title
+                         ,(if (and title date)
+                            (format nil \"<h1 class='main-title'> ~A - ~A </h1>\" title date)
+                            \"\"))))
+      %my-title
+    #(cltpt/base::block-end)
     %contents
   </div>
 </body>
