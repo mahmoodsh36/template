@@ -66,6 +66,7 @@
   )
 (defvar *filepath-format*
   "%(cl-user::title-to-filename root-title).html")
+(defvar *rmr*)
 
 (defun from-brain (filepath)
   (cltpt/file-utils:join-paths "/home/mahmooz/brain/" filepath))
@@ -117,6 +118,7 @@
            (cltpt/latex:*latex-compiler-key* :lualatex)
            (cltpt/latex::*latex-preview-pipeline-key* :dvisvgm)
            (rmr (cltpt/roam:from-files rmr-files))
+           (*rmr* rmr)
            (files-to-convert
              (loop for main-file in (cltpt/base:concat
                                      (list *main-files*
@@ -145,35 +147,42 @@
                    t
                    (member filepath files-to-convert :test 'string=))))
            (cltpt/html:*html-template*
-             "<!DOCTYPE html>
-<html>
-<head>
-  <meta charset=\"UTF-8\">
-  <title> %title </title>
-  #(getf cl-user::*my-metadata* :other-head-contents)
-</head>
-<body>
-  #(getf cl-user::*my-metadata* :other-preamble-contents)
-  <div class='content'>
-    #(cltpt/base::make-block :type 'dummy
-                 :let* `((my-title
-                         ,(if (and title date)
-                            (format nil \"<h1 class='main-title'> ~A - ~A </h1>\" title date)
-                            \"\"))))
-      %my-title
-    #(cltpt/base::block-end)
-    %contents
-  </div>
-</body>
-</html>"))
-      (generate-index rmr dest-dir)
-      (generate-blog rmr dest-dir)
+             (uiop:read-file-string
+              (uiop:merge-pathnames* *template-dir* "page.html")))
+;;            (cltpt/html:*html-template*
+;;              "<!DOCTYPE html>
+;; <html>
+;; <head>
+;;   <meta charset=\"UTF-8\">
+;;   <title> %title </title>
+;;   #(getf cl-user::*my-metadata* :other-head-contents)
+;; </head>
+;; <body>
+;;   #(getf cl-user::*my-metadata* :other-preamble-contents)
+;;   <div class='content'>
+;;     #(cltpt/base::make-block :type 'dummy
+;;                  :let* `((my-title
+;;                          ,(if (and title date)
+;;                             (format nil \"<h1 class='main-title'> ~A - ~A </h1>\" title date)
+;;                             \"\"))))
+;;       %my-title
+;;     #(cltpt/base::block-end)
+;;     %contents
+;;   </div>
+;; </body>
+;; </html>")
+           )
+      (convert-template dest-dir (uiop:merge-pathnames* *template-dir* "index.html"))
+      (convert-template dest-dir (uiop:merge-pathnames* *template-dir* "about.html"))
+      (convert-template dest-dir (uiop:merge-pathnames* *template-dir* "archive.html"))
+      (convert-template dest-dir (uiop:merge-pathnames* *template-dir* "blog.html"))
+      ;; (generate-blog rmr dest-dir)
       (generate-search rmr dest-dir)
-      (generate-page
-       rmr
-       dest-dir
-       "im a cs student, this is my personal website, it may also serve as a journal or as a blog. im actually not really sure what it is yet."
-       "about")
+      ;; (generate-page
+      ;;  rmr
+      ;;  dest-dir
+      ;;  "im a cs student, this is my personal website, it may also serve as a journal or as a blog. im actually not really sure what it is yet."
+      ;;  "about")
       ;; apparently it doesnt work unless theres a '/' at the end.
       (cltpt/file-utils:ensure-dir-exists (concatenate 'string dest-dir-static "/"))
       ;; copy files from static dir of the template dir (js, css, etc)
@@ -226,49 +235,18 @@
                    (push node final-nodes))))
     final-nodes))
 
-;; /home/mahmooz/work/emacs.d/lisp/config-org.el
-(defun generate-collage-html (entries)
-  (with-output-to-string (out)
-    (write-sequence "<div class=\"collage\">" out)
-    (loop for entry in entries
-          do (format out "<div class='card fancy-button' data-ref='blk:~A'>
-  <img src='~A' class='card-image' />
-  <span class='card-title'>~A</span>
-  <span class='card-subtitle'>~A</span>
-  <span class='card-subtitle'>~A</span>
-</div>"
-                     (getf entry :id)
-                     (when (getf entry :id)
-                       (if (uiop:probe-file* (getf entry :image))
-                           (export-static-file (getf entry :image))
-                           (format t "collage image ~A doesnt exist~%"
-                                   (getf entry :image))))
-                     (getf entry :title)
-                     (or (getf entry :subtitle) "")
-                     (or (getf entry :subsubtitle) "")))
-    (write-sequence "</div>" out)
-    out))
-
-(defun generate-index (rmr dest-dir)
-  (let* ((entries (entry-nodes rmr))
-         (index-file (uiop:merge-pathnames* dest-dir "index.html"))
-         (entries-html
-           (generate-collage-html
-            (loop for entry in entries
-                  collect (list :title (cltpt/roam:node-title entry)
-                                :id (cltpt/roam:node-id entry)
-                                :image (cltpt/org-mode::text-object-org-keyword-value (cltpt/roam:node-text-obj entry) "image")
-                                )))))
-    (cltpt/file-utils:write-file
-     index-file
-     (cltpt/base::convert-text
-      (cltpt/base:text-format-by-name "org-mode")
-      (cltpt/base:text-format-by-name "html")
-      (format nil
-              "~A~%~A~%~A"
-              "#+begin_export html"
-              entries-html
-              "#+end_export")))))
+(defun convert-template (dest-dir template-file)
+  (cltpt/file-utils:write-file
+   (cltpt/file-utils:change-dir template-file dest-dir)
+   (cltpt/base:convert-tree
+    (cltpt/base:parse
+     (uiop:read-file-string template-file)
+     (list 'cltpt/base:text-macro 'cltpt/base:post-lexer-text-macro))
+    (list 'cltpt/base:text-macro 'cltpt/base:post-lexer-text-macro)
+    cltpt/html:*html*
+    :reparse t
+    :escape nil
+    :recurse t)))
 
 ;; takes html code, converts it to a page through org-mode->conversion, so that
 ;; it behaves as if it was exported from an org file.
@@ -331,33 +309,148 @@
    'local-time:timestamp>
    :key #'node-date))
 
-;; generate blog.html
-(defun generate-blog (rmr dest-dir)
+(defun blog-entries (rmr)
   (let* ((nodes (blog-nodes rmr))
-         (blog-html
-           (cltpt/base:concat
-            (loop for node in nodes
-                  for filepath = (cltpt/roam:node-file node)
-                  for title = (cltpt/roam:node-title node)
-                  for text-obj = (cltpt/roam:node-text-obj node)
-                  for date-str = (local-time:format-timestring
-                                  nil
-                                  (node-date node)
-                                  :format '(:short-weekday ", "
-                                            (:DAY 2) #\space
-                                            :SHORT-MONTH #\space
-                                            (:YEAR 4)))
-                  collect (format
-                           nil
-                           "<div class=\"list-item\">
-<a href=\"~A~A.html\">~A</a>
-<span>~A</span>
+         (entries
+           (loop for node in nodes
+                 for filepath = (cltpt/roam:node-file node)
+                 for title = (cltpt/roam:node-title node)
+                 for text-obj = (cltpt/roam:node-text-obj node)
+                 for date-str = (local-time:format-timestring
+                                 nil
+                                 (node-date node)
+                                 :format '(:short-weekday ", "
+                                           (:DAY 2) #\space
+                                           :SHORT-MONTH #\space
+                                           (:YEAR 4)))
+                 collect (list
+                          :href (format nil
+                                        "~A~A.html"
+                                        cltpt/html:*html-static-route*
+                                        (title-to-filename title))
+                          :title title
+                          :date date-str))))
+    entries))
+
+(defun generate-blog-entries-html (rmr)
+  (let ((blog-nodes (sort
+                     (loop for node in (cltpt/roam:roamer-nodes rmr)
+                           for text-obj = (cltpt/roam:node-text-obj node)
+                           for val = (cltpt/base:alist-get
+                                      (cltpt/base:text-object-property
+                                       text-obj
+                                       :keywords-alist)
+                                      "export_section")
+                           when (and (equal val "blog")
+                                     (node-date node))
+                             collect node)
+                     'local-time:timestamp>
+                     :key #'node-date)))
+    (generate-posts-list blog-nodes)))
+
+(defun generate-posts-list (nodes)
+  (let ((entries
+          (loop for node in nodes
+                for filepath = (cltpt/roam:node-file node)
+                for title = (cltpt/roam:node-title node)
+                for text-obj = (cltpt/roam:node-text-obj node)
+                for date-str = (local-time:format-timestring
+                                nil
+                                (node-date node)
+                                :format '(:short-weekday ", "
+                                          (:DAY 2) #\space
+                                          :SHORT-MONTH #\space
+                                          (:YEAR 4)))
+                collect (let ((entry-html "
+<div class=\"post-card\">
+  <div class=\"post-header\">
+    <i class=\"fas fa-infinity floating post-icon\"></i>
+    <h3 class=\"post-title\">~A</h3>
+    <span class=\"post-tag\">Mathematics</span>
+  </div>
+  <p class=\"post-excerpt\">Discover how mathematical patterns repeat infinitely in nature, from coastlines to cauliflower.</p>
+  <a href=\"~A\" class=\"read-more\">Read More <i class=\"fas fa-arrow-right\"></i></a>
+</div>
+"
+                                          ))
+                          (format nil
+                                  entry-html
+                                  title
+                                  (format nil
+                                          "~A~A.html"
+                                          cltpt/html:*html-static-route*
+                                          (title-to-filename title)))))))
+    (format nil
+            "<div class=\"posts-list\">
+~A
 </div>"
-                           cltpt/html:*html-static-route*
-                           (title-to-filename title)
-                           title
-                           date-str)))))
-    (generate-page rmr dest-dir blog-html "blog")))
+            (cltpt/base:concat entries))))
+
+(defun generate-collage (nodes collage-title)
+  (with-output-to-string (out)
+    (format out
+            "<div class=\"container\">
+<div class=\"gallery-section\">
+<h2 class=\"section-title\">~A</h2>
+<div class=\"gallery-grid\">"
+            collage-title)
+    (loop for node in nodes
+          for filepath = (cltpt/roam:node-file node)
+          for title = (cltpt/roam:node-title node)
+          for text-obj = (cltpt/roam:node-text-obj node)
+          do (let* ((image (cltpt/org-mode::text-object-org-keyword-value
+                            (cltpt/roam:node-text-obj
+                             node)
+                            "image"))
+                    (image1 (if (uiop:probe-file* image)
+                                (export-static-file image)
+                                (format t "collage image ~A doesnt exist~%"
+                                        image)))
+                    (href (cltpt/roam:node-info-format-str node *filepath-format*))
+                    (entry-html "<div class=\"gallery-item\" onclick=\"window.location='~A'\">
+  <div class=\"item-image\" />
+    <img src=\"~A\" />
+  </div>
+  <div class=\"item-overlay\"><h3 class=\"item-title\">~A</h3><p class=\"item-subtitle\"></p></div>
+</div>"
+                                ))
+               (format out
+                       entry-html
+                       href
+                       image1
+                       title)))
+    (write-sequence "</div>
+</div>
+</div>"
+                    out)))
+
+;; generate blog.html
+;; (defun generate-blog (rmr dest-dir)
+;;   (let* ((nodes (blog-nodes rmr))
+;;          (blog-html
+;;            (cltpt/base:concat
+;;             (loop for node in nodes
+;;                   for filepath = (cltpt/roam:node-file node)
+;;                   for title = (cltpt/roam:node-title node)
+;;                   for text-obj = (cltpt/roam:node-text-obj node)
+;;                   for date-str = (local-time:format-timestring
+;;                                   nil
+;;                                   (node-date node)
+;;                                   :format '(:short-weekday ", "
+;;                                             (:DAY 2) #\space
+;;                                             :SHORT-MONTH #\space
+;;                                             (:YEAR 4)))
+;;                   collect (format
+;;                            nil
+;;                            "<div class=\"list-item\">
+;; <a href=\"~A~A.html\">~A</a>
+;; <span>~A</span>
+;; </div>"
+;;                            cltpt/html:*html-static-route*
+;;                            (title-to-filename title)
+;;                            title
+;;                            date-str)))))
+;;     (generate-page rmr dest-dir blog-html "blog")))
 
 (defun find-linked-files (rmr root)
   "helper function to find all linked files from a node."
@@ -414,3 +507,6 @@
                             :if-does-not-exist :create)
       (write-string (encode-list-of-plists-to-json metadata)
                     stream))))
+
+(defun read-template-file (template-file)
+  (uiop:read-file-string (uiop:merge-pathnames* *template-dir* template-file)))

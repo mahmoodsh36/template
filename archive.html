@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>archive | mahmood</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="/static/main.css">
+</head>
+<body class="dark-theme">
+  #(read-template-file "header.html")
+
+  <section class="hero">
+    <div class="container">
+      <h1>post archive</h1>
+      <p>all public posts/files</p>
+    </div>
+  </section>
+
+  <!-- search bar -->
+  <div class="container">
+    <div class="search-container">
+      <input type="text" id="searchBar" class="search-bar" placeholder="Search articles by title...">
+    </div>
+  </div>
+
+  <!-- archive filters -->
+  <div class="container">
+    <div class="archive-filters">
+      <button class="filter-btn active" data-tag="all">All</button>
+      <button class="filter-btn" data-tag="Mathematics">Mathematics</button>
+      <button class="filter-btn" data-tag="Technology">Technology</button>
+      <button class="filter-btn" data-tag="Neuroscience">Neuroscience</button>
+      <button class="filter-btn" data-tag="Physics">Physics</button>
+      <button class="filter-btn" data-tag="Computer Science">Computer Science</button>
+    </div>
+  </div>
+
+  <!-- archive posts -->
+  <div class="container">
+    <div class="archive-posts">
+      <div class="posts-list" id="postsList">
+        <!-- Posts will be populated by JavaScript -->
+      </div>
+    </div>
+  </div>
+
+  #(read-template-file "footer.html")
+  <script src="/static/main.js"></script>
+</body>
+</html>

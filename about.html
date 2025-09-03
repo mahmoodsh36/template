@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>about | mahmood</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="/static/main.css">
+</head>
+<body class="dark-theme">
+  #(read-template-file "header.html")
+
+  <section class="hero">
+    <div class="container">
+      <h1>about me</h1>
+      <p>not that there is much to know really.</p>
+    </div>
+  </section>
+
+  <div class="container">
+    <div class="about-content">
+      <div class="profile-container">
+        <div class="profile-avatar">
+          <i class="fas fa-user"></i>
+        </div>
+        <h2 class="profile-name">mahmood</h2>
+        <div class="profile-title">habitual melancholic</div>
+        <div class="social-links">
+          <a href="/" class="social-link"><i class="fab fa-github"></i></a>
+          <a href="/" class="social-link"><i class="fab fa-instagram"></i></a>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2 class="section-title">education</h2>
+        <div class="section-content">
+          <p>i got my bachelors in cs in 2024, i liked theory of computation and graph theory the most.</p>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2 class="section-title">practice</h2>
+        <div class="section-content">
+          <p>i am actively maintaining numerous projects, some of which could be described as being somewhat ambitious.</p>
+          <p>in my free time i like to customize/modify my emacs and linux configuration. i like to experiment with new software all the time. i have been using emacs for nearly a decade.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  #(read-template-file "footer.html")
+  <script src="/static/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>mahmood</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="/static/main.css">
+</head>
+<body class="dark-theme">
+  #(uiop:read-file-string (uiop:merge-pathnames* *template-dir* "header.html"))
+
+  <section class="hero">
+    <div class="container">
+      <h1>mental metal fan</h1>
+      <p>i dont know, for some reason i felt like making this.</p>
+    </div>
+  </section>
+
+  #(generate-collage (entry-nodes *rmr*) "main nodes")
+
+  <section class="featured">
+    <div class="container">
+      <h2 class="section-title">recent articles</h2>
+      %(generate-blog-entries-html *rmr*)
+    </div>
+  </section>
+
+  #(read-template-file "footer.html")
+  <script src="/static/main.js"></script>
+</body>
+</html>
