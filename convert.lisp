@@ -26,6 +26,7 @@
                     (pushnew (cltpt/base:text-object-contents obj)
                              all-snippets
                              :test 'string=)))))
+    (nreverse all-snippets)
     (loop for i from 0 to (length all-snippets) by snippets-at-once
           do (cltpt/latex:generate-previews-for-latex
               (subseq all-snippets
