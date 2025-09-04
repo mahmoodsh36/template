@@ -1904,3 +1904,9 @@ body.light-theme .org-block [class*="cite"] {
 body.dark-theme .org-block [class*="cite"] {
     color: var(--dark-fg3);
 }
+
+/* display math formulas etc */
+img.display-math {
+    display: block;
+    margin: auto;
+}
