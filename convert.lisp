@@ -71,6 +71,9 @@
    "/home/mahmooz/brain/notes/1712751117.org"
    "/home/mahmooz/brain/notes/1714912201.org"
    "/home/mahmooz/brain/notes/1716399914.org"
+
+   "/home/mahmooz/brain/notes/1696961489.org"
+   "/home/mahmooz/brain/notes/1707059561.org"
    ))
 (defvar *filepath-format*
   "%(cl-user::title-to-filename root-title).html")
@@ -438,10 +441,12 @@ cl-json's standard encoder handles perfectly."
   (let* ((metadata
            (loop for node in (cltpt/roam:roamer-nodes rmr)
                  for text-obj = (cltpt/roam:node-text-obj node)
-                 when (funcall file-predicate (cltpt/roam:node-file node))
+                 for tags = (cltpt/base:text-object-property text-obj :tags)
+                 when (and (funcall file-predicate (cltpt/roam:node-file node))
+                           (not (and tags (member "noexport" tags :test 'string=))))
                    collect (list
                             :date (cltpt/base:text-object-property text-obj :date)
-                            :tags (cltpt/base:text-object-property text-obj :tags)
+                            :tags tags
                             :id (cltpt/roam:node-id node)
                             :title (cltpt/roam:node-title node)
                             :filepath (cltpt/roam:node-info-format-str node *filepath-format*)
