@@ -89,7 +89,7 @@
 
 (defun generate ()
   (setf cltpt/org-mode::*org-enable-macros* t)
-  (setf (getf cltpt:*debug* :convert) t)
+  ;; (setf (getf cltpt:*debug* :convert) t)
   (cltpt/zoo::init)
   ;; generation with "restrictions" to the "main files/entries"
   (let ((rmr-files '((:path ("/home/mahmooz/brain/notes/")
