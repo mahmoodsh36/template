@@ -316,6 +316,8 @@
           (loop for node in nodes
                 for filepath = (cltpt/roam:node-file node)
                 for title = (cltpt/roam:node-title node)
+                for desc = (or (cltpt/roam:node-desc node)
+                               "no description.")
                 for text-obj = (cltpt/roam:node-text-obj node)
                 for date-str = (local-time:format-timestring
                                 nil
@@ -331,7 +333,7 @@
     <h3 class=\"post-title\">~A</h3>
     <span class=\"post-tag\">Mathematics</span>
   </div>
-  <p class=\"post-excerpt\">Discover how mathematical patterns repeat infinitely in nature, from coastlines to cauliflower.</p>
+  <p class=\"post-excerpt\">~A</p>
   <a href=\"~A\" class=\"read-more\">Read More <i class=\"fas fa-arrow-right\"></i></a>
 </div>
 "
@@ -339,6 +341,7 @@
                           (format nil
                                   entry-html
                                   title
+                                  desc
                                   (format nil
                                           "~A~A.html"
                                           cltpt/html:*html-static-route*
