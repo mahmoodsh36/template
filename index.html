@@ -23,7 +23,7 @@
   <section class="featured">
     <div class="container">
       <h2 class="section-title">recent articles</h2>
-      %(generate-blog-entries-html *rmr*)
+      %(generate-blog-entries-html (subseq (blog-nodes *rmr*) 0 5))
     </div>
   </section>
 

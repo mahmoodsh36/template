@@ -292,9 +292,9 @@
                           :date date-str))))
     entries))
 
-(defun generate-blog-entries-html (rmr)
+(defun generate-blog-entries-html (nodes)
   (let ((blog-nodes (sort
-                     (loop for node in (cltpt/roam:roamer-nodes rmr)
+                     (loop for node in nodes
                            for text-obj = (cltpt/roam:node-text-obj node)
                            for val = (cltpt/base:alist-get
                                       (cltpt/base:text-object-property
