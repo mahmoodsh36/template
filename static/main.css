@@ -102,21 +102,53 @@ body.light-theme header {
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    text-decoration: none;
+    text-decoration: none !important;
+    transition: all 0.2s ease;
+}
+
+.lambda-icon {
+    font-weight: normal;
+    font-size: 1.4rem;
 }
 
 body.dark-theme .logo {
-    color: var(--dark-fg0);
+    color: var(--dark-fg3);
 }
 body.light-theme .logo {
-    color: var(--light-fg0);
+    color: var(--light-fg3);
+}
+
+body.dark-theme .logo:hover {
+    color: var(--dark-aqua) !important;
+}
+body.light-theme .logo:hover {
+    color: var(--light-aqua) !important;
+}
+
+body.dark-theme .lambda-icon {
+    color: var(--dark-fg3);
+}
+body.light-theme .lambda-icon {
+    color: var(--light-fg3);
+}
+
+body.dark-theme .logo:hover .lambda-icon {
+    color: var(--dark-aqua) !important;
+}
+body.light-theme .logo:hover .lambda-icon {
+    color: var(--light-aqua) !important;
 }
 
 .logo span {
-    color: var(--dark-aqua);
+    color: inherit;
 }
-body.light-theme .logo span {
-    color: var(--light-aqua);
+
+body.dark-theme .logo:hover span {
+    color: var(--dark-aqua) !important;
+}
+
+body.light-theme .logo:hover span {
+    color: var(--light-aqua) !important;
 }
 
 .theme-toggle {
@@ -660,6 +692,11 @@ body.light-theme .stat-label {
     border-radius: 6px;
     font-size: 1rem;
     border: 1px solid;
+    transition: 
+        border-color 0.3s ease,
+        box-shadow 0.3s ease,
+        background-color 0.3s ease,
+        color 0.3s ease;
 }
 
 body.dark-theme .search-bar {
@@ -697,7 +734,11 @@ body.light-theme .search-bar:focus {
     font-weight: 500;
     border: none;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: 
+        all 0.2s ease,
+        background-color 0.3s ease,
+        color 0.3s ease,
+        border-color 0.3s ease;
 }
 
 body.dark-theme .filter-btn {
@@ -734,10 +775,14 @@ body.light-theme .filter-btn.active {
 .archive-posts .post-card {
     border-radius: 8px;
     overflow: hidden;
-    transition: all 0.3s ease;
-    padding: 1rem;
-    display: flex;
-    gap: 1rem;
+    transition: 
+        background-color 0.3s ease,
+        border-color 0.3s ease,
+        box-shadow 0.3s ease,
+        transform 0.3s ease;
+    padding: 0.6rem;
+    display: block;
+    margin-bottom: 0.6rem;
 }
 
 body.dark-theme .archive-posts .post-card {
@@ -760,11 +805,9 @@ body.light-theme .archive-posts .post-card:hover {
 }
 
 .archive-posts .post-icon {
-    font-size: 1.5rem;
-    min-width: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    font-size: 1rem;
+    display: inline-block;
+    min-width: auto;
 }
 
 body.dark-theme .archive-posts .post-icon {
@@ -803,11 +846,38 @@ body.light-theme .archive-posts .post-tag {
 }
 
 .archive-posts .post-title {
-    font-size: 1.2rem;
+    font-size: 1.1rem;
     font-weight: 600;
-    margin: 0.5rem 0;
+    margin: 0.3rem 0;
     text-decoration: none;
-    display: block;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+/* Override general link styles for archive post titles */
+body.dark-theme .archive-posts .post-title {
+    color: var(--dark-fg0);
+    border-bottom: none;
+    text-decoration: none;
+}
+
+body.light-theme .archive-posts .post-title {
+    color: var(--light-fg0);
+    border-bottom: none;
+    text-decoration: none;
+}
+
+body.dark-theme .archive-posts .post-title:hover {
+    color: var(--dark-aqua);
+    border-bottom: none;
+    text-decoration: none;
+}
+
+body.light-theme .archive-posts .post-title:hover {
+    color: var(--light-aqua);
+    border-bottom: none;
+    text-decoration: none;
 }
 
 body.dark-theme .archive-posts .post-title {
@@ -824,9 +894,9 @@ body.light-theme .archive-posts .post-title:hover {
 }
 
 .archive-posts .post-excerpt {
-    margin: 0.8rem 0;
-    font-size: 0.95rem;
-    line-height: 1.5;
+    margin: 0.5rem 0;
+    font-size: 0.9rem;
+    line-height: 1.4;
 }
 
 body.dark-theme .archive-posts .post-excerpt {
@@ -838,9 +908,9 @@ body.light-theme .archive-posts .post-excerpt {
 
 .post-meta {
     display: flex;
-    gap: 1rem;
-    font-size: 0.8rem;
-    margin-top: 0.8rem;
+    gap: 0.8rem;
+    font-size: 0.75rem;
+    margin-top: 0.5rem;
 }
 
 body.dark-theme .post-meta {
@@ -848,6 +918,44 @@ body.dark-theme .post-meta {
 }
 body.light-theme .post-meta {
     color: var(--light-fg4);
+}
+
+/* Archive posts header with counter */
+.archive-posts-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.archive-counter {
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: color 0.3s ease;
+}
+
+body.dark-theme .archive-counter {
+    color: var(--dark-fg3);
+}
+
+body.light-theme .archive-counter {
+    color: var(--light-fg3);
+}
+
+/* Add theme transitions to archive posts elements */
+.archive-posts .post-card {
+    transition: 
+        background-color 0.3s ease,
+        border-color 0.3s ease,
+        box-shadow 0.3s ease,
+        transform 0.3s ease;
+}
+
+.archive-posts .post-title,
+.archive-posts .post-excerpt,
+.archive-posts .post-tag,
+.archive-posts .post-meta {
+    transition: color 0.3s ease;
 }
 
 .no-results {
@@ -1194,6 +1302,41 @@ body.dark-theme .post-tag {
     color: var(--dark-aqua);
 }
 body.light-theme .post-tag {
+    background: var(--light-bg2);
+    color: var(--light-aqua);
+}
+
+/* Post icon styling */
+.post-icon {
+    margin-right: 0.5rem;
+}
+body.dark-theme .post-icon {
+    color: var(--dark-aqua);
+}
+body.light-theme .post-icon {
+    color: var(--light-aqua);
+}
+.archive-posts .post-icon {
+    font-size: 1rem;
+    display: inline-block;
+    min-width: auto;
+}
+
+/* Post tags inside title */
+.post-title .post-tag {
+    display: inline-block;
+    padding: 0.2rem 0.6rem;
+    border-radius: 15px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin-left: 0.5rem;
+    vertical-align: middle;
+}
+body.dark-theme .post-title .post-tag {
+    background: var(--dark-bg2);
+    color: var(--dark-aqua);
+}
+body.light-theme .post-title .post-tag {
     background: var(--light-bg2);
     color: var(--light-aqua);
 }

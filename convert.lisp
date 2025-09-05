@@ -46,7 +46,6 @@
                         (char= char #\\))
                     (write-char #\_ out))))))
 
-(defvar *my-metadata* nil)
 (defvar *blog-dir* "/home/mahmooz/work/blog/")
 (defvar *template-dir* (truename "~/work/template/"))
 (defvar *template-static-dir* (truename "~/work/template/static/"))
@@ -64,7 +63,15 @@
     "/home/mahmooz/brain/notes/1709021027.org" ;; linear algebra
     ))
 (defvar *excluded-files*
-  )
+  (list
+   "/home/mahmooz/brain/notes/1658738374.org"
+   "/home/mahmooz/brain/notes/1709712959.org"
+
+   "/home/mahmooz/brain/notes/1711448392.org"
+   "/home/mahmooz/brain/notes/1712751117.org"
+   "/home/mahmooz/brain/notes/1714912201.org"
+   "/home/mahmooz/brain/notes/1716399914.org"
+   ))
 (defvar *filepath-format*
   "%(cl-user::title-to-filename root-title).html")
 (defvar *rmr*)
@@ -133,15 +140,6 @@
                                     :test 'string=)
                    append (cons main-file (find-linked-files rmr node))))
            (dest-dir-static (cltpt/file-utils:join-paths dest-dir "static"))
-           (other-head-contents
-             (uiop:read-file-string
-              (uiop:merge-pathnames* *template-dir* "head.html")))
-           (other-preamble-contents
-             (uiop:read-file-string
-              (uiop:merge-pathnames* *template-dir* "preamble.html")))
-           (*my-metadata*
-             (list :other-head-contents other-head-contents
-                   :other-preamble-contents other-preamble-contents))
            (file-predicate
              (lambda (filepath)
                (if full-export
@@ -149,41 +147,11 @@
                    (member filepath files-to-convert :test 'string=))))
            (cltpt/html:*html-template*
              (uiop:read-file-string
-              (uiop:merge-pathnames* *template-dir* "page.html")))
-;;            (cltpt/html:*html-template*
-;;              "<!DOCTYPE html>
-;; <html>
-;; <head>
-;;   <meta charset=\"UTF-8\">
-;;   <title> %title </title>
-;;   #(getf cl-user::*my-metadata* :other-head-contents)
-;; </head>
-;; <body>
-;;   #(getf cl-user::*my-metadata* :other-preamble-contents)
-;;   <div class='content'>
-;;     #(cltpt/base::make-block :type 'dummy
-;;                  :let* `((my-title
-;;                          ,(if (and title date)
-;;                             (format nil \"<h1 class='main-title'> ~A - ~A </h1>\" title date)
-;;                             \"\"))))
-;;       %my-title
-;;     #(cltpt/base::block-end)
-;;     %contents
-;;   </div>
-;; </body>
-;; </html>")
-           )
+              (uiop:merge-pathnames* *template-dir* "page.html"))))
       (convert-template dest-dir (uiop:merge-pathnames* *template-dir* "index.html"))
       (convert-template dest-dir (uiop:merge-pathnames* *template-dir* "about.html"))
       (convert-template dest-dir (uiop:merge-pathnames* *template-dir* "archive.html"))
       (convert-template dest-dir (uiop:merge-pathnames* *template-dir* "blog.html"))
-      ;; (generate-blog rmr dest-dir)
-      (generate-search rmr dest-dir)
-      ;; (generate-page
-      ;;  rmr
-      ;;  dest-dir
-      ;;  "im a cs student, this is my personal website, it may also serve as a journal or as a blog. im actually not really sure what it is yet."
-      ;;  "about")
       ;; apparently it doesnt work unless theres a '/' at the end.
       (cltpt/file-utils:ensure-dir-exists (concatenate 'string dest-dir-static "/"))
       ;; copy files from static dir of the template dir (js, css, etc)
@@ -251,29 +219,20 @@
 
 ;; takes html code, converts it to a page through org-mode->conversion, so that
 ;; it behaves as if it was exported from an org file.
-(defun generate-page (rmr dest-dir html page-title)
-  (let* ((dest-file (uiop:merge-pathnames*
-                     dest-dir
-                     (format nil "~A.html" (title-to-filename page-title)))))
-    (cltpt/file-utils:write-file
-     dest-file
-     (cltpt/base::convert-text
-      (cltpt/base:text-format-by-name "org-mode")
-      (cltpt/base:text-format-by-name "html")
-      (format nil
-              "~A~%~A~%~A"
-              "#+begin_export html"
-              html
-              "#+end_export")))))
-
-;; generate search.html
-(defun generate-search (rmr dest-dir)
-  (generate-page
-   rmr
-   dest-dir
-   (uiop:read-file-string
-    (uiop:merge-pathnames* *template-dir* "search.html"))
-   "search"))
+;; (defun generate-page (rmr dest-dir html page-title)
+;;   (let* ((dest-file (uiop:merge-pathnames*
+;;                      dest-dir
+;;                      (format nil "~A.html" (title-to-filename page-title)))))
+;;     (cltpt/file-utils:write-file
+;;      dest-file
+;;      (cltpt/base::convert-text
+;;       (cltpt/base:text-format-by-name "org-mode")
+;;       (cltpt/base:text-format-by-name "html")
+;;       (format nil
+;;               "~A~%~A~%~A"
+;;               "#+begin_export html"
+;;               html
+;;               "#+end_export")))))
 
 (defun node-date (node)
   (let* ((text-obj (cltpt/roam:node-text-obj node))
@@ -425,34 +384,6 @@
 </div>"
                     out)))
 
-;; generate blog.html
-;; (defun generate-blog (rmr dest-dir)
-;;   (let* ((nodes (blog-nodes rmr))
-;;          (blog-html
-;;            (cltpt/base:concat
-;;             (loop for node in nodes
-;;                   for filepath = (cltpt/roam:node-file node)
-;;                   for title = (cltpt/roam:node-title node)
-;;                   for text-obj = (cltpt/roam:node-text-obj node)
-;;                   for date-str = (local-time:format-timestring
-;;                                   nil
-;;                                   (node-date node)
-;;                                   :format '(:short-weekday ", "
-;;                                             (:DAY 2) #\space
-;;                                             :SHORT-MONTH #\space
-;;                                             (:YEAR 4)))
-;;                   collect (format
-;;                            nil
-;;                            "<div class=\"list-item\">
-;; <a href=\"~A~A.html\">~A</a>
-;; <span>~A</span>
-;; </div>"
-;;                            cltpt/html:*html-static-route*
-;;                            (title-to-filename title)
-;;                            title
-;;                            date-str)))))
-;;     (generate-page rmr dest-dir blog-html "blog")))
-
 (defun find-linked-files (rmr root)
   "helper function to find all linked files from a node."
   (let ((linked-files)
@@ -472,13 +403,18 @@
                             node
                             link-obj
                             (if (cltpt/base:text-object-property link-obj :type)
-                                (intern (cltpt/base:text-object-property link-obj :type))
+                                (intern (cltpt/base:text-object-property
+                                         link-obj
+                                         :type))
                                 'cltpt/roam::id)
                             (cltpt/base:text-object-property link-obj :dest)))
                      (linked-file
                        (when link
                          (cltpt/roam:node-file (cltpt/roam:link-dest-node link)))))
-                (when linked-file
+                (when (and linked-file
+                           (not (member linked-file
+                                        *excluded-files*
+                                        :test 'string=)))
                   (unless (member linked-file
                                   (cons (cltpt/roam:node-file node) linked-files)
                                   :test 'string=)
@@ -487,17 +423,25 @@
     linked-files))
 
 (defun encode-list-of-plists-to-json (list-of-plists)
-  "encodes a list of plists to a JSON string using cl-json's explicit encoder."
-  (cl-json:with-explicit-encoder
-      (cl-json:encode-json-to-string
-       `(:array ,@(loop for plist in list-of-plists
-                        collect `(:plist ,@plist))))))
+  "encodes a list of plists to a JSON string.
+it works by first converting the plists to alists with string keys, which
+cl-json's standard encoder handles perfectly."
+  (let ((list-of-alists
+          (loop for plist in list-of-plists
+                collect (loop for (key value) on plist by #'cddr
+                              ;; convert keyword keys (like :tags) to strings ("tags")
+                              collect (cons (string-downcase (symbol-name key))
+                                            value)))))
+    (cl-json:encode-json-to-string list-of-alists)))
 
 (defun export-metadata-to-json (rmr output-file file-predicate)
   (let* ((metadata
            (loop for node in (cltpt/roam:roamer-nodes rmr)
+                 for text-obj = (cltpt/roam:node-text-obj node)
                  when (funcall file-predicate (cltpt/roam:node-file node))
                    collect (list
+                            :date (cltpt/base:text-object-property text-obj :date)
+                            :tags (cltpt/base:text-object-property text-obj :tags)
                             :id (cltpt/roam:node-id node)
                             :title (cltpt/roam:node-title node)
                             :filepath (cltpt/roam:node-info-format-str node *filepath-format*)

@@ -58,34 +58,208 @@ function initializeThemeToggle() {
 }
 
 // =================================
+// COMMON: SEARCH FUNCTIONALITY
+// =================================
+let searchData = [];
+
+// Fetch search data from search.json
+async function loadSearchData() {
+    try {
+        const response = await fetch('/search.json');
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        searchData = await response.json();
+        console.log('Search data loaded:', searchData);
+    } catch (error) {
+        console.error('Error loading search data:', error);
+    }
+}
+
+// Search function
+function performSearch(query) {
+    const resultsContainer = document.getElementById("search-results-container");
+    if (!resultsContainer) return;
+
+    resultsContainer.innerHTML = '';
+    
+    if (!query) {
+        // Update numbers even when query is empty
+        updateSearchNumbers(0, searchData.length);
+        return;
+    }
+
+    const matchingEntries = searchData.filter(entry => {
+        const title = entry.title || '';
+        const id = entry.id || '';
+        return title.toLowerCase().includes(query.toLowerCase()) || 
+               id.toLowerCase().includes(query.toLowerCase());
+    });
+
+    matchingEntries.forEach(entry => {
+        const entryText = entry.title || entry.id || 'Untitled';
+        
+        const container = document.createElement("div");
+        const subcontainer = document.createElement("div");
+        const span = document.createElement("span");
+        const plusMinusButton = document.createElement("div");
+        const infoElm = document.createElement("div");
+
+        container.className = 'search-result-container';
+        plusMinusButton.className = 'plus-button';
+        infoElm.className = 'info';
+        subcontainer.className = 'search-result';
+
+        // on-demand info of reference/page/whatever
+        plusMinusButton.onclick = function() {
+            // so that we dont insert duplicate info
+            infoElm.innerHTML = '';
+
+            const isPlus = plusMinusButton.classList.contains('plus-button');
+
+            if (isPlus) {
+                plusMinusButton.className = 'minus-button';
+                fetch(entry.filepath).then(response => response.text()).then(function(text) {
+                    // parse the "other" page (page containing the destination entry)
+                    const page = new DOMParser().parseFromString(text, "text/html");
+                    // the actual html entry from the other page
+                    const docElm = page.getElementById(entry.id);
+                    // the type of the entry
+
+                    // direct link to the entry in its parent page
+                    let mylink = entry['filepath'];
+                    if (docElm !== null)
+                        mylink = mylink + '#' + entry.id;
+                    const linkElm = document.createElement('a');
+                    linkElm.href = mylink;
+                    linkElm.innerHTML = 'direct link';
+
+                    const topRow = document.createElement('div');
+                    topRow.className = 'separated-row';
+
+                    // insert the info
+                    let mytype = 'document';
+                    if (mytype)
+                        topRow.appendChild(document.createTextNode('type: ' + mytype));
+                    else
+                        topRow.appendChild(document.createTextNode('empty'));
+
+                    // insert the on-demand info elements into the dom
+                    topRow.appendChild(linkElm);
+                    infoElm.appendChild(topRow);
+                    if (docElm !== null)
+                        infoElm.appendChild(docElm);
+                    container.appendChild(infoElm);
+                });
+            } else {
+                plusMinusButton.className = 'plus-button';
+                if (container.querySelector('.info')) {
+                    container.querySelector('.info').remove();
+                }
+            }
+        }
+
+        span.appendChild(document.createTextNode(entryText));
+        container.appendChild(subcontainer);
+        subcontainer.appendChild(span);
+        subcontainer.appendChild(plusMinusButton);
+        // Only append infoElm when it's actually used
+        resultsContainer.appendChild(container);
+    });
+
+    // update numbers
+    updateSearchNumbers(matchingEntries.length, searchData.length);
+}
+
+// Update search numbers display
+function updateSearchNumbers(resultsCount, totalCount) {
+    const resultsElement = document.getElementById("search-numbers-results");
+    const publicElement = document.getElementById("search-numbers-public");
+    
+    if (resultsElement) resultsElement.innerHTML = resultsCount;
+    if (publicElement) publicElement.innerHTML = totalCount;
+}
+
+// Handle search input
+function handleSearchInput(element) {
+    if (element) {
+        performSearch(element.value);
+    }
+}
+
+// =================================
 // PAGE-SPECIFIC: ARCHIVE PAGE
 // =================================
 function initializeArchivePage() {
     const postsListContainer = document.getElementById('postsList');
-    if (!postsListContainer) return;
+    const archiveFiltersContainer = document.getElementById('archiveFilters');
+    const archiveCounterElement = document.getElementById('archiveCounter');
+    if (!postsListContainer || !archiveFiltersContainer) return;
 
     const searchBar = document.getElementById('searchBar');
-    const filterButtons = document.querySelectorAll('.filter-btn');
     let currentFilter = 'all';
     let currentSearch = '';
 
-    const posts = [
-        { id: 1, icon: 'fa-infinity', tag: 'Mathematics', title: 'title 1', excerpt: 'desc 1', date: 'June 15, 2023', readTime: '8 min read' },
-        { id: 2, icon: 'fa-robot', tag: 'Technology', title: 'title 2', excerpt: 'desc 2', date: 'June 10, 2023', readTime: '12 min read' },
-        { id: 3, icon: 'fa-brain', tag: 'Neuroscience', title: 'title 3', excerpt: 'desc 3', date: 'May 28, 2023', readTime: '10 min read' },
-        { id: 4, icon: 'fa-atom', tag: 'Physics', title: 'title 4', excerpt: 'desc 4', date: 'May 15, 2023', readTime: '15 min read' },
-        { id: 5, icon: 'fa-network-wired', tag: 'Computer Science', title: 'desc 5', excerpt: 'How mathematical graphs help us understand connections in the digital age.', date: 'April 30, 2023', readTime: '9 min read' },
-        { id: 6, icon: 'fa-calculator', tag: 'Mathematics', title: 'title 6', excerpt: 'desc 6', date: 'April 12, 2023', readTime: '11 min read' },
-    ];
+    // Create filter buttons dynamically based on tags in search data
+    function createFilterButtons() {
+        // Get all unique tags from search data
+        const allTags = new Set();
+        searchData.forEach(post => {
+            if (post.tags && Array.isArray(post.tags)) {
+                post.tags.forEach(tag => {
+                    if (tag) allTags.add(tag);
+                });
+            }
+        });
 
+        // Clear existing buttons
+        archiveFiltersContainer.innerHTML = '';
+
+        // Add "All" button
+        const allButton = document.createElement('button');
+        allButton.className = 'filter-btn active';
+        allButton.dataset.tag = 'all';
+        allButton.textContent = 'All';
+        archiveFiltersContainer.appendChild(allButton);
+
+        // Add buttons for each tag
+        Array.from(allTags).sort().forEach(tag => {
+            const button = document.createElement('button');
+            button.className = 'filter-btn';
+            button.dataset.tag = tag;
+            button.textContent = tag;
+            archiveFiltersContainer.appendChild(button);
+        });
+
+        // Add event listeners to all buttons
+        const filterButtons = document.querySelectorAll('.filter-btn');
+        filterButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                filterButtons.forEach(btn => btn.classList.remove('active'));
+                button.classList.add('active');
+                currentFilter = button.dataset.tag;
+                renderPosts();
+            });
+        });
+    }
+
+    // Use the global searchData instead of hardcoded posts
     function renderPosts() {
-        const filteredPosts = posts.filter(post => {
-            const matchesFilter = currentFilter === 'all' || post.tag === currentFilter;
-            const matchesSearch = post.title.toLowerCase().includes(currentSearch.toLowerCase());
-            return matchesFilter && matchesSearch;
+        const filteredPosts = searchData.filter(post => {
+            const matchesFilter = currentFilter === 'all' || (post.tags && post.tags.includes(currentFilter));
+            const title = post.title || '';
+            const id = post.id || '';
+            const searchMatch = (title.toLowerCase().includes(currentSearch.toLowerCase()) || 
+                                id.toLowerCase().includes(currentSearch.toLowerCase()));
+            return matchesFilter && searchMatch;
         });
 
         postsListContainer.innerHTML = '';
+
+        // Update the counter
+        if (archiveCounterElement) {
+            archiveCounterElement.textContent = `Displaying ${filteredPosts.length} of ${searchData.length} entries`;
+        }
 
         if (filteredPosts.length === 0) {
             postsListContainer.innerHTML = `<div class="no-results">No articles found matching your criteria.</div>`;
@@ -93,15 +267,32 @@ function initializeArchivePage() {
             filteredPosts.forEach(post => {
                 const postCard = document.createElement('div');
                 postCard.className = 'post-card';
+                
+                // Get icon based on tags
+                const icon = getIconForTags(post.tags);
+                
+                // Format the date if it exists
+                let dateDisplay = '';
+                if (post.date) {
+                    dateDisplay = `<span>${post.date}</span>`;
+                }
+                
+                // Create tags display
+                let tagsDisplay = '';
+                if (post.tags && Array.isArray(post.tags) && post.tags.length > 0) {
+                    tagsDisplay = ' ' + post.tags.map(tag => `<span class="post-tag">${tag}</span>`).join(' ');
+                }
+                
                 postCard.innerHTML = `
-                    <div class="post-icon"><i class="fas ${post.icon}"></i></div>
                     <div class="post-content">
-                        <div class="post-header"><span class="post-tag">${post.tag}</span></div>
-                        <a href="#" class="post-title">${post.title}</a>
-                        <p class="post-excerpt">${post.excerpt}</p>
+                        <a href="${post.filepath}" class="post-title">
+                            <i class="fas ${icon} post-icon"></i>
+                            ${post.title || 'Untitled'}${tagsDisplay}
+                        </a>
+                        <p class="post-excerpt">${post.description || 'No description available.'}</p>
                         <div class="post-meta">
-                            <span>${post.date}</span>
-                            <span>${post.readTime}</span>
+                            ${dateDisplay}
+                            <span>ID: ${post.id}</span>
                         </div>
                     </div>`;
                 postsListContainer.appendChild(postCard);
@@ -109,21 +300,42 @@ function initializeArchivePage() {
         }
     }
 
-    filterButtons.forEach(button => {
-        button.addEventListener('click', () => {
-            filterButtons.forEach(btn => btn.classList.remove('active'));
-            button.classList.add('active');
-            currentFilter = button.dataset.tag;
-            renderPosts();
-        });
-    });
+    // Helper function to get an appropriate icon based on tags
+    function getIconForTags(tags) {
+        if (!tags || !Array.isArray(tags) || tags.length === 0) {
+            return 'fa-file'; // Default icon
+        }
+        
+        // Check for specific tags and return corresponding icons
+        if (tags.includes('Mathematics') || tags.includes('math')) {
+            return 'fa-infinity';
+        }
+        if (tags.includes('Technology') || tags.includes('code') || tags.includes('programming')) {
+            return 'fa-robot';
+        }
+        if (tags.includes('Neuroscience') || tags.includes('brain')) {
+            return 'fa-brain';
+        }
+        if (tags.includes('Physics')) {
+            return 'fa-atom';
+        }
+        if (tags.includes('Computer Science') || tags.includes('cs')) {
+            return 'fa-network-wired';
+        }
+        
+        return 'fa-file'; // Default icon
+    }
 
     searchBar.addEventListener('input', () => {
         currentSearch = searchBar.value;
         renderPosts();
     });
 
-    renderPosts(); // initial render
+    // Initial setup - but only if we have data
+    if (searchData.length > 0) {
+        createFilterButtons();
+        renderPosts();
+    }
 }
 
 // =================================
@@ -238,9 +450,14 @@ function initializeTableOfContents() {
 // =================================
 // MAIN INITIALIZATION
 // =================================
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     initializeThemeToggle();
-    initializeArchivePage();
     initializeGalleryPage();
     initializeTableOfContents();
+    
+    // Initialize search functionality
+    await loadSearchData();
+    
+    // Initialize archive page after data is loaded
+    initializeArchivePage();
 });

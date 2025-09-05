@@ -6,6 +6,7 @@
   <title>archive | mahmood</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="/static/main.css">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>λ</text></svg>">
 </head>
 <body class="dark-theme">
   #(read-template-file "header.html")
@@ -26,18 +27,16 @@
 
   <!-- archive filters -->
   <div class="container">
-    <div class="archive-filters">
-      <button class="filter-btn active" data-tag="all">All</button>
-      <button class="filter-btn" data-tag="Mathematics">Mathematics</button>
-      <button class="filter-btn" data-tag="Technology">Technology</button>
-      <button class="filter-btn" data-tag="Neuroscience">Neuroscience</button>
-      <button class="filter-btn" data-tag="Physics">Physics</button>
-      <button class="filter-btn" data-tag="Computer Science">Computer Science</button>
+    <div class="archive-filters" id="archiveFilters">
+      <!-- Filter buttons will be populated by JavaScript -->
     </div>
   </div>
 
   <!-- archive posts -->
   <div class="container">
+    <div class="archive-posts-header">
+      <div class="archive-counter" id="archiveCounter">Displaying 0 of 0 entries</div>
+    </div>
     <div class="archive-posts">
       <div class="posts-list" id="postsList">
         <!-- Posts will be populated by JavaScript -->
