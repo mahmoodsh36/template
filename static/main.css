@@ -1370,10 +1370,9 @@ body.light-theme .post-content p {
     color: var(--light-fg2);
 }
 
-/*
+/* css for general images */
 .post-content img {
     max-width: 100%;
-    border-radius: 6px;
     margin: 1.5rem 0;
 }
 body.dark-theme .post-content img {
@@ -1382,7 +1381,6 @@ body.dark-theme .post-content img {
 body.light-theme .post-content img {
     border: 1px solid var(--light-bg2);
 }
-*/
 
 .post-content .math-equation {
     font-size: 1.1rem;
@@ -2013,13 +2011,26 @@ body.dark-theme .org-block:hover {
     border-color: var(--dark-bg3);
 }
 
-/* Math content */
-.org-block .inline-math {
+/* math content */
+.inline-math {
     vertical-align: middle;
-    margin: 0 0.2rem;
 }
 
-.org-block .math-equation {
+/* undo effects of general image css */
+.display-math, .inline-math {
+    border: none !important;
+}
+
+.inline-math {
+    margin: 0px !important;
+}
+
+.display-math {
+    display: block;
+    margin: auto !important;
+}
+
+.math-equation {
     margin: 0.8rem 0;
     padding: 0.8rem;
     border-radius: 4px;
@@ -2049,10 +2060,4 @@ body.light-theme .org-block [class*="cite"] {
 
 body.dark-theme .org-block [class*="cite"] {
     color: var(--dark-fg3);
-}
-
-/* display math formulas etc */
-img.display-math {
-    display: block;
-    margin: auto;
 }
