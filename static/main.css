@@ -1406,16 +1406,19 @@ body.light-theme pre::-webkit-scrollbar-thumb:hover {
     background: var(--light-bg4);
 }
 
-/* invert svg colors in dark mode */
-body.dark-theme svg {
+/* Invert SVGs in dark mode: both inline SVGs and SVG images */
+body.dark-theme svg,
+body.dark-theme img[src$=".svg"] {
     filter: invert(1) hue-rotate(180deg);
 }
-/* ensure svgs are normal in light theme */
-body.light-theme svg {
+/* Ensure SVGS are normal in light theme */
+body.light-theme svg,
+body.light-theme img[src$=".svg"] {
     filter: none;
 }
-/* override for specific svgs that should never be inverted */
-body svg.no-invert {
+/* Override for specific svgs that should never be inverted */
+body svg.no-invert,
+body img.no-invert {
     filter: none !important;
 }
 
