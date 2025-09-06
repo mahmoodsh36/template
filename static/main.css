@@ -2055,6 +2055,13 @@ body.dark-theme .org-block:hover {
     vertical-align: middle;
 }
 
+.post-content img {
+    display: block;
+    margin: auto;
+    max-width: 100%;
+    margin: 5px;
+}
+
 /* undo effects of general image css */
 .display-math, .inline-math {
     border: none !important;
@@ -2062,6 +2069,7 @@ body.dark-theme .org-block:hover {
 
 .inline-math {
     margin: 0px !important;
+    display: inline !important;
 }
 
 .display-math {
