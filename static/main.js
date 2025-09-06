@@ -15,6 +15,9 @@ function initializeThemeToggle() {
         body.classList.add(theme);
         localStorage.setItem('theme', theme);
         updateThemeIcon(theme);
+
+        // Reapply org-block styling when theme changes
+        initializeOrgBlocks();
     }
 
     // function to get current theme
@@ -82,7 +85,7 @@ function performSearch(query) {
     if (!resultsContainer) return;
 
     resultsContainer.innerHTML = '';
-    
+
     if (!query) {
         // Update numbers even when query is empty
         updateSearchNumbers(0, searchData.length);
@@ -92,13 +95,13 @@ function performSearch(query) {
     const matchingEntries = searchData.filter(entry => {
         const title = entry.title || '';
         const id = entry.id || '';
-        return title.toLowerCase().includes(query.toLowerCase()) || 
+        return title.toLowerCase().includes(query.toLowerCase()) ||
                id.toLowerCase().includes(query.toLowerCase());
     });
 
     matchingEntries.forEach(entry => {
         const entryText = entry.title || entry.id || 'Untitled';
-        
+
         const container = document.createElement("div");
         const subcontainer = document.createElement("div");
         const span = document.createElement("span");
@@ -175,7 +178,7 @@ function performSearch(query) {
 function updateSearchNumbers(resultsCount, totalCount) {
     const resultsElement = document.getElementById("search-numbers-results");
     const publicElement = document.getElementById("search-numbers-public");
-    
+
     if (resultsElement) resultsElement.innerHTML = resultsCount;
     if (publicElement) publicElement.innerHTML = totalCount;
 }
@@ -249,7 +252,7 @@ function initializeArchivePage() {
             const matchesFilter = currentFilter === 'all' || (post.tags && post.tags.includes(currentFilter));
             const title = post.title || '';
             const id = post.id || '';
-            const searchMatch = (title.toLowerCase().includes(currentSearch.toLowerCase()) || 
+            const searchMatch = (title.toLowerCase().includes(currentSearch.toLowerCase()) ||
                                 id.toLowerCase().includes(currentSearch.toLowerCase()));
             return matchesFilter && searchMatch;
         });
@@ -267,22 +270,22 @@ function initializeArchivePage() {
             filteredPosts.forEach(post => {
                 const postCard = document.createElement('div');
                 postCard.className = 'post-card';
-                
+
                 // Get icon based on tags
                 const icon = getIconForTags(post.tags);
-                
+
                 // Format the date if it exists
                 let dateDisplay = '';
                 if (post.date) {
                     dateDisplay = `<span>${post.date}</span>`;
                 }
-                
+
                 // Create tags display
                 let tagsDisplay = '';
                 if (post.tags && Array.isArray(post.tags) && post.tags.length > 0) {
                     tagsDisplay = ' ' + post.tags.map(tag => `<span class="post-tag">${tag}</span>`).join(' ');
                 }
-                
+
                 postCard.innerHTML = `
                     <div class="post-content">
                         <a href="${post.filepath}" class="post-title">
@@ -305,7 +308,7 @@ function initializeArchivePage() {
         if (!tags || !Array.isArray(tags) || tags.length === 0) {
             return 'fa-file'; // Default icon
         }
-        
+
         // Check for specific tags and return corresponding icons
         if (tags.includes('Mathematics') || tags.includes('math')) {
             return 'fa-infinity';
@@ -322,7 +325,7 @@ function initializeArchivePage() {
         if (tags.includes('Computer Science') || tags.includes('cs')) {
             return 'fa-network-wired';
         }
-        
+
         return 'fa-file'; // Default icon
     }
 
@@ -448,16 +451,228 @@ function initializeTableOfContents() {
 }
 
 // =================================
+// PAGE-SPECIFIC: ORG-BLOCK STYLING
+// =================================
+function initializeOrgBlocks() {
+    // Find all org-blocks with data-type attributes
+    const orgBlocks = document.querySelectorAll('.org-block[data-type]');
+
+    orgBlocks.forEach(block => {
+        // Only process blocks that have data-type
+        if (block.hasAttribute('data-type')) {
+            const type = block.getAttribute('data-type');
+
+            // Reset padding to default
+            block.style.paddingTop = '';
+
+            // Handle "dummy" as special case - don't display type, only title if it exists
+            if (type === 'dummy') {
+                // Remove any existing dynamic styling elements
+                const existingHeader = block.querySelector('.org-block-header');
+                if (existingHeader) existingHeader.remove();
+
+                // If there's a data-title, create a simple title element
+                if (block.hasAttribute('data-title')) {
+                    // Create container for the header
+                    const headerContainer = document.createElement('div');
+                    headerContainer.className = 'org-block-header';
+                    headerContainer.style.position = 'absolute';
+                    headerContainer.style.top = '0';
+                    headerContainer.style.left = '0';
+                    headerContainer.style.right = '0';
+                    headerContainer.style.zIndex = '1';
+
+                    // Create the title element
+                    const titleElement = document.createElement('div');
+                    titleElement.className = 'org-block-title';
+                    titleElement.textContent = block.getAttribute('data-title');
+                    titleElement.style.padding = '0.3rem 0.8rem';
+                    titleElement.style.fontSize = '0.8rem';
+                    titleElement.style.fontWeight = '500';
+                    titleElement.style.borderRadius = '4px 4px 0 0';
+                    titleElement.style.whiteSpace = 'nowrap';
+                    titleElement.style.overflow = 'hidden';
+                    titleElement.style.textOverflow = 'ellipsis';
+
+                    // Add title element to header
+                    headerContainer.appendChild(titleElement);
+
+                    // Add header to block
+                    block.appendChild(headerContainer);
+
+                    // Apply theme styles dynamically
+                    applyOrgBlockTitleThemeStyles(block, titleElement);
+                } else {
+                    // No title, so no header needed - remove top padding
+                    block.style.paddingTop = '1rem';
+                }
+                return; // Skip normal processing for dummy blocks
+            }
+
+            // Remove any existing dynamic styling elements
+            const existingHeader = block.querySelector('.org-block-header');
+            if (existingHeader) existingHeader.remove();
+
+            // Set default top padding for non-dummy blocks
+            block.style.paddingTop = '2.5rem';
+
+            // Create container for the header
+            const headerContainer = document.createElement('div');
+            headerContainer.className = 'org-block-header';
+            headerContainer.style.position = 'absolute';
+            headerContainer.style.top = '0';
+            headerContainer.style.left = '0';
+            headerContainer.style.right = '0';
+            headerContainer.style.display = 'flex';
+            headerContainer.style.zIndex = '1';
+
+            // Create the type element
+            const typeElement = document.createElement('div');
+            typeElement.className = 'org-block-type';
+            typeElement.textContent = type;
+            typeElement.style.padding = '0.3rem 0.8rem';
+            typeElement.style.fontSize = '0.8rem';
+            typeElement.style.fontWeight = '600';
+            typeElement.style.textTransform = 'uppercase';
+            typeElement.style.letterSpacing = '0.5px';
+            typeElement.style.borderRadius = '4px 0 0 0';
+
+            // Add type element to header
+            headerContainer.appendChild(typeElement);
+
+            // If there's a data-title, create the title element
+            if (block.hasAttribute('data-title')) {
+                const titleElement = document.createElement('div');
+                titleElement.className = 'org-block-title';
+                titleElement.textContent = block.getAttribute('data-title');
+                titleElement.style.padding = '0.3rem 0.8rem';
+                titleElement.style.fontSize = '0.8rem';
+                titleElement.style.fontWeight = '500';
+                titleElement.style.borderRadius = '0 4px 0 0';
+                titleElement.style.flex = '1'; // Take remaining space
+                titleElement.style.whiteSpace = 'nowrap';
+                titleElement.style.overflow = 'hidden';
+                titleElement.style.textOverflow = 'ellipsis';
+
+                // Add title element to header
+                headerContainer.appendChild(titleElement);
+            } else {
+                // If no title, make type element take full width with rounded corners
+                typeElement.style.borderRadius = '4px 4px 0 0';
+            }
+
+            // Add header to block
+            block.appendChild(headerContainer);
+
+            // Apply theme styles dynamically
+            applyOrgBlockThemeStyles(block, typeElement);
+            if (block.hasAttribute('data-title')) {
+                const titleElement = headerContainer.querySelector('.org-block-title');
+                if (titleElement) {
+                    applyOrgBlockTitleThemeStyles(block, titleElement);
+                }
+            }
+        }
+    });
+}
+
+// Apply theme styles to org-block type element
+function applyOrgBlockThemeStyles(block, typeElement) {
+    const body = document.body;
+    const type = block.getAttribute('data-type');
+
+    // Base theme styles
+    if (body.classList.contains('dark-theme')) {
+        typeElement.style.background = 'var(--dark-aqua)';
+        typeElement.style.color = 'var(--dark-bg0)';
+    } else {
+        typeElement.style.background = 'var(--light-aqua)';
+        typeElement.style.color = 'var(--light-bg0)';
+    }
+
+    // Type-specific colors (excluding "dummy")
+    if (type !== 'dummy') {
+        const typeColors = {
+            'problem': body.classList.contains('dark-theme') ? 'var(--dark-yellow)' : 'var(--light-yellow)',
+            'definition': body.classList.contains('dark-theme') ? 'var(--dark-green)' : 'var(--light-green)',
+            'theorem': body.classList.contains('dark-theme') ? 'var(--dark-blue)' : 'var(--light-blue)',
+            'proof': body.classList.contains('dark-theme') ? 'var(--dark-purple)' : 'var(--light-purple)'
+        };
+
+        // Apply specific color if defined, otherwise keep the default aqua color
+        if (typeColors[type]) {
+            typeElement.style.background = typeColors[type];
+            // Update border color to match
+            block.style.borderLeftColor = typeColors[type];
+        } else {
+            // For unknown block types, use the default aqua color for border
+            if (body.classList.contains('dark-theme')) {
+                block.style.borderLeftColor = 'var(--dark-aqua)';
+            } else {
+                block.style.borderLeftColor = 'var(--light-aqua)';
+            }
+        }
+    } else {
+        // For dummy blocks, use orange color
+        if (body.classList.contains('dark-theme')) {
+            block.style.borderLeftColor = 'var(--dark-orange)';
+        } else {
+            block.style.borderLeftColor = 'var(--light-orange)';
+        }
+    }
+}
+
+// Apply theme styles to org-block title element
+function applyOrgBlockTitleThemeStyles(block, titleElement) {
+    const body = document.body;
+    const type = block.getAttribute('data-type');
+
+    if (body.classList.contains('dark-theme')) {
+        titleElement.style.background = 'var(--dark-bg1)';
+        titleElement.style.color = 'var(--dark-fg1)';
+        if (type !== 'dummy') {
+            titleElement.style.borderBottom = '1px solid var(--dark-bg3)';
+            titleElement.style.borderRight = '1px solid var(--dark-bg3)';
+        }
+    } else {
+        titleElement.style.background = 'var(--light-bg1)';
+        titleElement.style.color = 'var(--light-fg1)';
+        if (type !== 'dummy') {
+            titleElement.style.borderBottom = '1px solid var(--light-bg3)';
+            titleElement.style.borderRight = '1px solid var(--light-bg3)';
+        }
+    }
+
+    // For dummy blocks, we want a simpler style without borders
+    if (type === 'dummy') {
+        if (body.classList.contains('dark-theme')) {
+            titleElement.style.background = 'var(--dark-bg2)';
+            titleElement.style.color = 'var(--dark-fg2)';
+            titleElement.style.borderBottom = 'none';
+            titleElement.style.borderRight = 'none';
+        } else {
+            titleElement.style.background = 'var(--light-bg2)';
+            titleElement.style.color = 'var(--light-fg2)';
+            titleElement.style.borderBottom = 'none';
+            titleElement.style.borderRight = 'none';
+        }
+    }
+}
+
+// =================================
 // MAIN INITIALIZATION
 // =================================
 document.addEventListener('DOMContentLoaded', async () => {
     initializeThemeToggle();
     initializeGalleryPage();
     initializeTableOfContents();
-    
+
     // Initialize search functionality
     await loadSearchData();
-    
+
     // Initialize archive page after data is loaded
     initializeArchivePage();
+
+    // Initialize org-block styling
+    initializeOrgBlocks();
 });
