@@ -74,6 +74,8 @@
 
    "/home/mahmooz/brain/notes/1696961489.org"
    "/home/mahmooz/brain/notes/1707059561.org"
+
+   "/home/mahmooz/brain/notes/1659132042.org"
    ))
 (defvar *filepath-format*
   "%(cl-user::title-to-filename root-title).html")
