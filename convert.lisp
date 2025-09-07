@@ -61,6 +61,7 @@
     "/home/mahmooz/brain/notes/1725810860.5115163.org" ;; databases
     "/home/mahmooz/brain/notes/1677361099.org" ;; machine learning
     "/home/mahmooz/brain/notes/1709021027.org" ;; linear algebra
+    "/home/mahmooz/brain/notes/1754138731.8238535.org"
     ))
 (defvar *excluded-files*
   (list
@@ -150,6 +151,7 @@
                (if full-export
                    t
                    (member filepath files-to-convert :test 'string=))))
+           (cltpt:*author* "mahmood")
            (cltpt/html:*html-template*
              (uiop:read-file-string
               (uiop:merge-pathnames* *template-dir* "page.html"))))

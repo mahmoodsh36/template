@@ -3,13 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title> %title </title>
+  <title> %(cltpt/base:document-title (getf cltpt/base:*convert-info* :text-obj)) </title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="/static/main.css">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>λ</text></svg>">
 </head>
 <body class="dark-theme">
-  <!-- Header -->
   #(read-template-file "header.html")
 
   <!-- Main Content -->
@@ -32,21 +31,21 @@
       <main class="main-content">
         <article class="post">
           <header class="post-header">
-            <h1 class="post-title"> %title </h1>
+            <h1 class="post-title"> %(cltpt/base:document-title (getf cltpt/base:*convert-info* :text-obj)) </h1>
             <div class="post-meta">
-              <span><i class="far fa-calendar"></i> June 15, 2023</span>
-              <span><i class="far fa-clock"></i> 8 min read</span>
-              <span><i class="far fa-user"></i> %author</span>
+              <span><i class="far fa-calendar"></i> %(cltpt/base:document-date (getf cltpt/base:*convert-info* :text-obj)) </span>
+              <!-- <span><i class="far fa-clock"></i> 8 min read</span> -->
+              <span><i class="far fa-user"></i> %cltpt:*author* </span>
             </div>
             <div class="post-tags">
-              <span class="post-tag">Mathematics</span>
-              <span class="post-tag">Geometry</span>
-              <span class="post-tag">Nature</span>
+              #(cltpt/base::make-block :loop `(tag ,(cltpt/base:text-object-property (getf cltpt/base:*convert-info* :text-obj) :tags)))
+                <span class="post-tag"> %tag </span>
+              #(cltpt/base::block-end)
             </div>
           </header>
 
           <div class="post-content">
-            %contents
+            %(cltpt/base:text-object-contents (getf cltpt/base:*convert-info* :text-obj))
           </div>
         </article>
       </main>
