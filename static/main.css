@@ -951,9 +951,9 @@ body.light-theme .archive-posts .post-excerpt {
 
 .post-meta {
     display: flex;
-    gap: 0.8rem;
-    font-size: 0.75rem;
-    margin-top: 0.5rem;
+    gap: 1rem;
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
 }
 
 body.dark-theme .post-meta {
@@ -1342,7 +1342,6 @@ body.light-theme .post-title {
 .post-tags {
     display: flex;
     gap: 0.5rem;
-    margin-bottom: 1.5rem;
 }
 
 .post-tag {
