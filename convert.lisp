@@ -47,8 +47,9 @@
                     (write-char #\_ out))))))
 
 (defvar *blog-dir* "/home/mahmooz/work/blog/")
-(defvar *template-dir* (truename "~/work/template/"))
-(defvar *template-static-dir* (truename "~/work/template/static/"))
+(defvar *template-dir* (uiop:unix-namestring (truename "~/work/template/")))
+(defvar *template-static-dir*
+  (uiop:unix-namestring (truename "~/work/template/static/")))
 (defvar *main-files*
   '("/home/mahmooz/brain/notes/1678745440.org" ;; graph theory
     "/home/mahmooz/brain/notes/1729677442.6352403.org" ;; circuit complexity
@@ -171,16 +172,20 @@
            dest-dir-static
            (cltpt/file-utils:file-basename item))))
        (uiop:directory-files *template-static-dir*))
+      ;; copy robots.txt (it gets copied to static/ but we want it at root)
+      (uiop:copy-file
+       (cltpt/file-utils:join-paths *template-static-dir* "robots.txt")
+       (cltpt/file-utils:join-paths dest-dir "robots.txt"))
       ;; (compile-all-latex-previews rmr (lambda (x) t))
       (compile-all-latex-previews rmr file-predicate)
+      (export-metadata-to-json
+       rmr
+       "search.json"
+       file-predicate)
       (cltpt/roam:convert-all
        rmr
        (cltpt/base:text-format-by-name "html")
        *filepath-format*
-       file-predicate)
-      (export-metadata-to-json
-       rmr
-       "search.json"
        file-predicate))))
 
 ;; should place the static file in the dir and return the href to it
