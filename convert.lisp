@@ -341,7 +341,7 @@
   <div class=\"post-header\">
     <i class=\"fas fa-infinity floating post-icon\"></i>
     <h3 class=\"post-title\">~A</h3>
-    <span class=\"post-tag\">Mathematics</span>
+    <!-- <span class=\"post-tag\">Mathematics</span> -->
   </div>
   <p class=\"post-excerpt\">~A</p>
   <a href=\"~A\" class=\"read-more\">Read More <i class=\"fas fa-arrow-right\"></i></a>
