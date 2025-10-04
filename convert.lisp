@@ -47,7 +47,8 @@
                     (write-char #\_ out))))))
 
 (defvar *blog-dir* "/home/mahmooz/work/blog/")
-(defvar *template-dir* (uiop:unix-namestring (truename "~/work/template/")))
+(defvar *base-dir* (uiop:unix-namestring (truename "~/work/template/")))
+(defvar *template-dir* (uiop:unix-namestring (truename "~/work/template/template/")))
 (defvar *template-static-dir*
   (uiop:unix-namestring (truename "~/work/template/static/")))
 (defvar *main-files*
