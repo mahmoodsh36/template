@@ -97,10 +97,7 @@
 
 ;; this is for postponing the execution to after roamer is done.
 (defun get-latex-preview-svg-by-blk-id-1 (blk-id)
-  (cons
-   'after-roam
-   (lambda ()
-     (get-latex-preview-svg-by-blk-id blk-id))))
+  (get-latex-preview-svg-by-blk-id blk-id))
 
 (defun generate ()
   (setf cltpt/org-mode::*org-enable-macros* t)
@@ -108,12 +105,12 @@
   (cltpt/zoo::init)
   ;; generation with "restrictions" to the "main files/entries"
   (let ((rmr-files '((:path ("/home/mahmooz/brain/notes/")
-                      :regex ".*\\.org"
+                      :glob "*.org"
                       :format "org-mode"))))
     (generate-from-files-to-dir rmr-files *blog-dir*))
   ;; convert everything for local browsing
   (let ((rmr-files '((:path ("/home/mahmooz/brain/notes/")
-                      :regex ".*\\.org"
+                      :glob "*.org"
                       :format "org-mode"))))
     (generate-from-files-to-dir rmr-files "/home/mahmooz/work/local/" t)))
 
@@ -222,9 +219,9 @@
    (cltpt/file-utils:change-dir template-file dest-dir)
    (cltpt/base:convert-tree
     (cltpt/base:parse
-     (uiop:read-file-string template-file)
-     (list 'cltpt/base:text-macro 'cltpt/base:post-lexer-text-macro))
-    (list 'cltpt/base:text-macro 'cltpt/base:post-lexer-text-macro)
+     cltpt/base:*simple-format*
+     (uiop:read-file-string template-file))
+    cltpt/base:*simple-format*
     cltpt/html:*html*
     :reparse t
     :escape nil
@@ -305,22 +302,6 @@
                           :date date-str))))
     entries))
 
-(defun generate-blog-entries-html (nodes)
-  (let ((blog-nodes (sort
-                     (loop for node in nodes
-                           for text-obj = (cltpt/roam:node-text-obj node)
-                           for val = (cltpt/base:alist-get
-                                      (cltpt/base:text-object-property
-                                       text-obj
-                                       :keywords-alist)
-                                      "export_section")
-                           when (and (equal val "blog")
-                                     (node-date node))
-                             collect node)
-                     'local-time:timestamp>
-                     :key #'node-date)))
-    (generate-posts-list blog-nodes)))
-
 (defun generate-posts-list (nodes)
   (let ((entries
           (loop for node in nodes
@@ -361,6 +342,22 @@
 ~A
 </div>"
             (cltpt/base:concat entries))))
+
+(defun generate-blog-entries-html (nodes)
+  (let ((blog-nodes (sort
+                     (loop for node in nodes
+                           for text-obj = (cltpt/roam:node-text-obj node)
+                           for val = (cltpt/base:alist-get
+                                      (cltpt/base:text-object-property
+                                       text-obj
+                                       :keywords-alist)
+                                      "export_section")
+                           when (and (equal val "blog")
+                                     (node-date node))
+                             collect node)
+                     'local-time:timestamp>
+                     :key #'node-date)))
+    (generate-posts-list blog-nodes)))
 
 (defun generate-collage (nodes collage-title)
   (with-output-to-string (out)
