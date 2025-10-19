@@ -109,10 +109,11 @@
                       :format "org-mode"))))
     (generate-from-files-to-dir rmr-files *blog-dir*))
   ;; convert everything for local browsing
-  (let ((rmr-files '((:path ("/home/mahmooz/brain/notes/")
-                      :glob "*.org"
-                      :format "org-mode"))))
-    (generate-from-files-to-dir rmr-files "/home/mahmooz/work/local/" t)))
+  ;; (let ((rmr-files '((:path ("/home/mahmooz/brain/notes/")
+  ;;                     :glob "*.org"
+  ;;                     :format "org-mode"))))
+  ;;   (generate-from-files-to-dir rmr-files "/home/mahmooz/work/local/" t))
+  )
 
 ;; named it "to-dir", but some functionality in this file depends on CWD
 (defun generate-from-files-to-dir (rmr-files dest-dir &optional (full-export))
@@ -217,32 +218,12 @@
 (defun convert-template (dest-dir template-file)
   (cltpt/file-utils:write-file
    (cltpt/file-utils:change-dir template-file dest-dir)
-   (cltpt/base:convert-tree
-    (cltpt/base:parse
-     cltpt/base:*simple-format*
-     (uiop:read-file-string template-file))
+   (cltpt/base::convert-document
     cltpt/base:*simple-format*
     cltpt/html:*html*
-    :reparse t
-    :escape nil
-    :recurse t)))
-
-;; takes html code, converts it to a page through org-mode->conversion, so that
-;; it behaves as if it was exported from an org file.
-;; (defun generate-page (rmr dest-dir html page-title)
-;;   (let* ((dest-file (uiop:merge-pathnames*
-;;                      dest-dir
-;;                      (format nil "~A.html" (title-to-filename page-title)))))
-;;     (cltpt/file-utils:write-file
-;;      dest-file
-;;      (cltpt/base::convert-text
-;;       (cltpt/base:text-format-by-name "org-mode")
-;;       (cltpt/base:text-format-by-name "html")
-;;       (format nil
-;;               "~A~%~A~%~A"
-;;               "#+begin_export html"
-;;               html
-;;               "#+end_export")))))
+    (cltpt/base:parse
+     cltpt/base:*simple-format*
+     (cltpt/file-utils:read-file template-file)))))
 
 (defun node-date (node)
   (let* ((text-obj (cltpt/roam:node-text-obj node))
