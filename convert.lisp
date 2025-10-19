@@ -218,12 +218,13 @@
 (defun convert-template (dest-dir template-file)
   (cltpt/file-utils:write-file
    (cltpt/file-utils:change-dir template-file dest-dir)
-   (cltpt/base::convert-document
-    cltpt/base:*simple-format*
-    cltpt/html:*html*
+   (cltpt/base::convert-tree
     (cltpt/base:parse
      cltpt/base:*simple-format*
-     (cltpt/file-utils:read-file template-file)))))
+     (cltpt/file-utils:read-file template-file))
+    cltpt/base:*simple-format*
+    cltpt/html:*html*
+    :escape nil)))
 
 (defun node-date (node)
   (let* ((text-obj (cltpt/roam:node-text-obj node))
