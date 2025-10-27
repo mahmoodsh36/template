@@ -109,23 +109,22 @@
                       :format "org-mode"))))
     (generate-from-files-to-dir rmr-files *blog-dir*))
   ;; convert everything for local browsing
-  ;; (let ((rmr-files '((:path ("/home/mahmooz/brain/notes/")
-  ;;                     :glob "*.org"
-  ;;                     :format "org-mode"))))
-  ;;   (generate-from-files-to-dir rmr-files "/home/mahmooz/work/local/" t))
-  )
+  (let ((rmr-files '((:path ("/home/mahmooz/brain/notes/")
+                      :glob "*.org"
+                      :format "org-mode"))))
+    (generate-from-files-to-dir rmr-files "/home/mahmooz/work/local/" t)))
 
 ;; named it "to-dir", but some functionality in this file depends on CWD
 (defun generate-from-files-to-dir (rmr-files dest-dir &optional (full-export))
   (cltpt/file-utils:ensure-dir-exists dest-dir)
   (uiop:with-current-directory (dest-dir)
     (let* ((cltpt/html:*html-static-route* "/")
-           (cltpt/latex:*latex-preamble*
-             "\\documentclass[11pt]{article}
-\\usepackage{\\string~/.emacs.d/common}")
-           (cltpt/latex::*latex-preview-preamble*
-             "\\documentclass[11pt]{article}
-\\usepackage{\\string~/.emacs.d/common}")
+;;            (cltpt/latex:*latex-preamble*
+;;              "\\documentclass[11pt]{article}
+;; \\usepackage{\\string~/.emacs.d/common}")
+;;            (cltpt/latex::*latex-preview-preamble*
+;;              "\\documentclass[11pt]{article}
+;; \\usepackage{\\string~/.emacs.d/common}")
            (cltpt/html:*html-static-dir* dest-dir)
            ;; (cltpt/latex:*latex-previews-cache-directory* "./")
            (cltpt/latex:*latex-previews-cache-directory* "")
@@ -392,20 +391,20 @@
              in (cltpt/base:find-children-recursively
                  text-obj
                  (lambda (child)
-                   (cltpt/base:text-object-property child :dest)))
-           do (let* ((link (cltpt/roam:resolve-link
-                            rmr
-                            node
-                            link-obj
-                            (if (cltpt/base:text-object-property link-obj :type)
-                                (intern (cltpt/base:text-object-property
-                                         link-obj
-                                         :type))
-                                'cltpt/roam::id)
-                            (cltpt/base:text-object-property link-obj :dest)))
+                   (typep child 'cltpt/base:text-link)))
+           do (let* ((link (cltpt/base:text-link-link link-obj))
+                     (result (cltpt/base:link-resolve
+                              (cltpt/base:link-type link)
+                              (cltpt/base:link-desc link)
+                              (cltpt/base:link-dest link)))
                      (linked-file
-                       (when link
-                         (cltpt/roam:node-file (cltpt/roam:link-dest-node link)))))
+                       (typecase result
+                         (pathname
+                          (cltpt/file-utils:ensure-filepath-string result))
+                         (cltpt/roam:node
+                          (cltpt/roam:node-file result))
+                         (t
+                          result))))
                 (when (and linked-file
                            (not (member linked-file
                                         *excluded-files*
@@ -414,7 +413,8 @@
                                   (cons (cltpt/roam:node-file node) linked-files)
                                   :test 'string=)
                     (push linked-file linked-files)
-                    (push (cltpt/roam:link-dest-node link) nodes-left))))))
+                    (when (typep result 'cltpt/roam:node)
+                      (push result nodes-left)))))))
     linked-files))
 
 (defun encode-list-of-plists-to-json (list-of-plists)
