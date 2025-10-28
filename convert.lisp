@@ -109,10 +109,11 @@
                       :format "org-mode"))))
     (generate-from-files-to-dir rmr-files *blog-dir*))
   ;; convert everything for local browsing
-  (let ((rmr-files '((:path ("/home/mahmooz/brain/notes/")
-                      :glob "*.org"
-                      :format "org-mode"))))
-    (generate-from-files-to-dir rmr-files "/home/mahmooz/work/local/" t)))
+  ;; (let ((rmr-files '((:path ("/home/mahmooz/brain/notes/")
+  ;;                     :glob "*.org"
+  ;;                     :format "org-mode"))))
+  ;;   (generate-from-files-to-dir rmr-files "/home/mahmooz/work/local/" t))
+  )
 
 ;; named it "to-dir", but some functionality in this file depends on CWD
 (defun generate-from-files-to-dir (rmr-files dest-dir &optional (full-export))
@@ -122,9 +123,9 @@
 ;;            (cltpt/latex:*latex-preamble*
 ;;              "\\documentclass[11pt]{article}
 ;; \\usepackage{\\string~/.emacs.d/common}")
-;;            (cltpt/latex::*latex-preview-preamble*
-;;              "\\documentclass[11pt]{article}
-;; \\usepackage{\\string~/.emacs.d/common}")
+           (cltpt/latex::*latex-preview-preamble*
+             "\\documentclass[11pt]{article}
+\\usepackage{\\string~/.emacs.d/common}")
            (cltpt/html:*html-static-dir* dest-dir)
            ;; (cltpt/latex:*latex-previews-cache-directory* "./")
            (cltpt/latex:*latex-previews-cache-directory* "")
@@ -270,10 +271,13 @@
                  for date-str = (local-time:format-timestring
                                  nil
                                  (node-date node)
-                                 :format '(:short-weekday ", "
-                                           (:DAY 2) #\space
-                                           :SHORT-MONTH #\space
-                                           (:YEAR 4)))
+                                 :format '(:short-weekday
+                                           ", "
+                                           (:day 2)
+                                           #\space
+                                           :short-month
+                                           #\space
+                                           (:year 4)))
                  collect (list
                           :href (format nil
                                         "~A~A.html"
@@ -294,10 +298,13 @@
                 for date-str = (local-time:format-timestring
                                 nil
                                 (node-date node)
-                                :format '(:short-weekday ", "
-                                          (:DAY 2) #\space
-                                          :SHORT-MONTH #\space
-                                          (:YEAR 4)))
+                                :format '(:short-weekday
+                                          ", "
+                                          (:day 2)
+                                          #\space
+                                          :short-month
+                                          #\space
+                                          (:year 4)))
                 collect (let ((entry-html "
 <div class=\"post-card\">
   <div class=\"post-header\">
