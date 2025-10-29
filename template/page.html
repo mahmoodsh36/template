@@ -36,7 +36,7 @@
               <span><i class="far fa-user"></i> %cltpt:*author* </span>
             </div>
             <div class="post-tags">
-              #(cltpt/base::make-block :loop `(tag ,(cltpt/base:text-object-property (getf cltpt/base:*convert-info* :text-obj) :tags)) :escape nil)
+              #(cltpt/base::make-block :loop '(tag (cltpt/base:text-object-property (getf cltpt/base:*convert-info* :text-obj) :tags)) :escape nil)
                 <span class="post-tag"> %tag </span>
               #(cltpt/base::block-end)
             </div>

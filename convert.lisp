@@ -106,7 +106,9 @@
   ;; generation with "restrictions" to the "main files/entries"
   (let ((rmr-files '((:path ("/home/mahmooz/brain/notes/")
                       :glob "*.org"
-                      :format "org-mode"))))
+                      :format "org-mode")
+                     ;; "/home/mahmooz/work/cltpt/tests/test2.org"
+                     )))
     (generate-from-files-to-dir rmr-files *blog-dir*))
   ;; convert everything for local browsing
   ;; (let ((rmr-files '((:path ("/home/mahmooz/brain/notes/")
@@ -287,44 +289,35 @@
                           :date date-str))))
     entries))
 
+(defvar *card-node* nil)
+
 (defun generate-posts-list (nodes)
   (let ((entries
           (loop for node in nodes
-                for filepath = (cltpt/roam:node-file node)
-                for title = (cltpt/roam:node-title node)
-                for desc = (or (cltpt/roam:node-desc node)
-                               "no description.")
-                for text-obj = (cltpt/roam:node-text-obj node)
-                for date-str = (local-time:format-timestring
-                                nil
-                                (node-date node)
-                                :format '(:short-weekday
-                                          ", "
-                                          (:day 2)
-                                          #\space
-                                          :short-month
-                                          #\space
-                                          (:year 4)))
-                collect (let ((entry-html "
-<div class=\"post-card\">
-  <div class=\"post-header\">
-    <i class=\"fas fa-infinity floating post-icon\"></i>
-    <h3 class=\"post-title\">~A</h3>
-    <!-- <span class=\"post-tag\">Mathematics</span> -->
-  </div>
-  <p class=\"post-excerpt\">~A</p>
-  <a href=\"~A\" class=\"read-more\">Read More <i class=\"fas fa-arrow-right\"></i></a>
-</div>
-"
-                                          ))
-                          (format nil
-                                  entry-html
-                                  title
-                                  desc
-                                  (format nil
-                                          "~A~A.html"
-                                          cltpt/html:*html-static-route*
-                                          (title-to-filename title)))))))
+                ;; for date-str = (local-time:format-timestring
+                ;;                 nil
+                ;;                 (node-date node)
+                ;;                 :format '(:short-weekday
+                ;;                           ", "
+                ;;                           (:day 2)
+                ;;                           #\space
+                ;;                           :short-month
+                ;;                           #\space
+                ;;                           (:year 4)))
+                collect (let ((*card-node* node)
+                              (cltpt/base:*convert-info*
+                                (cltpt/base:merge-plist
+                                 cltpt/base:*convert-info*
+                                 (list
+                                  :text-obj (cltpt/roam:node-text-obj node)
+                                  :dest-fmt cltpt/base:*simple-format*
+                                  :src-fmt cltpt/base:*simple-format*))))
+                          (cltpt/base:convert-tree
+                           (cltpt/base:parse
+                            cltpt/base:*simple-format*
+                            (read-template-file "card.html"))
+                           cltpt/base:*simple-format*
+                           cltpt/base:*simple-format*)))))
     (format nil
             "<div class=\"posts-list\">
 ~A
