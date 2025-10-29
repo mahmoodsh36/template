@@ -16,7 +16,7 @@
       <!-- table of contents -->
       <aside class="toc-container">
         <button class="toc-toggle" id="tocToggle">
-          <i class="fas fa-list"></i> Table of Contents
+          <i class="fas fa-list"></i> table of contents
         </button>
         <div class="toc" id="toc">
           <div class="toc-title">contents</div>
@@ -36,7 +36,7 @@
               <span><i class="far fa-user"></i> %cltpt:*author* </span>
             </div>
             <div class="post-tags">
-              #(cltpt/base::make-block :loop `(tag ,(cltpt/base:text-object-property (getf cltpt/base:*convert-info* :text-obj) :tags)))
+              #(cltpt/base::make-block :loop `(tag ,(cltpt/base:text-object-property (getf cltpt/base:*convert-info* :text-obj) :tags)) :escape nil)
                 <span class="post-tag"> %tag </span>
               #(cltpt/base::block-end)
             </div>
