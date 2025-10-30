@@ -63,7 +63,6 @@
     "/home/mahmooz/brain/notes/1725810860.5115163.org" ;; databases
     "/home/mahmooz/brain/notes/1677361099.org" ;; machine learning
     "/home/mahmooz/brain/notes/1709021027.org" ;; linear algebra
-    "/home/mahmooz/brain/notes/1754138731.8238535.org"
     ))
 (defvar *excluded-files*
   (list
@@ -162,7 +161,8 @@
       (convert-template dest-dir (uiop:merge-pathnames* *template-dir* "archive.html"))
       (convert-template dest-dir (uiop:merge-pathnames* *template-dir* "blog.html"))
       ;; apparently it doesnt work unless theres a '/' at the end.
-      (cltpt/file-utils:ensure-dir-exists (concatenate 'string dest-dir-static "/"))
+      (cltpt/file-utils:ensure-dir-exists
+       (concatenate 'string dest-dir-static "/"))
       ;; copy files from static dir of the template dir (js, css, etc)
       (mapc
        (lambda (item)
