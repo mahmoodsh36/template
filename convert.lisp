@@ -80,7 +80,7 @@
    "/home/mahmooz/brain/notes/1659132042.org"
    ))
 (defvar *filepath-format*
-  "%(cl-user::title-to-filename root-title).html")
+  "%(title-to-filename (getf *file-info* :root-title)).html")
 (defvar *rmr*)
 
 (defun from-brain (filepath)
@@ -257,8 +257,7 @@
                      text-obj
                      :keywords-alist)
                     "export_section")
-         when (and (equal val "blog")
-                   (node-date node))
+         when (and (equal val "blog") (node-date node))
            collect node)
    'local-time:timestamp>
    :key #'node-date))
@@ -382,14 +381,15 @@
                  text-obj
                  (lambda (child)
                    (typep child 'cltpt/base:text-link)))
-             do (let* ((link (cltpt/base:text-link-link link-obj))
-                       (result (cltpt/base:link-resolve
-                                (cltpt/base:link-type link)
-                                (cltpt/base:link-desc link)
-                                (cltpt/base:link-dest link)))
-                       (linked-file
-                        (when result
-                          (cltpt/base:target-filepath result))))
+           do (let* ((link (cltpt/base:text-link-link link-obj))
+                     (result (cltpt/base:link-resolve
+                              (cltpt/base:link-type link)
+                              (cltpt/base:link-desc link)
+                              (cltpt/base:link-dest link)))
+                     (linked-file
+                       (when result
+                         (cltpt/base:target-filepath result))))
+                (format t "here ~A~%" (cltpt/base:link-dest link))
                 (when (and linked-file
                            (not (member linked-file
                                         *excluded-files*
