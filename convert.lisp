@@ -382,13 +382,14 @@
                  text-obj
                  (lambda (child)
                    (typep child 'cltpt/base:text-link)))
-           do (let* ((link (cltpt/base:text-link-link link-obj))
-                     (result (cltpt/base:link-resolve
-                              (cltpt/base:link-type link)
-                              (cltpt/base:link-desc link)
-                              (cltpt/base:link-dest link)))
-                     (linked-file
-                       (cltpt/base:target-filepath result)))
+             do (let* ((link (cltpt/base:text-link-link link-obj))
+                       (result (cltpt/base:link-resolve
+                                (cltpt/base:link-type link)
+                                (cltpt/base:link-desc link)
+                                (cltpt/base:link-dest link)))
+                       (linked-file
+                        (when result
+                          (cltpt/base:target-filepath result))))
                 (when (and linked-file
                            (not (member linked-file
                                         *excluded-files*
