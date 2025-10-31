@@ -94,10 +94,6 @@
              (latex-env-text (cltpt/base:text-object-contents text-obj)))
         (cdar (cltpt/latex:generate-previews-for-latex (list latex-env-text)))))))
 
-;; this is for postponing the execution to after roamer is done.
-(defun get-latex-preview-svg-by-blk-id-1 (blk-id)
-  (get-latex-preview-svg-by-blk-id blk-id))
-
 (defun generate ()
   (setf cltpt/org-mode::*org-enable-macros* t)
   ;; (setf (getf cltpt:*debug* :convert) t)
@@ -156,6 +152,10 @@
            (cltpt/html:*html-template*
              (uiop:read-file-string
               (uiop:merge-pathnames* *template-dir* "page.html"))))
+      ;; i dont like bbox=preview so modify the command to remove it
+      (setf
+       (getf (cdar cltpt/latex::*latex-preview-pipelines*) :image-converter)
+       "dvisvgm --page=1- --no-fonts --relative --clipjoin --optimize -o %B-%9p.svg %f")
       (convert-template dest-dir (uiop:merge-pathnames* *template-dir* "index.html"))
       (convert-template dest-dir (uiop:merge-pathnames* *template-dir* "about.html"))
       (convert-template dest-dir (uiop:merge-pathnames* *template-dir* "archive.html"))
@@ -294,16 +294,6 @@
 (defun generate-posts-list (nodes)
   (let ((entries
           (loop for node in nodes
-                ;; for date-str = (local-time:format-timestring
-                ;;                 nil
-                ;;                 (node-date node)
-                ;;                 :format '(:short-weekday
-                ;;                           ", "
-                ;;                           (:day 2)
-                ;;                           #\space
-                ;;                           :short-month
-                ;;                           #\space
-                ;;                           (:year 4)))
                 collect (let ((*card-node* node)
                               (cltpt/base:*convert-info*
                                 (cltpt/base:merge-plist
