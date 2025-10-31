@@ -187,7 +187,7 @@
        rmr
        (cltpt/base:text-format-by-name "html")
        *filepath-format*
-       file-predicate))))
+       :convert-file-predicate file-predicate))))
 
 ;; should place the static file in the dir and return the href to it
 (defun export-static-file (filepath)
@@ -398,13 +398,7 @@
                               (cltpt/base:link-desc link)
                               (cltpt/base:link-dest link)))
                      (linked-file
-                       (typecase result
-                         (pathname
-                          (cltpt/file-utils:ensure-filepath-string result))
-                         (cltpt/roam:node
-                          (cltpt/roam:node-file result))
-                         (t
-                          result))))
+                       (cltpt/base:target-filepath result)))
                 (when (and linked-file
                            (not (member linked-file
                                         *excluded-files*
