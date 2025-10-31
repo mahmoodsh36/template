@@ -1549,6 +1549,166 @@ body.light-theme .post-content pre {
     line-height: 1.5;
 }
 
+/* =================================
+   ORG-SRC CODE BLOCKS
+   ================================= */
+
+/* Base org-src styling */
+.org-src {
+    position: relative;
+    margin: 1.5rem 0;
+    border-radius: 6px;
+    overflow: hidden;
+    border-left: 3px solid;
+    font-family: "Fira Code", "Courier New", monospace;
+}
+
+body.dark-theme .org-src {
+    background-color: var(--dark-bg1);
+    border-color: var(--dark-aqua);
+}
+
+body.light-theme .org-src {
+    background-color: var(--light-bg1);
+    border-color: var(--light-aqua);
+}
+
+/* Org-src content area */
+.org-src pre {
+    margin: 0;
+    padding: 1.2rem;
+    padding-top: 2.5rem;
+    background: none;
+    border: none;
+    border-radius: 0;
+    overflow-x: auto;
+}
+
+.org-src pre code {
+    background: none;
+    padding: 0;
+    margin: 0;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    color: inherit;
+}
+
+body.dark-theme .org-src pre code {
+    color: var(--dark-fg2);
+}
+
+body.light-theme .org-src pre code {
+    color: var(--light-fg2);
+}
+
+/* Org-src header with language info */
+.org-src-header {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    z-index: 1;
+}
+
+.org-src-language {
+    padding: 0.3rem 0.8rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-radius: 4px 0 0 0;
+    background: var(--dark-aqua);
+    color: var(--dark-bg0);
+}
+
+body.light-theme .org-src-language {
+    background: var(--light-aqua);
+    color: var(--light-bg0);
+}
+
+/* Language-specific colors */
+.org-src[data-language="javascript"] .org-src-language,
+.org-src[data-language="js"] .org-src-language {
+    background: var(--dark-yellow);
+    color: var(--dark-bg0);
+}
+
+body.light-theme .org-src[data-language="javascript"] .org-src-language,
+body.light-theme .org-src[data-language="js"] .org-src-language {
+    background: var(--light-yellow);
+    color: var(--light-bg0);
+}
+
+.org-src[data-language="python"] .org-src-language,
+.org-src[data-language="py"] .org-src-language {
+    background: var(--dark-blue);
+    color: var(--dark-bg0);
+}
+
+body.light-theme .org-src[data-language="python"] .org-src-language,
+body.light-theme .org-src[data-language="py"] .org-src-language {
+    background: var(--light-blue);
+    color: var(--light-bg0);
+}
+
+.org-src[data-language="css"] .org-src-language {
+    background: var(--dark-purple);
+    color: var(--dark-bg0);
+}
+
+body.light-theme .org-src[data-language="css"] .org-src-language {
+    background: var(--light-purple);
+    color: var(--light-bg0);
+}
+
+.org-src[data-language="html"] .org-src-language {
+    background: var(--dark-orange);
+    color: var(--dark-bg0);
+}
+
+body.light-theme .org-src[data-language="html"] .org-src-language {
+    background: var(--light-orange);
+    color: var(--light-bg0);
+}
+
+/* Update border colors to match language */
+.org-src[data-language="javascript"],
+.org-src[data-language="js"] {
+    border-color: var(--dark-yellow);
+}
+
+body.light-theme .org-src[data-language="javascript"],
+body.light-theme .org-src[data-language="js"] {
+    border-color: var(--light-yellow);
+}
+
+.org-src[data-language="python"],
+.org-src[data-language="py"] {
+    border-color: var(--dark-blue);
+}
+
+body.light-theme .org-src[data-language="python"],
+body.light-theme .org-src[data-language="py"] {
+    border-color: var(--light-blue);
+}
+
+.org-src[data-language="css"] {
+    border-color: var(--dark-purple);
+}
+
+body.light-theme .org-src[data-language="css"] {
+    border-color: var(--light-purple);
+}
+
+.org-src[data-language="html"] {
+    border-color: var(--dark-orange);
+}
+
+body.light-theme .org-src[data-language="html"] {
+    border-color: var(--light-orange);
+}
+
 /* Custom Scrollbar for Code Blocks */
 body.dark-theme pre::-webkit-scrollbar {
     height: 8px;

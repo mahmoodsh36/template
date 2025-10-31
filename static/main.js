@@ -16,8 +16,11 @@ function initializeThemeToggle() {
     localStorage.setItem('theme', theme);
     updateThemeIcon(theme);
 
-    // Reapply org-block styling when theme changes
+
+
+    // Reapply org-block and org-src styling when theme changes
     initializeOrgBlocks();
+    initializeOrgSrcBlocks();
   }
 
   // function to get current theme
@@ -576,6 +579,75 @@ function initializeOrgBlocks() {
   });
 }
 
+
+
+// =================================
+// PAGE-SPECIFIC: ORG-SRC CODE BLOCK STYLING
+// =================================
+function initializeOrgSrcBlocks() {
+  // Find all org-src div containers
+  const orgSrcBlocks = document.querySelectorAll('.org-src');
+
+  orgSrcBlocks.forEach(block => {
+    // Remove any existing header
+    const existingHeader = block.querySelector('.org-src-header');
+    if (existingHeader) existingHeader.remove();
+
+    // Get language from data-lang attribute first
+    let language = block.getAttribute('data-lang');
+    
+    // If no data-lang, try data-language as fallback
+    if (!language) {
+      language = block.getAttribute('data-language');
+    }
+    
+    // If still no language, try to detect from class names
+    if (!language) {
+      const classes = block.className.split(' ');
+      for (const cls of classes) {
+        if (cls.startsWith('language-')) {
+          language = cls.replace('language-', '');
+          break;
+        }
+      }
+    }
+
+    // If still no language, default to 'code'
+    if (!language) {
+      language = 'code';
+    }
+
+    // Set the data-language attribute for CSS targeting
+    block.setAttribute('data-language', language);
+
+    // Add language class to the code element for Prism.js syntax highlighting
+    const codeElement = block.querySelector('code');
+    if (codeElement) {
+      codeElement.className = `language-${language}`;
+    }
+
+    // Create header container
+    const headerContainer = document.createElement('div');
+    headerContainer.className = 'org-src-header';
+
+    // Create language element
+    const languageElement = document.createElement('div');
+    languageElement.className = 'org-src-language';
+    languageElement.textContent = language;
+
+    // Add language element to header
+    headerContainer.appendChild(languageElement);
+
+    // Add header to the beginning of the block (before pre element)
+    block.insertBefore(headerContainer, block.firstChild);
+  });
+
+  // Trigger Prism.js highlighting after processing all blocks
+  if (typeof Prism !== 'undefined') {
+    Prism.highlightAll();
+  }
+  }
+
 // Apply theme styles to org-block type element
 function applyOrgBlockThemeStyles(block, typeElement) {
   const body = document.body;
@@ -717,8 +789,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Initialize archive page after data is loaded
   initializeArchivePage();
 
-  // Initialize org-block styling
+  // Initialize org-block and org-src styling
   initializeOrgBlocks();
+  initializeOrgSrcBlocks();
 
   displayReadingTime();
 });
