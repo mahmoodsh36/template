@@ -18,9 +18,11 @@ function initializeThemeToggle() {
 
 
 
-    // Reapply org-block and org-src styling when theme changes
+    // Reapply org-block, org-src, org-babel-results and code blocks styling when theme changes
     initializeOrgBlocks();
     initializeOrgSrcBlocks();
+    initializeOrgBabelResults();
+    initializeCodeBlocks();
   }
 
   // function to get current theme
@@ -582,6 +584,97 @@ function initializeOrgBlocks() {
 
 
 // =================================
+// PAGE-SPECIFIC: ORG-BABEL-RESULTS STYLING
+// =================================
+function initializeOrgBabelResults() {
+  // Find all org-babel-results blocks
+  const orgBabelResults = document.querySelectorAll('.org-babel-results');
+
+  orgBabelResults.forEach(block => {
+    // Remove any existing header to avoid duplicates
+    const existingHeader = block.querySelector('.org-babel-results-header');
+    if (existingHeader) existingHeader.remove();
+
+    // Determine the type text to display
+    let typeText = 'Results';
+    if (block.hasAttribute('data-type')) {
+      const dataType = block.getAttribute('data-type').toLowerCase();
+      if (dataType === 'output') {
+        typeText = 'Output';
+      } else if (dataType === 'value') {
+        typeText = 'Value';
+      } else {
+        typeText = dataType.charAt(0).toUpperCase() + dataType.slice(1);
+      }
+    }
+
+    // Create header element
+    const headerElement = document.createElement('div');
+    headerElement.className = 'org-babel-results-header';
+    headerElement.textContent = typeText;
+    headerElement.style.position = 'absolute';
+    headerElement.style.top = '0';
+    headerElement.style.left = '0';
+    headerElement.style.padding = '0.3rem 0.8rem';
+    headerElement.style.fontSize = '0.8rem';
+    headerElement.style.fontWeight = '600';
+    headerElement.style.textTransform = 'uppercase';
+    headerElement.style.letterSpacing = '0.5px';
+    headerElement.style.borderRadius = '4px 0 0 0';
+
+    // Apply theme-appropriate colors
+    const isDarkTheme = document.body.classList.contains('dark-theme');
+    if (isDarkTheme) {
+      headerElement.style.background = 'var(--dark-purple)';
+      headerElement.style.color = 'var(--dark-bg0)';
+    } else {
+      headerElement.style.background = 'var(--light-purple)';
+      headerElement.style.color = 'var(--light-bg0)';
+    }
+
+    // Add header to block
+    block.style.paddingTop = '2.5rem'; // Make space for header
+    block.insertBefore(headerElement, block.firstChild);
+
+    // Add copy buttons to any code blocks within org-babel-results
+    const codeBlocks = block.querySelectorAll('pre code');
+    codeBlocks.forEach(codeElement => {
+      // Check if copy button already exists for this code block
+      if (codeElement.parentElement.querySelector('.code-copy-button')) return;
+
+      // Create and add copy button
+      const copyButton = document.createElement('button');
+      copyButton.className = 'code-copy-button';
+      copyButton.textContent = 'Copy';
+      copyButton.setAttribute('aria-label', 'Copy code to clipboard');
+
+      // Add click event to copy code
+      copyButton.addEventListener('click', function() {
+        const codeText = codeElement.innerText;
+        navigator.clipboard.writeText(codeText).then(() => {
+          // Show visual feedback
+          const originalText = copyButton.textContent;
+          copyButton.textContent = 'Copied!';
+          copyButton.classList.add('copied');
+
+          setTimeout(() => {
+            copyButton.textContent = originalText;
+            copyButton.classList.remove('copied');
+          }, 2000);
+        }).catch(err => {
+          console.error('Failed to copy: ', err);
+        });
+      });
+
+      // Add copy button to the pre element
+      const preElement = codeElement.parentElement;
+      preElement.style.position = 'relative';
+      preElement.appendChild(copyButton);
+    });
+  });
+}
+
+// =================================
 // PAGE-SPECIFIC: ORG-SRC CODE BLOCK STYLING
 // =================================
 function initializeOrgSrcBlocks() {
@@ -593,14 +686,18 @@ function initializeOrgSrcBlocks() {
     const existingHeader = block.querySelector('.org-src-header');
     if (existingHeader) existingHeader.remove();
 
+    // Remove any existing copy button
+    const existingCopyButton = block.querySelector('.code-copy-button');
+    if (existingCopyButton) existingCopyButton.remove();
+
     // Get language from data-lang attribute first
     let language = block.getAttribute('data-lang');
-    
+
     // If no data-lang, try data-language as fallback
     if (!language) {
       language = block.getAttribute('data-language');
     }
-    
+
     // If still no language, try to detect from class names
     if (!language) {
       const classes = block.className.split(' ');
@@ -640,6 +737,35 @@ function initializeOrgSrcBlocks() {
 
     // Add header to the beginning of the block (before pre element)
     block.insertBefore(headerContainer, block.firstChild);
+
+    // Create and add copy button
+    const copyButton = document.createElement('button');
+    copyButton.className = 'code-copy-button';
+    copyButton.textContent = 'Copy';
+    copyButton.setAttribute('aria-label', 'Copy code to clipboard');
+
+    // Add click event to copy code
+    copyButton.addEventListener('click', function() {
+      const codeElement = block.querySelector('code');
+      if (codeElement) {
+        const codeText = codeElement.innerText;
+        navigator.clipboard.writeText(codeText).then(() => {
+          // Show visual feedback
+          const originalText = copyButton.textContent;
+          copyButton.textContent = 'Copied!';
+          copyButton.classList.add('copied');
+
+          setTimeout(() => {
+            copyButton.textContent = originalText;
+            copyButton.classList.remove('copied');
+          }, 2000);
+        }).catch(err => {
+          console.error('Failed to copy: ', err);
+        });
+      }
+    });
+
+    block.appendChild(copyButton);
   });
 
   // Trigger Prism.js highlighting after processing all blocks
@@ -647,6 +773,53 @@ function initializeOrgSrcBlocks() {
     Prism.highlightAll();
   }
   }
+
+// =================================
+// PAGE-SPECIFIC: GENERAL CODE BLOCKS
+// =================================
+function initializeCodeBlocks() {
+  // Find all pre > code blocks that are not inside org-src blocks
+  const codeBlocks = document.querySelectorAll('pre:not(.org-src pre) code');
+
+  codeBlocks.forEach(codeElement => {
+    // Check if this code block is already inside an org-src block
+    if (codeElement.closest('.org-src')) return;
+
+    // Get the parent pre element
+    const preElement = codeElement.parentElement;
+
+    // Check if copy button already exists
+    if (preElement.querySelector('.code-copy-button')) return;
+
+    // Create and add copy button
+    const copyButton = document.createElement('button');
+    copyButton.className = 'code-copy-button';
+    copyButton.textContent = 'Copy';
+    copyButton.setAttribute('aria-label', 'Copy code to clipboard');
+
+    // Add click event to copy code
+    copyButton.addEventListener('click', function() {
+      const codeText = codeElement.innerText;
+      navigator.clipboard.writeText(codeText).then(() => {
+        // Show visual feedback
+        const originalText = copyButton.textContent;
+        copyButton.textContent = 'Copied!';
+        copyButton.classList.add('copied');
+
+        setTimeout(() => {
+          copyButton.textContent = originalText;
+          copyButton.classList.remove('copied');
+        }, 2000);
+      }).catch(err => {
+        console.error('Failed to copy: ', err);
+      });
+    });
+
+    // Add copy button to the pre element
+    preElement.style.position = 'relative';
+    preElement.appendChild(copyButton);
+  });
+}
 
 // Apply theme styles to org-block type element
 function applyOrgBlockThemeStyles(block, typeElement) {
@@ -789,9 +962,11 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Initialize archive page after data is loaded
   initializeArchivePage();
 
-  // Initialize org-block and org-src styling
+  // Initialize org-block, org-src, org-babel-results and code blocks styling
   initializeOrgBlocks();
   initializeOrgSrcBlocks();
+  initializeOrgBabelResults();
+  initializeCodeBlocks();
 
   displayReadingTime();
 });

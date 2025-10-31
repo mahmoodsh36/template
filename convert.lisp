@@ -389,7 +389,6 @@
                      (linked-file
                        (when result
                          (cltpt/base:target-filepath result))))
-                (format t "here ~A~%" (cltpt/base:link-dest link))
                 (when (and linked-file
                            (not (member linked-file
                                         *excluded-files*

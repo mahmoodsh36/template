@@ -1709,6 +1709,58 @@ body.light-theme .org-src[data-language="html"] {
     border-color: var(--light-orange);
 }
 
+/* Copy button for code blocks */
+.code-copy-button {
+    position: absolute;
+    top: 0.3rem;
+    right: 0.3rem;
+    padding: 0.3rem 0.6rem;
+    font-size: 0.75rem;
+    background: var(--light-bg3);
+    color: var(--light-fg1);
+    border: 1px solid var(--light-bg3);
+    border-radius: 4px;
+    cursor: pointer;
+    z-index: 2;
+    opacity: 0;
+    transition: opacity 0.2s ease, background 0.2s ease, color 0.2s ease;
+}
+
+.org-src:hover .code-copy-button,
+.org-babel-results:hover .code-copy-button {
+    opacity: 1;
+}
+
+.code-copy-button:hover {
+    background: var(--light-aqua);
+    color: var(--light-bg0);
+    border-color: var(--light-aqua);
+}
+
+body.dark-theme .code-copy-button {
+    background: var(--dark-bg3);
+    color: var(--dark-fg1);
+    border: 1px solid var(--dark-bg3);
+}
+
+body.dark-theme .code-copy-button:hover {
+    background: var(--dark-aqua);
+    color: var(--dark-bg0);
+    border-color: var(--dark-aqua);
+}
+
+.code-copy-button.copied {
+    background: var(--light-green) !important;
+    color: var(--light-bg0) !important;
+    border-color: var(--light-green) !important;
+}
+
+body.dark-theme .code-copy-button.copied {
+    background: var(--dark-green) !important;
+    color: var(--dark-bg0) !important;
+    border-color: var(--dark-green) !important;
+}
+
 /* Custom Scrollbar for Code Blocks */
 body.dark-theme pre::-webkit-scrollbar {
     height: 8px;
@@ -2377,4 +2429,64 @@ body.dark-theme .org-block[data-type="dummy"] {
 body.dark-theme .org-block[data-type] {
     --default-block-color: #8ec07c;
     border-left-color: var(--default-block-color);
+}
+
+/* =================================
+   ORG-BABEL-RESULTS STYLING
+   ================================= */
+
+.org-babel-results {
+    padding: 1rem;
+    margin: 1.2rem 0;
+    border-radius: 6px;
+    border-left: 3px solid;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    position: relative;
+    background: var(--light-bg1);
+    border: 1px solid var(--light-bg2);
+    color: var(--light-fg1);
+}
+
+.org-babel-results::before {
+    content: "Results";
+    position: absolute;
+    top: 0;
+    left: 0;
+    padding: 0.3rem 0.8rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-radius: 4px 0 0 0;
+    background: var(--light-purple);
+    color: var(--light-bg0);
+}
+
+/* Light theme */
+body.light-theme .org-babel-results {
+    background: var(--light-bg2);
+    border-left-color: var(--light-purple);
+    color: var(--light-fg1);
+    border: 1px solid var(--light-bg3);
+}
+
+/* Dark theme */
+body.dark-theme .org-babel-results {
+    background: var(--dark-bg2);
+    border-left-color: var(--dark-purple);
+    color: var(--dark-fg1);
+    border: 1px solid var(--dark-bg3);
+}
+
+/* Light theme specific colors */
+body.light-theme .org-babel-results::before {
+    background: var(--light-purple);
+    color: var(--light-bg0);
+}
+
+/* Dark theme specific colors */
+body.dark-theme .org-babel-results::before {
+    background: var(--dark-purple);
+    color: var(--dark-bg0);
 }
