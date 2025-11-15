@@ -59,7 +59,7 @@
 (defvar *template-dir*
   (cltpt/file-utils:join-paths *base-dir* "template"))
 (defvar *template-static-dir*
-  (cltpt/file-utils:join-paths *template-dir* "static"))
+  (cltpt/file-utils:join-paths *base-dir* "static"))
 
 (defun from-brain (filepath)
   (cltpt/file-utils:join-paths *brain-dir* filepath))
@@ -122,20 +122,16 @@
                      )))
     (generate-from-files-to-dir rmr-files *blog-dir*))
   ;; convert everything for local browsing
-  ;; (let ((rmr-files '((:path ("/home/mahmooz/brain/notes/")
-  ;;                     :glob "*.org"
-  ;;                     :format "org-mode"))))
-  ;;   (generate-from-files-to-dir rmr-files "/home/mahmooz/work/local/" t))
-  )
+  (let ((rmr-files `((:path (,(concatenate 'string (from-brain "notes") "/"))
+                      :glob "*.org"
+                      :format "org-mode"))))
+    (generate-from-files-to-dir rmr-files (cltpt/file-utils:join-paths *work-dir* "local") t)))
 
 ;; named it "to-dir", but some functionality in this file depends on CWD
 (defun generate-from-files-to-dir (rmr-files dest-dir &optional (full-export))
   (cltpt/file-utils:ensure-dir-exists dest-dir)
   (uiop:with-current-directory (dest-dir)
     (let* ((cltpt/html:*html-static-route* "/")
-;;            (cltpt/latex:*latex-preamble*
-;;              "\\documentclass[11pt]{article}
-;; \\usepackage{\\string~/.emacs.d/common}")
            (cltpt/latex::*latex-preview-preamble*
              "\\documentclass[11pt]{article}
 \\usepackage{\\string~/.emacs.d/common}")
@@ -397,11 +393,12 @@
                  text-obj
                  (lambda (child)
                    (typep child 'cltpt/base:text-link)))
-           do (let* ((link (cltpt/base:text-link-link link-obj))
-                     (result (cltpt/base:link-resolve
-                              (cltpt/base:link-type link)
-                              (cltpt/base:link-desc link)
-                              (cltpt/base:link-dest link)))
+           do (let* (;; we have to bind this so resolve-link can use the roamer
+                     (cltpt/roam:*roam-convert-data*
+                       (list :roamer rmr
+                             :filepath-format nil
+                             :node node))
+                     (result (cltpt/base:text-link-resolve link-obj))
                      (linked-file
                        (when result
                          (cltpt/base:target-filepath result))))
