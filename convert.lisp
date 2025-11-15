@@ -46,45 +46,61 @@
                         (char= char #\\))
                     (write-char #\_ out))))))
 
-(defvar *blog-dir* "/home/mahmooz/work/blog/")
-(defvar *base-dir* (uiop:unix-namestring (truename "~/work/template/")))
-(defvar *template-dir* (uiop:unix-namestring (truename "~/work/template/template/")))
+(defvar *work-dir*
+  (or (sb-ext:posix-getenv "WORK_DIR")
+      (error "couldnt get WORK_DIR env var")))
+(defvar *brain-dir*
+  (or (sb-ext:posix-getenv "BRAIN_DIR")
+      (error "couldnt get BRAIN_DIR env var")))
+(defvar *blog-dir*
+  (cltpt/file-utils:join-paths *work-dir* "blog"))
+(defvar *base-dir*
+  (cltpt/file-utils:join-paths *work-dir* "template"))
+(defvar *template-dir*
+  (cltpt/file-utils:join-paths *base-dir* "template"))
 (defvar *template-static-dir*
-  (uiop:unix-namestring (truename "~/work/template/static/")))
+  (cltpt/file-utils:join-paths *template-dir* "static"))
+
+(defun from-brain (filepath)
+  (cltpt/file-utils:join-paths *brain-dir* filepath))
+(defun expand-brain-paths (relative-paths)
+  (mapcar (lambda (rel-path)
+            (from-brain rel-path))
+          relative-paths))
+
 (defvar *main-files*
-  '("/home/mahmooz/brain/notes/1678745440.org" ;; graph theory
-    "/home/mahmooz/brain/notes/1729677442.6352403.org" ;; circuit complexity
-    "/home/mahmooz/brain/notes/1709969723.org" ;; computability theory
-    "/home/mahmooz/brain/notes/1723812143.2079227.org" ;; theory of computation
-    "/home/mahmooz/brain/notes/1712601655.org" ;; programming
-    "/home/mahmooz/brain/notes/1725811841.8613749.org" ;; media
-    "/home/mahmooz/brain/notes/1725958715.1511376.org" ;; formal logic
-    "/home/mahmooz/brain/notes/1709021041.org" ;; calculus
-    "/home/mahmooz/brain/notes/1725810860.5115163.org" ;; databases
-    "/home/mahmooz/brain/notes/1677361099.org" ;; machine learning
-    "/home/mahmooz/brain/notes/1709021027.org" ;; linear algebra
-    ))
+  (expand-brain-paths
+   '("notes/1678745440.org" ;; graph theory
+     "notes/1729677442.6352403.org" ;; circuit complexity
+     "notes/1709969723.org" ;; computability theory
+     "notes/1723812143.2079227.org" ;; theory of computation
+     "notes/1712601655.org" ;; programming
+     "notes/1725811841.8613749.org" ;; media
+     "notes/1725958715.1511376.org" ;; formal logic
+     "notes/1709021041.org" ;; calculus
+     "notes/1725810860.5115163.org" ;; databases
+     "notes/1677361099.org" ;; machine learning
+     "notes/1709021027.org" ;; linear algebra
+     )))
 (defvar *excluded-files*
-  (list
-   "/home/mahmooz/brain/notes/1658738374.org"
-   "/home/mahmooz/brain/notes/1709712959.org"
+  (expand-brain-paths
+   (list
+    "notes/1658738374.org"
+    "notes/1709712959.org"
 
-   "/home/mahmooz/brain/notes/1711448392.org"
-   "/home/mahmooz/brain/notes/1712751117.org"
-   "/home/mahmooz/brain/notes/1714912201.org"
-   "/home/mahmooz/brain/notes/1716399914.org"
+    "notes/1711448392.org"
+    "notes/1712751117.org"
+    "notes/1714912201.org"
+    "notes/1716399914.org"
 
-   "/home/mahmooz/brain/notes/1696961489.org"
-   "/home/mahmooz/brain/notes/1707059561.org"
+    "notes/1696961489.org"
+    "notes/1707059561.org"
 
-   "/home/mahmooz/brain/notes/1659132042.org"
-   ))
+    "notes/1659132042.org"
+    )))
 (defvar *filepath-format*
   "%(title-to-filename (getf *file-info* :root-title)).html")
 (defvar *rmr*)
-
-(defun from-brain (filepath)
-  (cltpt/file-utils:join-paths "/home/mahmooz/brain/" filepath))
 
 ;; get svg by #+name: or whatever?
 (defun get-latex-preview-svg-by-blk-id (blk-id)
@@ -99,7 +115,7 @@
   ;; (setf (getf cltpt:*debug* :convert) t)
   (cltpt/zoo::init)
   ;; generation with "restrictions" to the "main files/entries"
-  (let ((rmr-files '((:path ("/home/mahmooz/brain/notes/")
+  (let ((rmr-files `((:path (,(concatenate 'string (from-brain "notes") "/"))
                       :glob "*.org"
                       :format "org-mode")
                      ;; "/home/mahmooz/work/cltpt/tests/test2.org"
@@ -151,15 +167,15 @@
            (cltpt:*author* "mahmood")
            (cltpt/html:*html-template*
              (uiop:read-file-string
-              (uiop:merge-pathnames* *template-dir* "page.html"))))
+              (cltpt/file-utils:join-paths *template-dir* "page.html"))))
       ;; i dont like bbox=preview so modify the command to remove it
       (setf
        (getf (cdar cltpt/latex::*latex-preview-pipelines*) :image-converter)
        "dvisvgm --page=1- --no-fonts --relative --clipjoin --optimize -o %B-%9p.svg %f")
-      (convert-template dest-dir (uiop:merge-pathnames* *template-dir* "index.html"))
-      (convert-template dest-dir (uiop:merge-pathnames* *template-dir* "about.html"))
-      (convert-template dest-dir (uiop:merge-pathnames* *template-dir* "archive.html"))
-      (convert-template dest-dir (uiop:merge-pathnames* *template-dir* "blog.html"))
+      (convert-template dest-dir (cltpt/file-utils:join-paths *template-dir* "index.html"))
+      (convert-template dest-dir (cltpt/file-utils:join-paths *template-dir* "about.html"))
+      (convert-template dest-dir (cltpt/file-utils:join-paths *template-dir* "archive.html"))
+      (convert-template dest-dir (cltpt/file-utils:join-paths *template-dir* "blog.html"))
       ;; apparently it doesnt work unless theres a '/' at the end.
       (cltpt/file-utils:ensure-dir-exists
        (concatenate 'string dest-dir-static "/"))
@@ -239,7 +255,7 @@
            (or actual-date-str
                (cltpt/base:text-object-property text-obj :date)))
          (timestamp-match
-           (cltpt/combinator:match-rule
+           (cltpt/combinator:apply-rule-normalized
             nil
             cltpt/org-mode::*org-timestamp-rule*
             date-str
