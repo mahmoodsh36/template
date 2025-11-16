@@ -122,10 +122,11 @@
                      )))
     (generate-from-files-to-dir rmr-files *blog-dir*))
   ;; convert everything for local browsing
-  (let ((rmr-files `((:path (,(concatenate 'string (from-brain "notes") "/"))
-                      :glob "*.org"
-                      :format "org-mode"))))
-    (generate-from-files-to-dir rmr-files (cltpt/file-utils:join-paths *work-dir* "local") t)))
+  ;; (let ((rmr-files `((:path (,(concatenate 'string (from-brain "notes") "/"))
+  ;;                     :glob "*.org"
+  ;;                     :format "org-mode"))))
+  ;;   (generate-from-files-to-dir rmr-files (cltpt/file-utils:join-paths *work-dir* "local") t))
+  )
 
 ;; named it "to-dir", but some functionality in this file depends on CWD
 (defun generate-from-files-to-dir (rmr-files dest-dir &optional (full-export))
@@ -134,7 +135,8 @@
     (let* ((cltpt/html:*html-static-route* "/")
            (cltpt/latex::*latex-preview-preamble*
              "\\documentclass[11pt]{article}
-\\usepackage{\\string~/.emacs.d/common}")
+\\usepackage{\\string~/.emacs.d/common}"
+             )
            (cltpt/html:*html-static-dir* dest-dir)
            ;; (cltpt/latex:*latex-previews-cache-directory* "./")
            (cltpt/latex:*latex-previews-cache-directory* "")
@@ -448,4 +450,4 @@ cl-json's standard encoder handles perfectly."
                     stream))))
 
 (defun read-template-file (template-file)
-  (uiop:read-file-string (uiop:merge-pathnames* *template-dir* template-file)))
+  (uiop:read-file-string (cltpt/file-utils:join-paths *template-dir* template-file)))
