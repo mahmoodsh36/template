@@ -131,9 +131,9 @@
 ;; named it "to-dir", but some functionality in this file depends on CWD
 (defun generate-from-files-to-dir (rmr-files dest-dir &optional (full-export))
   (cltpt/file-utils:ensure-dir-exists dest-dir)
-  (uiop:with-current-directory (dest-dir)
+  (uiop:with-current-directory ((cltpt/file-utils:as-dir-path dest-dir))
     (let* ((cltpt/html:*html-static-route* "/")
-           (cltpt/latex-previews::*latex-preview-preamble*
+           (cltpt/latex-previews:*latex-preview-preamble*
              "\\documentclass[11pt]{article}
 \\usepackage{\\string~/.emacs.d/common}"
              )
