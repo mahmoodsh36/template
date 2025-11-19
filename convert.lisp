@@ -28,7 +28,7 @@
                              :test 'string=)))))
     (setf all-snippets (reverse all-snippets))
     (loop for i from 0 to (length all-snippets) by snippets-at-once
-          do (cltpt/latex:generate-previews-for-latex
+          do (cltpt/latex-previews:generate-previews-for-latex
               (subseq all-snippets
                       i
                       (min (+ i snippets-at-once)
@@ -108,7 +108,7 @@
     (when dest-node
       (let* ((text-obj (cltpt/roam:node-text-obj dest-node))
              (latex-env-text (cltpt/base:text-object-contents text-obj)))
-        (cdar (cltpt/latex:generate-previews-for-latex (list latex-env-text)))))))
+        (cdar (cltpt/latex-previews:generate-previews-for-latex (list latex-env-text)))))))
 
 (defun generate ()
   (setf cltpt/org-mode::*org-enable-macros* t)
@@ -133,15 +133,15 @@
   (cltpt/file-utils:ensure-dir-exists dest-dir)
   (uiop:with-current-directory (dest-dir)
     (let* ((cltpt/html:*html-static-route* "/")
-           (cltpt/latex::*latex-preview-preamble*
+           (cltpt/latex-previews::*latex-preview-preamble*
              "\\documentclass[11pt]{article}
 \\usepackage{\\string~/.emacs.d/common}"
              )
            (cltpt/html:*html-static-dir* dest-dir)
-           ;; (cltpt/latex:*latex-previews-cache-directory* "./")
-           (cltpt/latex:*latex-previews-cache-directory* "")
-           (cltpt/latex:*latex-compiler-key* :lualatex)
-           (cltpt/latex::*latex-preview-pipeline-key* :dvisvgm)
+           ;; (cltpt/latex-previews:*latex-previews-cache-directory* "./")
+           (cltpt/latex-previews:*latex-previews-cache-directory* "")
+           (cltpt/latex-previews:*latex-compiler-key* :lualatex)
+           (cltpt/latex-previews::*latex-preview-pipeline-key* :dvisvgm)
            (rmr (cltpt/roam:from-files rmr-files))
            (*rmr* rmr)
            (files-to-convert
@@ -167,9 +167,8 @@
              (uiop:read-file-string
               (cltpt/file-utils:join-paths *template-dir* "page.html"))))
       ;; i dont like bbox=preview so modify the command to remove it
-      (setf
-       (getf (cdar cltpt/latex::*latex-preview-pipelines*) :image-converter)
-       "dvisvgm --page=1- --no-fonts --relative --clipjoin --optimize -o %B-%9p.svg %f")
+      (setf (getf (cdar cltpt/latex-previews::*latex-preview-pipelines*) :image-converter)
+            "dvisvgm --page=1- --no-fonts --relative --clipjoin --optimize -o %B-%9p.svg %f")
       (convert-template dest-dir (cltpt/file-utils:join-paths *template-dir* "index.html"))
       (convert-template dest-dir (cltpt/file-utils:join-paths *template-dir* "about.html"))
       (convert-template dest-dir (cltpt/file-utils:join-paths *template-dir* "archive.html"))
