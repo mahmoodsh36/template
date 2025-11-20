@@ -98,6 +98,8 @@
 
     "notes/1659132042.org"
     )))
+(defvar *static-filepath-format*
+  "(getf *file-info* :filename-no-ext).html")
 (defvar *filepath-format*
   "%(title-to-filename (getf *file-info* :root-title)).html")
 (defvar *rmr*)
@@ -200,7 +202,8 @@
        rmr
        (cltpt/base:text-format-by-name "html")
        *filepath-format*
-       :convert-file-predicate file-predicate))))
+       :convert-file-predicate file-predicate
+       :static-filepath-format *static-filepath-format*))))
 
 ;; should place the static file in the dir and return the href to it
 (defun export-static-file (filepath)
@@ -360,7 +363,8 @@
                             "image"))
                     (image1 (if (uiop:probe-file* image)
                                 (export-static-file image)
-                                (format t "collage image ~A doesnt exist~%"
+                                (format t
+                                        "collage image ~A doesnt exist~%"
                                         image)))
                     (href (cltpt/roam:node-info-format-str node *filepath-format*))
                     (entry-html "<div class=\"gallery-item\" onclick=\"window.location='~A'\">
