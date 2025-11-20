@@ -103,8 +103,9 @@
 
     "notes/1659132042.org"
     )))
+;; this is the same as setting it to nil.
 (defvar *static-filepath-format*
-  "(getf *file-info* :filename-no-ext).html")
+  "%(getf *file-info* :filename)")
 (defvar *filepath-format*
   "%(title-to-filename (getf *file-info* :root-title)).html")
 (defvar *rmr*)
@@ -146,7 +147,6 @@
              "\\documentclass[11pt]{article}
 \\usepackage{\\string~/.emacs.d/common}"
              )
-           (cltpt/html:*html-static-dir* dest-dir)
            ;; (cltpt/latex-previews:*latex-previews-cache-directory* "./")
            (cltpt/latex-previews:*latex-previews-cache-directory* "")
            (cltpt/latex-previews:*latex-compiler-key* :lualatex)
