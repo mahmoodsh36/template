@@ -52,6 +52,9 @@
 (defvar *brain-dir*
   (or (sb-ext:posix-getenv "BRAIN_DIR")
       (error "couldnt get BRAIN_DIR env var")))
+(defvar *data-dir*
+  (or (sb-ext:posix-getenv "DATA_DIR")
+      (error "couldnt get DATA_DIR env var")))
 (defvar *blog-dir*
   (cltpt/file-utils:join-paths *work-dir* "blog"))
 (defvar *base-dir*
@@ -63,6 +66,8 @@
 
 (defun from-brain (filepath)
   (cltpt/file-utils:join-paths *brain-dir* filepath))
+(defun from-data (filepath)
+  (cltpt/file-utils:join-paths *data-dir* filepath))
 (defun expand-brain-paths (relative-paths)
   (mapcar (lambda (rel-path)
             (from-brain rel-path))
@@ -133,6 +138,8 @@
 ;; named it "to-dir", but some functionality in this file depends on CWD
 (defun generate-from-files-to-dir (rmr-files dest-dir &optional (full-export))
   (cltpt/file-utils:ensure-dir-exists dest-dir)
+  ;; we bind the current dir so we can use a relative path for latex-preview-cache-dir,
+  ;; which otherwise would give absolute paths. perhaps that should be fixed in cltpt.
   (uiop:with-current-directory ((cltpt/file-utils:as-dir-path dest-dir))
     (let* ((cltpt/html:*html-static-route* "/")
            (cltpt/latex-previews:*latex-preview-preamble*
@@ -202,6 +209,7 @@
        rmr
        (cltpt/base:text-format-by-name "html")
        *filepath-format*
+       :dest-dir dest-dir
        :convert-file-predicate file-predicate
        :static-filepath-format *static-filepath-format*))))
 
