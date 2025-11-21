@@ -194,7 +194,7 @@
           (cltpt/file-utils:join-paths
            dest-dir-static
            (cltpt/file-utils:file-basename item))))
-       (uiop:directory-files *template-static-dir*))
+       (uiop:directory-files (cltpt/file-utils:as-dir-path *template-static-dir*)))
       ;; copy robots.txt (it gets copied to static/ but we want it at root)
       (uiop:copy-file
        (cltpt/file-utils:join-paths *template-static-dir* "robots.txt")
