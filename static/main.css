@@ -1948,66 +1948,62 @@ body.dark-theme footer a:hover {
 
 /* Light theme tables */
 body.light-theme .post-content table {
-    background: var(--light-bg1);
+    background: var(--light-bg0);
     color: var(--light-fg1);
-    border: 1px solid var(--light-bg3);
 }
 
 /* Dark theme tables */
 body.dark-theme .post-content table {
-    background: var(--dark-bg1);
+    background: var(--dark-bg0);
     color: var(--dark-fg1);
-    border: 1px solid var(--dark-bg3);
 }
 
 /* Table headers */
 .post-content table th {
-    padding: 0.8rem 1rem;
+    padding: 0.6rem 1rem;
     text-align: left;
     font-weight: 600;
+    border-bottom: 2px solid;
 }
 
 body.light-theme .post-content table th {
-    background: var(--light-bg2);
-    border: 1px solid var(--light-bg3);
     color: var(--light-fg0);
+    border-bottom-color: var(--light-bg4);
 }
 
 body.dark-theme .post-content table th {
-    background: var(--dark-bg2);
-    border: 1px solid var(--dark-bg3);
     color: var(--dark-fg0);
+    border-bottom-color: var(--dark-bg4);
 }
 
 /* Table cells */
 .post-content table td {
-    padding: 0.7rem 1rem;
+    padding: 0.6rem 1rem;
+    border-bottom: 1px solid;
 }
 
 body.light-theme .post-content table td {
-    border: 1px solid var(--light-bg3);
+    border-bottom-color: var(--light-bg3);
 }
 
 body.dark-theme .post-content table td {
-    border: 1px solid var(--dark-bg3);
+    border-bottom-color: var(--dark-bg3);
 }
 
-/* Alternate row styling */
-body.light-theme .post-content table tr:nth-child(even) {
-    background: var(--light-bg2);
+.post-content table tr:last-child td {
+    border-bottom: none;
 }
 
-body.dark-theme .post-content table tr:nth-child(even) {
-    background: var(--dark-bg2);
+.post-content table tr:last-child th {
+    border-bottom: 2px solid;
 }
 
-/* Hover effect on rows */
 body.light-theme .post-content table tr:hover {
-    background: var(--light-bg3);
+    background: var(--light-bg1);
 }
 
 body.dark-theme .post-content table tr:hover {
-    background: var(--dark-bg3);
+    background: var(--dark-bg1);
 }
 
 /* Table captions */
