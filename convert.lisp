@@ -268,11 +268,15 @@
            (cltpt/combinator:apply-rule-normalized
             nil
             cltpt/org-mode::*org-timestamp-rule*
-            date-str
+            (cltpt/reader:reader-from-input date-str)
             0))
-         (date (cltpt/org-mode::org-timestamp-match-to-time
-                timestamp-match)))
-    date))
+         (dummy-obj (make-instance 'cltpt/base::text-object)))
+    ;; we have to initialize the text-object :/
+    ;; TODO: perhaps we shouldnt have to pass a text-object to do this? it would be nicer
+    (setf (cltpt/buffer:buffer-own-text dummy-obj) date-str)
+    (cltpt/base:text-object-init dummy-obj date-str timestamp-match)
+    (cltpt/base:text-object-finalize dummy-obj)
+    (cltpt/org-mode::org-timestamp-match-to-time dummy-obj timestamp-match)))
 
 (defun blog-nodes (rmr)
   (sort
