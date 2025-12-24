@@ -11,7 +11,7 @@
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>λ</text></svg>">
 </head>
 <body class="dark-theme">
-  #(read-template-file "header.html")
+  #(read-template-file-into-text-obj "header.html")
 
   <div class="container">
     <div class="content-wrapper">
@@ -52,7 +52,7 @@
     </div>
   </div>
 
-  #(read-template-file "footer.html")
+  #(read-template-file-into-text-obj "footer.html")
   <!-- Prism.js core and common languages -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>

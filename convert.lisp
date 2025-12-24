@@ -466,5 +466,24 @@ cl-json's standard encoder handles perfectly."
       (write-string (encode-list-of-plists-to-json metadata)
                     stream))))
 
+(defclass my-text-obj (cltpt/base:text-object)
+  ())
+
+(defmethod cltpt/base:text-object-convert ((obj my-text-obj)
+                                           (backend cltpt/base:text-format))
+  (list :text (cltpt/buffer:buffer-own-text obj)
+        :escape nil))
+
 (defun read-template-file (template-file)
   (uiop:read-file-string (cltpt/file-utils:join-paths *template-dir* template-file)))
+
+;; we have to do this because by default a dummy text-object is created that doesnt have a special
+;; text-object-convert assigned to it and so its results get :escape t by the default one.
+(defun wrap-into-unescaping-obj (txt)
+  (let* ((obj (make-instance 'my-text-obj)))
+    (setf (cltpt/buffer:buffer-own-text obj) txt)
+    obj))
+
+(defun read-template-file-into-text-obj (template-file)
+  (let* ((txt (uiop:read-file-string (cltpt/file-utils:join-paths *template-dir* template-file))))
+    (wrap-into-unescaping-obj txt)))
