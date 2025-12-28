@@ -446,19 +446,19 @@ cl-json's standard encoder handles perfectly."
     (cl-json:encode-json-to-string list-of-alists)))
 
 (defun export-metadata-to-json (rmr output-file file-predicate)
-  (let* ((metadata
-           (loop for node in (cltpt/roam:roamer-nodes rmr)
-                 for text-obj = (cltpt/roam:node-text-obj node)
-                 for tags = (cltpt/base:text-object-property text-obj :tags)
-                 when (and (funcall file-predicate (cltpt/roam:node-file node))
-                           (not (and tags (member "noexport" tags :test 'string=))))
-                   collect (list
-                            :date (cltpt/base:text-object-property text-obj :date)
-                            :tags tags
-                            :id (cltpt/roam:node-id node)
-                            :title (cltpt/roam:node-title node)
-                            :filepath (cltpt/roam:node-info-format-str node *filepath-format*)
-                            :description (cltpt/roam:node-desc node)))))
+  (let ((metadata
+          (loop for node in (cltpt/roam:roamer-nodes rmr)
+                for text-obj = (cltpt/roam:node-text-obj node)
+                for tags = (cltpt/base:text-object-property text-obj :tags)
+                when (and (funcall file-predicate (cltpt/roam:node-file node))
+                          (not (and tags (member "noexport" tags :test 'string=))))
+                  collect (list
+                           :date (cltpt/base:text-object-property text-obj :date)
+                           :tags tags
+                           :id (cltpt/roam:node-id node)
+                           :title (cltpt/roam:node-title node)
+                           :filepath (cltpt/roam:node-info-format-str node *filepath-format*)
+                           :description (cltpt/roam:node-desc node)))))
     (with-open-file (stream output-file
                             :direction :output
                             :if-exists :supersede
@@ -480,10 +480,10 @@ cl-json's standard encoder handles perfectly."
 ;; we have to do this because by default a dummy text-object is created that doesnt have a special
 ;; text-object-convert assigned to it and so its results get :escape t by the default one.
 (defun wrap-into-unescaping-obj (txt)
-  (let* ((obj (make-instance 'my-text-obj)))
+  (let ((obj (make-instance 'my-text-obj)))
     (setf (cltpt/buffer:buffer-own-text obj) txt)
     obj))
 
 (defun read-template-file-into-text-obj (template-file)
-  (let* ((txt (uiop:read-file-string (cltpt/file-utils:join-paths *template-dir* template-file))))
+  (let ((txt (uiop:read-file-string (cltpt/file-utils:join-paths *template-dir* template-file))))
     (wrap-into-unescaping-obj txt)))
