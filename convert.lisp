@@ -371,7 +371,13 @@
           for filepath = (cltpt/roam:node-file node)
           for title = (cltpt/roam:node-title node)
           for text-obj = (cltpt/roam:node-text-obj node)
-          do (let* ((image (cltpt/org-mode::text-object-org-keyword-value
+          do (let* (;; we have to bind that the post-lexer code in my files can use the roamer
+                    ;; TOOD: make this not needed
+                    (cltpt/roam:*roam-parse-data*
+                      (list :roamer *rmr*
+                            :filepath-format nil
+                            :node node))
+                    (image (cltpt/org-mode::text-object-org-keyword-value
                             (cltpt/roam:node-text-obj
                              node)
                             "image"))
