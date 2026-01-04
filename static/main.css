@@ -1133,7 +1133,7 @@ code {
 }
 
 .org-src:hover .code-copy-button,
-.org-babel-results:hover .code-copy-button {
+.org-src+.org-babel-results:hover .code-copy-button {
     opacity: 1;
 }
 
@@ -1462,7 +1462,7 @@ input[type="checkbox"]:checked::after {
 /* =================================
    ORG-BABEL-RESULTS STYLING
    ================================= */
-.org-babel-results {
+.org-src+.org-babel-results {
     padding: 1rem;
     margin: 1.2rem 0;
     border-radius: 6px;
@@ -1475,7 +1475,7 @@ input[type="checkbox"]:checked::after {
     color: var(--fg1);
 }
 
-.org-babel-results::before {
+.org-src+.org-babel-results::before {
     content: "Results";
     position: absolute;
     top: 0;

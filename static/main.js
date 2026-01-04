@@ -119,7 +119,7 @@ function performSearch(query) {
     subcontainer.className = 'search-result';
 
     // on-demand info of reference/page/whatever
-    plusMinusButton.onclick = function() {
+    plusMinusButton.onclick = function () {
       // so that we dont insert duplicate info
       infoElm.innerHTML = '';
 
@@ -127,7 +127,7 @@ function performSearch(query) {
 
       if (isPlus) {
         plusMinusButton.className = 'minus-button';
-        fetch(entry.filepath).then(response => response.text()).then(function(text) {
+        fetch(entry.filepath).then(response => response.text()).then(function (text) {
           // parse the "other" page (page containing the destination entry)
           const page = new DOMParser().parseFromString(text, "text/html");
           // the actual html entry from the other page
@@ -434,7 +434,7 @@ function initializeTableOfContents() {
     if (header.tagName === 'H2') listItem.classList.add('toc-h2');
     if (header.tagName === 'H3') listItem.classList.add('toc-h3');
 
-    link.addEventListener('click', function(e) {
+    link.addEventListener('click', function (e) {
       e.preventDefault();
       const targetElement = document.querySelector(`[id='${header.id}']`);
       if (targetElement) {
@@ -595,48 +595,57 @@ function initializeOrgBabelResults() {
     const existingHeader = block.querySelector('.org-babel-results-header');
     if (existingHeader) existingHeader.remove();
 
-    // Determine the type text to display
-    let typeText = 'Results';
-    if (block.hasAttribute('data-type')) {
-      const dataType = block.getAttribute('data-type').toLowerCase();
-      if (dataType === 'output') {
-        typeText = 'Output';
-      } else if (dataType === 'value') {
-        typeText = 'Value';
-      } else {
-        typeText = dataType.charAt(0).toUpperCase() + dataType.slice(1);
+    // Reset padding in case it was set before
+    block.style.paddingTop = '';
+
+    // Only add the Results header if there's a preceding .org-src sibling
+    const previousSibling = block.previousElementSibling;
+    const hasPrecedingSrcBlock = previousSibling && previousSibling.classList.contains('org-src');
+
+    if (hasPrecedingSrcBlock) {
+      // Determine the type text to display
+      let typeText = 'Results';
+      if (block.hasAttribute('data-type')) {
+        const dataType = block.getAttribute('data-type').toLowerCase();
+        if (dataType === 'output') {
+          typeText = 'Output';
+        } else if (dataType === 'value') {
+          typeText = 'Value';
+        } else {
+          typeText = dataType.charAt(0).toUpperCase() + dataType.slice(1);
+        }
       }
+
+      // Create header element
+      const headerElement = document.createElement('div');
+      headerElement.className = 'org-babel-results-header';
+      headerElement.textContent = typeText;
+      headerElement.style.position = 'absolute';
+      headerElement.style.top = '0';
+      headerElement.style.left = '0';
+      headerElement.style.padding = '0.3rem 0.8rem';
+      headerElement.style.fontSize = '0.8rem';
+      headerElement.style.fontWeight = '600';
+      headerElement.style.textTransform = 'uppercase';
+      headerElement.style.letterSpacing = '0.5px';
+      headerElement.style.borderRadius = '4px 0 0 0';
+
+      // Apply theme-appropriate colors
+      const isDarkTheme = document.body.classList.contains('dark-theme');
+      if (isDarkTheme) {
+        headerElement.style.background = 'var(--dark-purple)';
+        headerElement.style.color = 'var(--dark-bg0)';
+      } else {
+        headerElement.style.background = 'var(--light-purple)';
+        headerElement.style.color = 'var(--light-bg0)';
+      }
+
+      // Add header to block
+      block.style.paddingTop = '2.5rem'; // Make space for header
+      block.insertBefore(headerElement, block.firstChild);
     }
 
-    // Create header element
-    const headerElement = document.createElement('div');
-    headerElement.className = 'org-babel-results-header';
-    headerElement.textContent = typeText;
-    headerElement.style.position = 'absolute';
-    headerElement.style.top = '0';
-    headerElement.style.left = '0';
-    headerElement.style.padding = '0.3rem 0.8rem';
-    headerElement.style.fontSize = '0.8rem';
-    headerElement.style.fontWeight = '600';
-    headerElement.style.textTransform = 'uppercase';
-    headerElement.style.letterSpacing = '0.5px';
-    headerElement.style.borderRadius = '4px 0 0 0';
-
-    // Apply theme-appropriate colors
-    const isDarkTheme = document.body.classList.contains('dark-theme');
-    if (isDarkTheme) {
-      headerElement.style.background = 'var(--dark-purple)';
-      headerElement.style.color = 'var(--dark-bg0)';
-    } else {
-      headerElement.style.background = 'var(--light-purple)';
-      headerElement.style.color = 'var(--light-bg0)';
-    }
-
-    // Add header to block
-    block.style.paddingTop = '2.5rem'; // Make space for header
-    block.insertBefore(headerElement, block.firstChild);
-
-    // Add copy buttons to any code blocks within org-babel-results
+    // Add copy buttons to any code blocks within org-babel-results (regardless of src sibling)
     const codeBlocks = block.querySelectorAll('pre code');
     codeBlocks.forEach(codeElement => {
       // Check if copy button already exists for this code block
@@ -649,7 +658,7 @@ function initializeOrgBabelResults() {
       copyButton.setAttribute('aria-label', 'Copy code to clipboard');
 
       // Add click event to copy code
-      copyButton.addEventListener('click', function() {
+      copyButton.addEventListener('click', function () {
         const codeText = codeElement.innerText;
         navigator.clipboard.writeText(codeText).then(() => {
           // Show visual feedback
@@ -745,7 +754,7 @@ function initializeOrgSrcBlocks() {
     copyButton.setAttribute('aria-label', 'Copy code to clipboard');
 
     // Add click event to copy code
-    copyButton.addEventListener('click', function() {
+    copyButton.addEventListener('click', function () {
       const codeElement = block.querySelector('code');
       if (codeElement) {
         const codeText = codeElement.innerText;
@@ -772,7 +781,7 @@ function initializeOrgSrcBlocks() {
   if (typeof Prism !== 'undefined') {
     Prism.highlightAll();
   }
-  }
+}
 
 // =================================
 // PAGE-SPECIFIC: GENERAL CODE BLOCKS
@@ -798,7 +807,7 @@ function initializeCodeBlocks() {
     copyButton.setAttribute('aria-label', 'Copy code to clipboard');
 
     // Add click event to copy code
-    copyButton.addEventListener('click', function() {
+    copyButton.addEventListener('click', function () {
       const codeText = codeElement.innerText;
       navigator.clipboard.writeText(codeText).then(() => {
         // Show visual feedback
