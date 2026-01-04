@@ -735,6 +735,62 @@ body.light-theme .item-overlay {
 }
 
 /* =================================
+   COMPACT-GRID: Simpler Gallery
+   ================================= */
+.compact-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 1rem;
+}
+
+.compact-item {
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.compact-item:hover {
+    transform: translateY(-3px);
+}
+
+.compact-item-image {
+    width: 100%;
+    border-radius: 6px;
+    overflow: hidden;
+    margin-bottom: 0.5rem;
+    border: 1px solid var(--bg3);
+}
+
+.compact-item-image img {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+.compact-item-title {
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin: 0;
+    display: block;
+    color: var(--fg0);
+    line-height: 1.2;
+}
+
+.compact-item .compact-item-subtitle {
+    font-size: 0.75rem;
+    color: var(--fg3);
+    margin-top: 0.1rem;
+    margin-bottom: 0;
+    line-height: 1.1;
+    display: block;
+}
+
+@media (max-width: 768px) {
+    .compact-grid {
+        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    }
+}
+
+/* =================================
    PAGE: PAGE.HTML (Article)
    ================================= */
 .content-wrapper {
@@ -1328,7 +1384,6 @@ input[type="checkbox"]:checked::after {
     display: block;
     margin: auto;
     max-width: 100%;
-    margin: 5px;
 }
 
 .display-math,
