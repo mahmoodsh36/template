@@ -34,8 +34,6 @@
             <h1 class="post-title"> %(cltpt/base:document-title (getf cltpt/base:*convert-info* :text-obj)) </h1>
             <div class="post-meta">
               <span><i class="far fa-calendar"></i> %(cltpt/base:document-date (getf cltpt/base:*convert-info* :text-obj)) </span>
-              <!-- <span><i class="far fa-clock"></i> 8 min read</span> -->
-              <span><i class="far fa-user"></i> %cltpt:*author* </span>
             </div>
             <div class="post-tags">
               #(cltpt/base::make-block :loop '(tag (cltpt/base:text-object-property (getf cltpt/base:*convert-info* :text-obj) :tags)) :escape nil)
