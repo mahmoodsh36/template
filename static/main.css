@@ -1347,6 +1347,9 @@ input[type="checkbox"]:checked::after {
 @media (max-width: 768px) {
     .post-content table {
         font-size: 0.85rem;
+        display: block;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
     }
 
     .post-content table th,
