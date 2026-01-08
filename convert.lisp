@@ -112,6 +112,14 @@
   "%(title-to-filename (getf *file-info* :root-title)).html")
 (defvar *rmr*)
 
+(defun my-id-to-attach-dir (src-file id)
+  (cltpt/file-utils:join-paths
+   (cltpt/file-utils:file-dirpath src-file)
+   "data"
+   id))
+
+(setf cltpt/base:*id-to-attach-dir-func* 'my-id-to-attach-dir)
+
 ;; get svg by #+name: or whatever?
 (defun get-latex-preview-svg-by-blk-id (blk-id)
   (let* ((dest-node (cltpt/roam:get-node-by-id (cltpt/roam:current-roamer) blk-id)))
