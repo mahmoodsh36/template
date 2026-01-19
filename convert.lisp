@@ -480,24 +480,44 @@ cl-json's standard encoder handles perfectly."
       (write-string (encode-list-of-plists-to-json metadata)
                     stream))))
 
-(defclass my-text-obj (cltpt/base:text-object)
-  ())
+(defclass template (cltpt/base:text-object)
+  ((file
+    :initarg :file
+    :accessor template-file)))
 
-(defmethod cltpt/base:text-object-convert ((obj my-text-obj)
+(defmethod cltpt/base:text-object-convert ((obj template)
                                            (backend cltpt/base:text-format))
-  (list :text (cltpt/buffer:buffer-own-text obj)
+  (list :text (cltpt/base:convert-tree
+               (cltpt/base:parse
+                cltpt/base:*simple-format*
+                (cltpt/file-utils:read-file (template-file obj)))
+               cltpt/base:*simple-format*
+               cltpt/html:*html*
+               :escape nil)
         :escape nil))
 
 (defun read-template-file (template-file)
   (uiop:read-file-string (cltpt/file-utils:join-paths *template-dir* template-file)))
 
-;; we have to do this because by default a dummy text-object is created that doesnt have a special
-;; text-object-convert assigned to it and so its results get :escape t by the default one.
-(defun wrap-into-unescaping-obj (txt)
-  (let ((obj (make-instance 'my-text-obj)))
-    (setf (cltpt/buffer:buffer-own-text obj) txt)
+(defun make-template (&key file)
+  (let ((obj (make-instance 'template)))
+    (setf (template-file obj) file)
     obj))
 
 (defun read-template-file-into-text-obj (template-file)
-  (let ((txt (uiop:read-file-string (cltpt/file-utils:join-paths *template-dir* template-file))))
-    (wrap-into-unescaping-obj txt)))
+  (make-template :file (cltpt/file-utils:join-paths *template-dir* template-file)))
+
+(defclass unescaping-text-obj (cltpt/base:text-object)
+  ())
+
+;; we have to do this because by default a dummy text-object is created that doesnt have a special
+;; text-object-convert assigned to it and so its results get :escape t by the default one.
+(defmethod cltpt/base:text-object-convert ((obj unescaping-text-obj)
+                                           (backend cltpt/base:text-format))
+  (list :text (cltpt/buffer:buffer-own-text obj)
+        :escape nil))
+
+(defun wrap-into-unescaping-obj (txt)
+  (let ((obj (make-instance 'unescaping-text-obj)))
+    (setf (cltpt/buffer:buffer-own-text obj) txt)
+    obj))
