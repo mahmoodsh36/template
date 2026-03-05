@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>about | mahmood</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="/static/main.css">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>λ</text></svg>">
+</head>
+<body class="dark-theme">
+  #(cltpt/publish:template-file-to-template-obj "header.html")
+
+  <div class="container">
+    <div class="about-content">
+      <div class="profile-container">
+        <div class="profile-avatar">
+          <i class="fas fa-user"></i>
+        </div>
+        <h2 class="profile-name">mahmood</h2>
+        <div class="profile-title">habitual melancholic</div>
+        <div class="social-links">
+          <a href="https://github.com/mahmoodsh36" class="social-link"><i class="fab fa-github"></i></a>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2 class="section-title">notes on this webapp</h2>
+        <div class="section-content">
+          <p>this is my personal website, it may also serve as a journal or as a blog.</p>
+          <p>some functionality across the website may be broken or dysfunctional (especially links, citations, and other types of special elements), the static generator (which i called cltpt) is still a work in progress.</p>
+          <p>you may find information quoted from (mostly) books, webpages (e.g. wikipedia), or other blogs, i've tried to place citations whenever possible in my notes and i do manage a bibliography that i will (hopefully) make public eventually.</p>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2 class="section-title">education</h2>
+        <div class="section-content">
+          <p>i got my bachelors in cs in 2024, i liked theory of computation and graph theory the most.</p>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2 class="section-title">practice</h2>
+        <div class="section-content">
+          <p>i am actively maintaining numerous projects, some of which could be described as being somewhat ambitious.</p>
+          <p>in my free time i like to customize/modify my emacs and linux configuration. i like to experiment with new software all the time. i have been using emacs for more than 5 years and as is the case for other emacs enthusiasts, it has become an integral part of my life. although i am actively working to build an equally featureful replacement.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  #(cltpt/publish:template-file-to-template-obj "footer.html")
+  <script src="/static/main.js"></script>
+</body>
+</html>

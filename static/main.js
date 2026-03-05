@@ -1,0 +1,925 @@
+// =================================
+// COMMON: THEME TOGGLE FUNCTIONALITY
+// =================================
+function initializeThemeToggle() {
+  const themeToggle = document.getElementById('themeToggle');
+  const body = document.body;
+
+  if (!themeToggle) return;
+
+  const themeIcon = themeToggle.querySelector('i');
+
+  // function to set theme and update everything
+  function setTheme(theme) {
+    body.classList.remove('dark-theme', 'light-theme');
+    body.classList.add(theme);
+    localStorage.setItem('theme', theme);
+    updateThemeIcon(theme);
+
+    // reapply org-block, org-src, org-babel-results and code blocks styling when theme changes
+    initializeOrgBlocks();
+    initializeOrgSrcBlocks();
+    initializeOrgBabelResults();
+    initializeCodeBlocks();
+  }
+
+  // function to get current theme
+  function getCurrentTheme() {
+    if (body.classList.contains('dark-theme')) return 'dark-theme';
+    if (body.classList.contains('light-theme')) return 'light-theme';
+    return null;
+  }
+
+  // check for saved theme preference or default to system preference
+  function initializeTheme() {
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme && (savedTheme === 'dark-theme' || savedTheme === 'light-theme')) {
+      setTheme(savedTheme);
+    } else {
+      const defaultTheme = 'dark-theme';
+      setTheme(defaultTheme);
+    }
+  }
+
+  function updateThemeIcon(theme) {
+    if (theme === 'dark-theme') {
+      themeIcon.className = 'fas fa-sun';
+    } else {
+      themeIcon.className = 'fas fa-moon';
+    }
+  }
+
+  // initialize theme on load
+  initializeTheme();
+
+  themeToggle.addEventListener('click', () => {
+    const currentTheme = getCurrentTheme();
+
+    if (currentTheme === 'dark-theme') {
+      setTheme('light-theme');
+    } else {
+      setTheme('dark-theme');
+    }
+  });
+}
+
+let searchData = [];
+
+// fetch search data from search.json
+async function loadSearchData() {
+  try {
+    const response = await fetch('/search.json');
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    searchData = await response.json();
+    console.log('search data loaded:', searchData);
+  } catch (error) {
+    console.error('error loading search data:', error);
+  }
+}
+
+function performSearch(query) {
+  const resultsContainer = document.getElementById("search-results-container");
+  if (!resultsContainer) return;
+
+  resultsContainer.innerHTML = '';
+
+  if (!query) {
+    // update numbers even when query is empty
+    updateSearchNumbers(0, searchData.length);
+    return;
+  }
+
+  const matchingEntries = searchData.filter(entry => {
+    const title = entry.title || '';
+    const id = entry.id || '';
+    return title.toLowerCase().includes(query.toLowerCase()) ||
+      id.toLowerCase().includes(query.toLowerCase());
+  });
+
+  matchingEntries.forEach(entry => {
+    const entryText = entry.title || entry.id || 'Untitled';
+
+    const container = document.createElement("div");
+    const subcontainer = document.createElement("div");
+    const span = document.createElement("span");
+    const plusMinusButton = document.createElement("div");
+    const infoElm = document.createElement("div");
+
+    container.className = 'search-result-container';
+    plusMinusButton.className = 'plus-button';
+    infoElm.className = 'info';
+    subcontainer.className = 'search-result';
+
+    // on-demand info of reference/page/whatever
+    plusMinusButton.onclick = function () {
+      // so that we dont insert duplicate info
+      infoElm.innerHTML = '';
+
+      const isPlus = plusMinusButton.classList.contains('plus-button');
+
+      if (isPlus) {
+        plusMinusButton.className = 'minus-button';
+        fetch(entry.filepath).then(response => response.text()).then(function (text) {
+          // parse the "other" page (page containing the destination entry)
+          const page = new DOMParser().parseFromString(text, "text/html");
+          // the actual html entry from the other page
+          const docElm = page.getElementById(entry.id);
+          // the type of the entry
+
+          // direct link to the entry in its parent page
+          let mylink = entry['filepath'];
+          if (docElm !== null)
+            mylink = mylink + '#' + entry.id;
+          const linkElm = document.createElement('a');
+          linkElm.href = mylink;
+          linkElm.innerHTML = 'direct link';
+
+          const topRow = document.createElement('div');
+          topRow.className = 'separated-row';
+
+          // insert the info
+          let mytype = 'document';
+          if (mytype)
+            topRow.appendChild(document.createTextNode('type: ' + mytype));
+          else
+            topRow.appendChild(document.createTextNode('empty'));
+
+          // insert the on-demand info elements into the dom
+          topRow.appendChild(linkElm);
+          infoElm.appendChild(topRow);
+          if (docElm !== null)
+            infoElm.appendChild(docElm);
+          container.appendChild(infoElm);
+        });
+      } else {
+        plusMinusButton.className = 'plus-button';
+        if (container.querySelector('.info')) {
+          container.querySelector('.info').remove();
+        }
+      }
+    }
+
+    span.appendChild(document.createTextNode(entryText));
+    container.appendChild(subcontainer);
+    subcontainer.appendChild(span);
+    subcontainer.appendChild(plusMinusButton);
+    // only append infoElm when it's actually used
+    resultsContainer.appendChild(container);
+  });
+
+  // update numbers
+  updateSearchNumbers(matchingEntries.length, searchData.length);
+}
+
+function updateSearchNumbers(resultsCount, totalCount) {
+  const resultsElement = document.getElementById("search-numbers-results");
+  const publicElement = document.getElementById("search-numbers-public");
+
+  if (resultsElement) resultsElement.innerHTML = resultsCount;
+  if (publicElement) publicElement.innerHTML = totalCount;
+}
+
+function handleSearchInput(element) {
+  if (element) {
+    performSearch(element.value);
+  }
+}
+
+function initializeArchivePage() {
+  const postsListContainer = document.getElementById('postsList');
+  const archiveFiltersContainer = document.getElementById('archiveFilters');
+  const archiveCounterElement = document.getElementById('archiveCounter');
+  if (!postsListContainer || !archiveFiltersContainer) return;
+
+  const searchBar = document.getElementById('searchBar');
+  let currentFilter = 'all';
+  let currentSearch = '';
+
+  // create filter buttons dynamically based on tags in search data
+  function createFilterButtons() {
+    // get all unique tags from search data
+    const allTags = new Set();
+    searchData.forEach(post => {
+      if (post.tags && Array.isArray(post.tags)) {
+        post.tags.forEach(tag => {
+          if (tag) allTags.add(tag);
+        });
+      }
+    });
+
+    // clear existing buttons
+    archiveFiltersContainer.innerHTML = '';
+
+    // add "All" button
+    const allButton = document.createElement('button');
+    allButton.className = 'filter-btn active';
+    allButton.dataset.tag = 'all';
+    allButton.textContent = 'All';
+    archiveFiltersContainer.appendChild(allButton);
+
+    // add buttons for each tag
+    Array.from(allTags).sort().forEach(tag => {
+      const button = document.createElement('button');
+      button.className = 'filter-btn';
+      button.dataset.tag = tag;
+      button.textContent = tag;
+      archiveFiltersContainer.appendChild(button);
+    });
+
+    // add event listeners to all buttons
+    const filterButtons = document.querySelectorAll('.filter-btn');
+    filterButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        filterButtons.forEach(btn => btn.classList.remove('active'));
+        button.classList.add('active');
+        currentFilter = button.dataset.tag;
+        renderPosts();
+      });
+    });
+  }
+
+  function renderPosts() {
+    const filteredPosts = searchData.filter(post => {
+      const matchesFilter = currentFilter === 'all' || (post.tags && post.tags.includes(currentFilter));
+      const title = post.title || '';
+      const id = post.id || '';
+      const searchMatch = (title.toLowerCase().includes(currentSearch.toLowerCase()) ||
+        id.toLowerCase().includes(currentSearch.toLowerCase()));
+      return matchesFilter && searchMatch;
+    });
+
+    postsListContainer.innerHTML = '';
+
+    // update the counter
+    if (archiveCounterElement) {
+      archiveCounterElement.textContent = `Displaying ${filteredPosts.length} of ${searchData.length} entries`;
+    }
+
+    if (filteredPosts.length === 0) {
+      postsListContainer.innerHTML = `<div class="no-results">No articles found matching your criteria.</div>`;
+    } else {
+      filteredPosts.forEach(post => {
+        const postCard = document.createElement('div');
+        postCard.className = 'post-card';
+
+        // get icon based on tags
+        const icon = getIconForTags(post.tags);
+
+        // format the date if it exists
+        let dateDisplay = '';
+        if (post.date) {
+          dateDisplay = `<span>${post.date}</span>`;
+        }
+
+        // create tags display
+        let tagsDisplay = '';
+        if (post.tags && Array.isArray(post.tags) && post.tags.length > 0) {
+          tagsDisplay = ' ' + post.tags.map(tag => `<span class="post-tag">${tag}</span>`).join(' ');
+        }
+
+        postCard.innerHTML = `
+        <div class="post-content">
+        <a href="${post.filepath}" class="post-title">
+        <i class="fas ${icon} post-icon"></i>
+                            ${post.title || 'Untitled'}${tagsDisplay}
+                            </a>
+                            <p class="post-excerpt">${post.description || 'No description available.'}</p>
+                            <div class="post-meta">
+                            ${dateDisplay}
+                            <span>ID: ${post.id}</span>
+                            </div>
+                            </div>`;
+        postsListContainer.appendChild(postCard);
+      });
+    }
+  }
+
+  // helper function to get an appropriate icon based on tags
+  function getIconForTags(tags) {
+    if (!tags || !Array.isArray(tags) || tags.length === 0) {
+      return 'fa-file'; // Default icon
+    }
+
+    // check for specific tags and return corresponding icons
+    if (tags.includes('Mathematics') || tags.includes('math')) {
+      return 'fa-infinity';
+    }
+    if (tags.includes('Technology') || tags.includes('code') || tags.includes('programming')) {
+      return 'fa-robot';
+    }
+    if (tags.includes('Neuroscience') || tags.includes('brain')) {
+      return 'fa-brain';
+    }
+    if (tags.includes('Physics')) {
+      return 'fa-atom';
+    }
+    if (tags.includes('Computer Science') || tags.includes('cs')) {
+      return 'fa-network-wired';
+    }
+
+    return 'fa-file'; // default icon
+  }
+
+  searchBar.addEventListener('input', () => {
+    currentSearch = searchBar.value;
+    renderPosts();
+  });
+
+  // initial setup - but only if we have data
+  if (searchData.length > 0) {
+    createFilterButtons();
+    renderPosts();
+  }
+}
+
+function initializeGalleryPage() {
+  const categoryButtons = document.querySelectorAll('.category-btn');
+  if (categoryButtons.length === 0) return;
+
+  categoryButtons.forEach(button => {
+    button.addEventListener('click', () => {
+      categoryButtons.forEach(btn => btn.classList.remove('active'));
+      button.classList.add('active');
+    });
+  });
+}
+
+function initializeTableOfContents() {
+  const tocContainer = document.getElementById('toc');
+  if (!tocContainer) return;
+
+  const tocToggle = document.getElementById('tocToggle');
+  const tocList = document.getElementById('tocList');
+  const headers = document.querySelectorAll('.post-content h2, .post-content h3');
+
+  // keep track of all generated IDs to ensure uniqueness
+  const generatedIds = new Set();
+
+  // helper function to generate URL-safe ID from text
+  function generateIdFromText(text) {
+    let id = text
+      .toLowerCase()
+      .trim()
+      .replace(/[^\w\s-]/g, '') // remove non-alphanumeric characters except spaces and hyphens
+      .replace(/[\s_-]+/g, '-') // replace spaces, underscores, and multiple hyphens with single hyphen
+      .replace(/^-+|-+$/g, ''); // remove leading and trailing hyphens
+
+    // if ID starts with a number, prepend 'section-' to make it valid
+    if (/^\d/.test(id)) {
+      id = 'section-' + id;
+    }
+
+    // if ID is empty or only contains invalid characters, use a fallback
+    if (!id) {
+      id = 'header';
+    }
+
+    return id;
+  }
+
+  // generate table of contents
+  headers.forEach((header, index) => {
+    // generate ID if it doesn't exist
+    if (!header.id) {
+      const headerText = header.textContent.trim();
+      const baseId = generateIdFromText(headerText);
+
+      // if no text content or empty after processing, use a fallback
+      let finalId = baseId || `header-${index + 1}`;
+
+      // ensure unique ID by checking against all existing IDs and generated IDs
+      let uniqueId = finalId;
+      let counter = 1;
+
+      // check against existing IDs in the document and our generated IDs
+      while (document.getElementById(uniqueId) || generatedIds.has(uniqueId)) {
+        uniqueId = `${finalId}-${counter}`;
+        counter++;
+      }
+
+      // store the generated ID to prevent future conflicts
+      generatedIds.add(uniqueId);
+      header.id = uniqueId;
+    } else {
+      // if header already has an ID, add it to our tracking set
+      generatedIds.add(header.id);
+    }
+
+    const link = document.createElement('a');
+    const listItem = document.createElement('li');
+
+    link.href = `#${header.id}`;
+    link.textContent = header.textContent;
+
+    if (header.tagName === 'H2') listItem.classList.add('toc-h2');
+    if (header.tagName === 'H3') listItem.classList.add('toc-h3');
+
+    link.addEventListener('click', function (e) {
+      e.preventDefault();
+      const targetElement = document.querySelector(`[id='${header.id}']`);
+      if (targetElement) {
+        window.scrollTo({ top: targetElement.offsetTop - 80, behavior: 'smooth' });
+        if (window.innerWidth <= 1024) tocContainer.classList.remove('expanded');
+      }
+    });
+
+    listItem.appendChild(link);
+    tocList.appendChild(listItem);
+  });
+
+  // toggle TOC on mobile
+  if (tocToggle) {
+    tocToggle.addEventListener('click', () => {
+      tocContainer.classList.toggle('expanded');
+    });
+  }
+}
+
+function initializeOrgBlocks() {
+  // find all org-blocks with data-type attributes
+  const orgBlocks = document.querySelectorAll('.org-block[data-type]');
+
+  orgBlocks.forEach(block => {
+    // only process blocks that have data-type
+    if (block.hasAttribute('data-type')) {
+      const type = block.getAttribute('data-type');
+
+      // reset padding to default
+      block.style.paddingTop = '';
+
+      // handle "dummy" as special case - don't display type, only title if it exists
+      if (type === 'dummy') {
+        // remove any existing dynamic styling elements
+        const existingHeader = block.querySelector('.org-block-header');
+        if (existingHeader) existingHeader.remove();
+
+        // if there's a data-title, create a simple title element
+        if (block.hasAttribute('data-title')) {
+          // create container for the header
+          const headerContainer = document.createElement('div');
+          headerContainer.className = 'org-block-header';
+          headerContainer.style.position = 'absolute';
+          headerContainer.style.top = '0';
+          headerContainer.style.left = '0';
+          headerContainer.style.right = '0';
+          headerContainer.style.zIndex = '1';
+
+          // create the title element
+          const titleElement = document.createElement('div');
+          titleElement.className = 'org-block-title';
+          titleElement.textContent = block.getAttribute('data-title');
+          titleElement.style.padding = '0.3rem 0.8rem';
+          titleElement.style.fontSize = '0.8rem';
+          titleElement.style.fontWeight = '500';
+          titleElement.style.borderRadius = '4px 4px 0 0';
+          titleElement.style.whiteSpace = 'nowrap';
+          titleElement.style.overflow = 'hidden';
+          titleElement.style.textOverflow = 'ellipsis';
+
+          headerContainer.appendChild(titleElement);
+          block.appendChild(headerContainer);
+          applyOrgBlockTitleThemeStyles(block, titleElement);
+        } else {
+          // no title, so no header needed, we remove top padding.
+          block.style.paddingTop = '1rem';
+        }
+        // skip normal processing for dummy blocks
+        return;
+      }
+
+      // remove any existing dynamic styling elements
+      const existingHeader = block.querySelector('.org-block-header');
+      if (existingHeader) existingHeader.remove();
+
+      // set default top padding for non-dummy blocks
+      block.style.paddingTop = '2.5rem';
+
+      // create container for the header
+      const headerContainer = document.createElement('div');
+      headerContainer.className = 'org-block-header';
+      headerContainer.style.position = 'absolute';
+      headerContainer.style.top = '0';
+      headerContainer.style.left = '0';
+      headerContainer.style.right = '0';
+      headerContainer.style.display = 'flex';
+      headerContainer.style.zIndex = '1';
+
+      // create the type element
+      const typeElement = document.createElement('div');
+      typeElement.className = 'org-block-type';
+      typeElement.textContent = type;
+      typeElement.style.padding = '0.3rem 0.8rem';
+      typeElement.style.fontSize = '0.8rem';
+      typeElement.style.fontWeight = '600';
+      typeElement.style.textTransform = 'uppercase';
+      typeElement.style.letterSpacing = '0.5px';
+      typeElement.style.borderRadius = '4px 0 0 0';
+
+      // add type element to header
+      headerContainer.appendChild(typeElement);
+
+      // if there's a data-title, create the title element
+      if (block.hasAttribute('data-title')) {
+        const titleElement = document.createElement('div');
+        titleElement.className = 'org-block-title';
+        titleElement.textContent = block.getAttribute('data-title');
+        titleElement.style.padding = '0.3rem 0.8rem';
+        titleElement.style.fontSize = '0.8rem';
+        titleElement.style.fontWeight = '500';
+        titleElement.style.borderRadius = '0 4px 0 0';
+        titleElement.style.flex = '1'; // Take remaining space
+        titleElement.style.whiteSpace = 'nowrap';
+        titleElement.style.overflow = 'hidden';
+        titleElement.style.textOverflow = 'ellipsis';
+
+        headerContainer.appendChild(titleElement);
+      } else {
+        // if no title, make type element take full width with rounded corners
+        typeElement.style.borderRadius = '4px 4px 0 0';
+      }
+
+      block.appendChild(headerContainer);
+
+      // apply theme styles dynamically
+      applyOrgBlockThemeStyles(block, typeElement);
+      if (block.hasAttribute('data-title')) {
+        const titleElement = headerContainer.querySelector('.org-block-title');
+        if (titleElement) {
+          applyOrgBlockTitleThemeStyles(block, titleElement);
+        }
+      }
+    }
+  });
+}
+
+function initializeOrgBabelResults() {
+  // Find all org-babel-results blocks
+  const orgBabelResults = document.querySelectorAll('.org-babel-results');
+
+  orgBabelResults.forEach(block => {
+    // remove any existing header to avoid duplicates
+    const existingHeader = block.querySelector('.org-babel-results-header');
+    if (existingHeader) existingHeader.remove();
+
+    // reset padding in case it was set before
+    block.style.paddingTop = '';
+
+    // only add the results header if there's a preceding .org-src sibling
+    const previousSibling = block.previousElementSibling;
+    const hasPrecedingSrcBlock = previousSibling && previousSibling.classList.contains('org-src');
+
+    if (hasPrecedingSrcBlock) {
+      // determine the type text to display
+      let typeText = 'Results';
+      if (block.hasAttribute('data-type')) {
+        const dataType = block.getAttribute('data-type').toLowerCase();
+        if (dataType === 'output') {
+          typeText = 'Output';
+        } else if (dataType === 'value') {
+          typeText = 'Value';
+        } else {
+          typeText = dataType.charAt(0).toUpperCase() + dataType.slice(1);
+        }
+      }
+
+      const headerElement = document.createElement('div');
+      headerElement.className = 'org-babel-results-header';
+      headerElement.textContent = typeText;
+      headerElement.style.position = 'absolute';
+      headerElement.style.top = '0';
+      headerElement.style.left = '0';
+      headerElement.style.padding = '0.3rem 0.8rem';
+      headerElement.style.fontSize = '0.8rem';
+      headerElement.style.fontWeight = '600';
+      headerElement.style.textTransform = 'uppercase';
+      headerElement.style.letterSpacing = '0.5px';
+      headerElement.style.borderRadius = '4px 0 0 0';
+
+      // apply theme-appropriate colors
+      const isDarkTheme = document.body.classList.contains('dark-theme');
+      if (isDarkTheme) {
+        headerElement.style.background = 'var(--dark-purple)';
+        headerElement.style.color = 'var(--dark-bg0)';
+      } else {
+        headerElement.style.background = 'var(--light-purple)';
+        headerElement.style.color = 'var(--light-bg0)';
+      }
+
+      // add header to block
+      block.style.paddingTop = '2.5rem'; // Make space for header
+      block.insertBefore(headerElement, block.firstChild);
+    }
+
+    // add copy buttons to any code blocks within org-babel-results (regardless of src sibling)
+    const codeBlocks = block.querySelectorAll('pre code');
+    codeBlocks.forEach(codeElement => {
+      // check if copy button already exists for this code block
+      if (codeElement.parentElement.querySelector('.code-copy-button')) return;
+
+      const copyButton = document.createElement('button');
+      copyButton.className = 'code-copy-button';
+      copyButton.textContent = 'Copy';
+      copyButton.setAttribute('aria-label', 'Copy code to clipboard');
+
+      copyButton.addEventListener('click', function () {
+        const codeText = codeElement.innerText;
+        navigator.clipboard.writeText(codeText).then(() => {
+          // Show visual feedback
+          const originalText = copyButton.textContent;
+          copyButton.textContent = 'Copied!';
+          copyButton.classList.add('copied');
+
+          setTimeout(() => {
+            copyButton.textContent = originalText;
+            copyButton.classList.remove('copied');
+          }, 2000);
+        }).catch(err => {
+          console.error('Failed to copy: ', err);
+        });
+      });
+
+      // add copy button to the pre element
+      const preElement = codeElement.parentElement;
+      preElement.style.position = 'relative';
+      preElement.appendChild(copyButton);
+    });
+  });
+}
+
+function initializeOrgSrcBlocks() {
+  // find all org-src div containers
+  const orgSrcBlocks = document.querySelectorAll('.org-src');
+
+  orgSrcBlocks.forEach(block => {
+    // remove any existing header
+    const existingHeader = block.querySelector('.org-src-header');
+    if (existingHeader) existingHeader.remove();
+
+    // remove any existing copy button
+    const existingCopyButton = block.querySelector('.code-copy-button');
+    if (existingCopyButton) existingCopyButton.remove();
+
+    // get language from data-lang attribute first
+    let language = block.getAttribute('data-lang');
+
+    // if no data-lang, try data-language as fallback
+    if (!language) {
+      language = block.getAttribute('data-language');
+    }
+
+    // if still no language, try to detect from class names
+    if (!language) {
+      const classes = block.className.split(' ');
+      for (const cls of classes) {
+        if (cls.startsWith('language-')) {
+          language = cls.replace('language-', '');
+          break;
+        }
+      }
+    }
+
+    // if still no language, default to 'code'
+    if (!language) {
+      language = 'code';
+    }
+
+    // set the data-language attribute for CSS targeting
+    block.setAttribute('data-language', language);
+
+    // add language class to the code element for Prism.js syntax highlighting
+    const codeElement = block.querySelector('code');
+    if (codeElement) {
+      codeElement.className = `language-${language}`;
+    }
+
+    const headerContainer = document.createElement('div');
+    headerContainer.className = 'org-src-header';
+
+    const languageElement = document.createElement('div');
+    languageElement.className = 'org-src-language';
+    languageElement.textContent = language;
+
+    // Add language element to header
+    headerContainer.appendChild(languageElement);
+    // Add header to the beginning of the block (before pre element)
+    block.insertBefore(headerContainer, block.firstChild);
+
+    const copyButton = document.createElement('button');
+    copyButton.className = 'code-copy-button';
+    copyButton.textContent = 'Copy';
+    copyButton.setAttribute('aria-label', 'Copy code to clipboard');
+
+    copyButton.addEventListener('click', function () {
+      const codeElement = block.querySelector('code');
+      if (codeElement) {
+        const codeText = codeElement.innerText;
+        navigator.clipboard.writeText(codeText).then(() => {
+          // show visual feedback
+          const originalText = copyButton.textContent;
+          copyButton.textContent = 'Copied!';
+          copyButton.classList.add('copied');
+
+          setTimeout(() => {
+            copyButton.textContent = originalText;
+            copyButton.classList.remove('copied');
+          }, 2000);
+        }).catch(err => {
+          console.error('Failed to copy: ', err);
+        });
+      }
+    });
+
+    block.appendChild(copyButton);
+  });
+
+  // trigger Prism.js highlighting after processing all blocks
+  if (typeof Prism !== 'undefined') {
+    Prism.highlightAll();
+  }
+}
+
+function initializeCodeBlocks() {
+  // find all pre > code blocks that are not inside org-src blocks
+  const codeBlocks = document.querySelectorAll('pre:not(.org-src pre) code');
+
+  codeBlocks.forEach(codeElement => {
+    // check if this code block is already inside an org-src block
+    if (codeElement.closest('.org-src')) return;
+
+    const preElement = codeElement.parentElement;
+
+    if (preElement.querySelector('.code-copy-button')) return;
+
+    const copyButton = document.createElement('button');
+    copyButton.className = 'code-copy-button';
+    copyButton.textContent = 'Copy';
+    copyButton.setAttribute('aria-label', 'Copy code to clipboard');
+
+    copyButton.addEventListener('click', function () {
+      const codeText = codeElement.innerText;
+      navigator.clipboard.writeText(codeText).then(() => {
+        // Show visual feedback
+        const originalText = copyButton.textContent;
+        copyButton.textContent = 'Copied!';
+        copyButton.classList.add('copied');
+
+        setTimeout(() => {
+          copyButton.textContent = originalText;
+          copyButton.classList.remove('copied');
+        }, 2000);
+      }).catch(err => {
+        console.error('Failed to copy: ', err);
+      });
+    });
+
+    // add copy button to the pre element
+    preElement.style.position = 'relative';
+    preElement.appendChild(copyButton);
+  });
+}
+
+// apply theme styles to org-block type element
+function applyOrgBlockThemeStyles(block, typeElement) {
+  const body = document.body;
+  const type = block.getAttribute('data-type');
+
+  // base theme styles
+  if (body.classList.contains('dark-theme')) {
+    typeElement.style.background = 'var(--dark-aqua)';
+    typeElement.style.color = 'var(--dark-bg0)';
+  } else {
+    typeElement.style.background = 'var(--light-aqua)';
+    typeElement.style.color = 'var(--light-bg0)';
+  }
+
+  // type-specific colors (excluding "dummy")
+  if (type !== 'dummy') {
+    const typeColors = {
+      'problem': body.classList.contains('dark-theme') ? 'var(--dark-yellow)' : 'var(--light-yellow)',
+      'definition': body.classList.contains('dark-theme') ? 'var(--dark-green)' : 'var(--light-green)',
+      'theorem': body.classList.contains('dark-theme') ? 'var(--dark-blue)' : 'var(--light-blue)',
+      'proof': body.classList.contains('dark-theme') ? 'var(--dark-purple)' : 'var(--light-purple)'
+    };
+
+    // apply specific color if defined, otherwise keep the default aqua color
+    if (typeColors[type]) {
+      typeElement.style.background = typeColors[type];
+      block.style.borderLeftColor = typeColors[type];
+    } else {
+      // for unknown block types, use the default aqua color for border
+      if (body.classList.contains('dark-theme')) {
+        block.style.borderLeftColor = 'var(--dark-aqua)';
+      } else {
+        block.style.borderLeftColor = 'var(--light-aqua)';
+      }
+    }
+  } else {
+    // for dummy blocks, use orange color
+    if (body.classList.contains('dark-theme')) {
+      block.style.borderLeftColor = 'var(--dark-orange)';
+    } else {
+      block.style.borderLeftColor = 'var(--light-orange)';
+    }
+  }
+}
+
+// apply theme styles to org-block title element
+function applyOrgBlockTitleThemeStyles(block, titleElement) {
+  const body = document.body;
+  const type = block.getAttribute('data-type');
+
+  if (body.classList.contains('dark-theme')) {
+    titleElement.style.background = 'var(--dark-bg1)';
+    titleElement.style.color = 'var(--dark-fg1)';
+    if (type !== 'dummy') {
+      titleElement.style.borderBottom = '1px solid var(--dark-bg3)';
+      titleElement.style.borderRight = '1px solid var(--dark-bg3)';
+    }
+  } else {
+    titleElement.style.background = 'var(--light-bg1)';
+    titleElement.style.color = 'var(--light-fg1)';
+    if (type !== 'dummy') {
+      titleElement.style.borderBottom = '1px solid var(--light-bg3)';
+      titleElement.style.borderRight = '1px solid var(--light-bg3)';
+    }
+  }
+
+  // for dummy blocks, we want a simpler style without borders
+  if (type === 'dummy') {
+    if (body.classList.contains('dark-theme')) {
+      titleElement.style.background = 'var(--dark-bg2)';
+      titleElement.style.color = 'var(--dark-fg2)';
+      titleElement.style.borderBottom = 'none';
+      titleElement.style.borderRight = 'none';
+    } else {
+      titleElement.style.background = 'var(--light-bg2)';
+      titleElement.style.color = 'var(--light-fg2)';
+      titleElement.style.borderBottom = 'none';
+      titleElement.style.borderRight = 'none';
+    }
+  }
+}
+
+function estimateReadingTime(selector = '.post-content', wpm = 240) {
+  const content = document.querySelector(selector);
+  if (!content) return null;
+
+  // extract only visible text content
+  const text = content.innerText || content.textContent || '';
+  const wordCount = text.trim().split(/\s+/).filter(Boolean).length;
+
+  // count images to add extra time (Medium-like adjustment)
+  const imageCount = content.querySelectorAll('img').length;
+  const imageExtraTime = imageCount * 12; // ~12 sec per image
+
+  // calculate total reading time in seconds
+  const totalSeconds = Math.ceil((wordCount / wpm) * 60 + imageExtraTime);
+  const minutes = Math.max(1, Math.ceil(totalSeconds / 60)); // min 1 minute
+
+  return {
+    words: wordCount,
+    images: imageCount,
+    minutes,
+    formatted: `${minutes} min read`
+  };
+}
+
+function displayReadingTime({
+  contentSelector = '.post-content',
+  metaSelector = '.post-meta',
+  iconClass = 'far fa-clock',
+  wpm = 240
+} = {}) {
+  const readingTime = estimateReadingTime(contentSelector, wpm);
+  if (!readingTime) return;
+
+  const metaContainer = document.querySelector(metaSelector);
+  if (!metaContainer) return; // no .post-meta, skip insertion
+
+  const span = document.createElement('span');
+  span.innerHTML = `<i class="${iconClass}"></i> ${readingTime.formatted}`;
+
+  metaContainer.appendChild(span);
+}
+
+document.addEventListener('DOMContentLoaded', async () => {
+  initializeThemeToggle();
+  initializeGalleryPage();
+  initializeTableOfContents();
+
+  // initialize search functionality
+  await loadSearchData();
+
+  // initialize archive page after data is loaded
+  initializeArchivePage();
+
+  // initialize org-block, org-src, org-babel-results and code blocks styling
+  initializeOrgBlocks();
+  initializeOrgSrcBlocks();
+  initializeOrgBabelResults();
+  initializeCodeBlocks();
+
+  displayReadingTime();
+});

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>archive | mahmood</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="/static/main.css">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>λ</text></svg>">
+</head>
+<body class="dark-theme">
+  #(cltpt/publish:template-file-to-template-obj "header.html")
+
+  <section class="hero">
+    <div class="container">
+      <h1>post archive</h1>
+      <p>all public posts/files</p>
+    </div>
+  </section>
+
+  <!-- search bar -->
+  <div class="container">
+    <div class="search-container">
+      <input type="text" id="searchBar" class="search-bar" placeholder="Search articles by title...">
+    </div>
+  </div>
+
+  <!-- archive filters -->
+  <div class="container">
+    <div class="archive-filters" id="archiveFilters">
+      <!-- filter buttons will be populated by javascript -->
+    </div>
+  </div>
+
+  <!-- archive posts -->
+  <div class="container">
+    <div class="archive-posts-header">
+      <div class="archive-counter" id="archiveCounter">displaying 0 of 0 entries</div>
+    </div>
+    <div class="archive-posts">
+      <div class="posts-list" id="postsList">
+        <!-- posts will be populated by javascript -->
+      </div>
+    </div>
+  </div>
+
+  #(cltpt/publish:template-file-to-template-obj "footer.html")
+  <script src="/static/main.js"></script>
+</body>
+</html>
