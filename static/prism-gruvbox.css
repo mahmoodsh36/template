@@ -1,0 +1,121 @@
+/* Prism.js Gruvbox theme - Custom implementation */
+
+/* Dark theme (default) */
+.token.comment,
+.token.prolog,
+.token.doctype,
+.token.cdata {
+    color: #928374;
+    font-style: italic;
+}
+
+.token.punctuation {
+    color: #ebdbb2;
+}
+
+.token.property,
+.token.tag,
+.token.boolean,
+.token.number,
+.token.constant,
+.token.symbol,
+.token.deleted {
+    color: #8ec07c;
+}
+
+.token.selector,
+.token.attr-name,
+.token.string,
+.token.char,
+.token.builtin,
+.token.inserted {
+    color: #b8bb26;
+}
+
+.token.operator,
+.token.entity,
+.token.url,
+.language-css .token.string,
+.style .token.string {
+    color: #d3869b;
+}
+
+.token.atrule,
+.token.attr-value,
+.token.keyword,
+.token.function,
+.token.class-name {
+    color: #83a598;
+}
+
+.token.regex,
+.token.important,
+.token.variable {
+    color: #fe8019;
+}
+
+.token.important,
+.token.bold {
+    font-weight: bold;
+}
+
+.token.italic {
+    font-style: italic;
+}
+
+.token.entity {
+    cursor: help;
+}
+
+/* Light theme overrides */
+body.light-theme .token.comment,
+body.light-theme .token.prolog,
+body.light-theme .token.doctype,
+body.light-theme .token.cdata {
+    color: #7c6f64;
+}
+
+body.light-theme .token.punctuation {
+    color: #3c3836;
+}
+
+body.light-theme .token.property,
+body.light-theme .token.tag,
+body.light-theme .token.boolean,
+body.light-theme .token.number,
+body.light-theme .token.constant,
+body.light-theme .token.symbol,
+body.light-theme .token.deleted {
+    color: #427b58;
+}
+
+body.light-theme .token.selector,
+body.light-theme .token.attr-name,
+body.light-theme .token.string,
+body.light-theme .token.char,
+body.light-theme .token.builtin,
+body.light-theme .token.inserted {
+    color: #79740e;
+}
+
+body.light-theme .token.operator,
+body.light-theme .token.entity,
+body.light-theme .token.url,
+body.light-theme language-css .token.string,
+body.light-theme .style .token.string {
+    color: #8f3f71;
+}
+
+body.light-theme .token.atrule,
+body.light-theme .token.attr-value,
+body.light-theme .token.keyword,
+body.light-theme .token.function,
+body.light-theme .token.class-name {
+    color: #076678;
+}
+
+body.light-theme .token.regex,
+body.light-theme .token.important,
+body.light-theme .token.variable {
+    color: #af3a03;
+}
