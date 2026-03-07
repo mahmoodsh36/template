@@ -18,9 +18,13 @@
         :format '((:day 2) #\space :short-month #\space (:year 4)))
     </span>
   </div>
+  #(cltpt/base:make-block
+    :if '(cltpt/roam:node-desc *card-node*)
+    :escape nil)
   <p class="post-excerpt">
-    %(or (cltpt/roam:node-desc *card-node*) "no description")
+    %(cltpt/roam:node-desc *card-node*)
   </p>
+  #(cltpt/base:block-end)
   <a href="%(format nil
                     "~A~A.html"
                     cltpt/html:*html-static-route*
