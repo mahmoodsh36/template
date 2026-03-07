@@ -160,8 +160,7 @@
                                            (:year 4)))
                  collect (list
                           :href (format nil
-                                        "~A~A.html"
-                                        cltpt/html:*html-static-route*
+                                        "~A.html"
                                         (cltpt/publish:title-to-filename title))
                           :title title
                           :date date-str))))
