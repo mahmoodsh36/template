@@ -307,7 +307,7 @@
                         '("index.html" "about.html" "archive.html" "blog.html"))
      :template-file (cltpt/file-utils:join-paths *template-dir* "page.html")
      :theme-dir *base-dir*
-     :html-static-route "/"
+     :html-static-route "/static"
      :filepath-format *filepath-format*
      :static-filepath-format *static-filepath-format*)
     ;; copy css/js from theme static/ into $dest/static/.
