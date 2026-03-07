@@ -142,30 +142,6 @@
    'local-time:timestamp>
    :key #'node-date))
 
-(defun blog-entries (rmr)
-  (let* ((nodes (blog-nodes rmr))
-         (entries
-           (loop for node in nodes
-                 for title = (cltpt/roam:node-title node)
-                 for text-obj = (cltpt/roam:node-text-obj node)
-                 for date-str = (local-time:format-timestring
-                                 nil
-                                 (node-date node)
-                                 :format '(:short-weekday
-                                           ", "
-                                           (:day 2)
-                                           #\space
-                                           :short-month
-                                           #\space
-                                           (:year 4)))
-                 collect (list
-                          :href (format nil
-                                        "~A.html"
-                                        (cltpt/publish:title-to-filename title))
-                          :title title
-                          :date date-str))))
-    entries))
-
 (defun generate-posts-list (nodes)
   (let ((entries
           (loop for node in nodes
@@ -306,7 +282,7 @@
                         '("index.html" "about.html" "archive.html" "blog.html"))
      :template-file (cltpt/file-utils:join-paths *template-dir* "page.html")
      :theme-dir *base-dir*
-     :html-static-route "/static"
+     :html-static-route "/static/"
      :filepath-format *filepath-format*
      :static-filepath-format *static-filepath-format*)
     ;; copy css/js from theme static/ into $dest/static/.
