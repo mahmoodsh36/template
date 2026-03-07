@@ -3,12 +3,20 @@
   :escape nil)
 <div class="post-card">
   <div class="post-header">
-    <h3 class="post-title"> %(cltpt/roam:node-title *card-node*) </h3>
-    #(cltpt/base:make-block
-      :escape nil
-      :loop '(tag (cltpt/base:text-object-property text-obj :tags)))
-      <span class="post-tag"> %tag </span>
-    #(cltpt/base:block-end)
+    <div class="post-title-row">
+      <h3 class="post-title"> %(cltpt/roam:node-title *card-node*) </h3>
+      #(cltpt/base:make-block
+        :escape nil
+        :loop '(tag (cltpt/base:text-object-property text-obj :tags)))
+        <span class="post-tag"> %tag </span>
+      #(cltpt/base:block-end)
+    </div>
+    <span class="post-date">
+      %(local-time:format-timestring
+        nil
+        (node-date *card-node*)
+        :format '((:day 2) #\space :short-month #\space (:year 4)))
+    </span>
   </div>
   <p class="post-excerpt">
     %(or (cltpt/roam:node-desc *card-node*) "no description")
