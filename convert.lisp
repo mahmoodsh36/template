@@ -242,7 +242,7 @@
 ;; we pre-create a roamer to compute blog-nodes for include-files and for search.json export.
 ;; publish creates its own roamer internally from the same files.
 (defun generate-from-files-to-dir (rmr-files dest-dir)
-  (let* ((rmr (cltpt/roam:from-files rmr-files))
+  (let* ((rmr (cltpt/roam:roamer-from-files rmr-files))
          (*rmr* rmr)
          ;; root files to include main files and blog-tagged posts.
          ;; publish will expand these transitively via find-linked-files.
