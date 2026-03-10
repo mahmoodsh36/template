@@ -303,4 +303,7 @@
      (cltpt/file-utils:join-paths *template-static-dir* "robots.txt")
      (cltpt/file-utils:join-paths dest-dir "robots.txt"))
     ;; search.json for the frontend search feature.
-    (export-metadata-to-json rmr (cltpt/file-utils:join-paths dest-dir "search.json") file-predicate)))
+    (export-metadata-to-json
+     rmr
+     (cltpt/file-utils:join-paths dest-dir "search.json")
+     file-predicate)))
