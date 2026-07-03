@@ -260,13 +260,13 @@ footer a:hover {
     background: var(--aqua);
 }
 
-.featured .posts-list {
+.posts-list {
     display: flex;
     flex-direction: column;
     gap: 1rem;
 }
 
-.featured .post-card {
+.posts-list .post-card {
     border-radius: 6px;
     overflow: hidden;
     transition: all 0.2s ease;
@@ -275,41 +275,31 @@ footer a:hover {
     border: 1px solid var(--bg2);
 }
 
-.featured .post-card:hover {
+.posts-list .post-card:hover {
     transform: translateY(-2px);
     box-shadow: 0 3px 10px var(--shadow-color);
     border-color: var(--bg3);
 }
 
-.featured .post-header {
+.posts-list .post-header {
     display: flex;
     flex-direction: column;
     gap: 0.25rem;
     margin-bottom: 0.5rem;
 }
 
-.featured .post-title-row {
+.posts-list .post-title-row {
     display: flex;
     align-items: center;
     gap: 0.5rem;
     flex-wrap: wrap;
 }
 
-.featured .post-title-row .post-title {
-    display: inline;
-}
-
-.featured .post-date {
+.posts-list .post-date {
     font-size: 0.8rem;
     color: var(--text-light);
 }
 
-.featured .post-icon {
-    font-size: 1rem;
-    color: var(--aqua);
-}
-
-.featured .post-tag,
 .post-tag {
     display: inline-block;
     padding: 0.2rem 0.6rem;
@@ -320,42 +310,33 @@ footer a:hover {
     color: var(--aqua);
 }
 
-.featured .post-tag {
+.posts-list .post-tag {
     padding: 0.15rem 0.4rem;
     border-radius: 10px;
     font-size: 0.65rem;
 }
 
-.featured .post-title {
+.posts-list .post-title {
     display: inline;
     font-size: 1.1rem;
     font-weight: 600;
     margin: 0;
     color: var(--fg0);
+    text-decoration: none;
+    border-bottom: none;
 }
 
-.featured .post-excerpt {
-    margin-bottom: 0.7rem;
+.posts-list a.post-title:hover {
+    color: var(--aqua);
+    text-decoration: none;
+    border-bottom: none;
+}
+
+.posts-list .post-excerpt {
+    margin: 0;
     font-size: 0.9rem;
     line-height: 1.5;
     color: var(--fg3);
-}
-
-.read-more {
-    text-decoration: none;
-    font-weight: 500;
-    display: flex;
-    align-items: center;
-    gap: 0.2rem;
-    transition: all 0.2s ease;
-    font-size: 0.85rem;
-    width: fit-content;
-    color: var(--aqua);
-}
-
-.read-more:hover {
-    gap: 0.4rem;
-    color: var(--blue);
 }
 
 .math-equation {
@@ -539,81 +520,6 @@ body.light-theme .search-bar:focus {
 
 .archive-posts {
     margin: 2rem 0;
-}
-
-.archive-posts .posts-list {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-}
-
-.archive-posts .post-card {
-    border-radius: 8px;
-    overflow: hidden;
-    transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
-    padding: 1rem;
-    display: flex;
-    gap: 1rem;
-    margin-bottom: 0.6rem;
-    background: var(--bg1);
-    border: 1px solid var(--bg2);
-}
-
-.archive-posts .post-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px var(--shadow-color-light);
-    border-color: var(--bg3);
-}
-
-.archive-posts .post-icon {
-    font-size: 1.5rem;
-    min-width: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--aqua);
-}
-
-.post-content {
-    flex: 1;
-}
-
-.archive-posts .post-header {
-    display: flex;
-    align-items: center;
-    gap: 0.8rem;
-    margin-bottom: 0.5rem;
-}
-
-.archive-posts .post-tag {
-    padding: 0.2rem 0.5rem;
-    border-radius: 12px;
-    font-size: 0.7rem;
-}
-
-.archive-posts .post-title {
-    font-size: 1.1rem;
-    font-weight: 600;
-    margin: 0.3rem 0;
-    text-decoration: none;
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
-    color: var(--fg0);
-    border-bottom: none;
-}
-
-.archive-posts .post-title:hover {
-    color: var(--aqua);
-    border-bottom: none;
-    text-decoration: none;
-}
-
-.archive-posts .post-excerpt {
-    margin: 0.5rem 0;
-    font-size: 0.9rem;
-    line-height: 1.4;
-    color: var(--fg3);
 }
 
 .post-meta {
@@ -993,10 +899,6 @@ body.light-theme .item-overlay {
         width: 120px;
         height: 120px;
         font-size: 3rem;
-    }
-
-    .archive-posts .post-card {
-        flex-direction: column;
     }
 
     .archive-filters {

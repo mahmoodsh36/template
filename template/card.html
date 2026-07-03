@@ -4,7 +4,10 @@
 <div class="post-card">
   <div class="post-header">
     <div class="post-title-row">
-      <h3 class="post-title"> %(cltpt/roam:node-title *card-node*) </h3>
+      <a href="%(format nil
+                        "~A.html"
+                        (cltpt/publish:title-to-filename (cltpt/roam:node-title *card-node*)))"
+         class="post-title"> %(cltpt/roam:node-title *card-node*) </a>
       #(cltpt/base:make-block
         :escape nil
         :loop '(tag (cltpt/base:text-object-property text-obj :tags)))
@@ -12,10 +15,7 @@
       #(cltpt/base:block-end)
     </div>
     <span class="post-date">
-      %(local-time:format-timestring
-        nil
-        (node-date *card-node*)
-        :format '((:day 2) #\space :short-month #\space (:year 4)))
+      %(format-node-date *card-node*)
     </span>
   </div>
   #(cltpt/base:make-block
@@ -25,9 +25,5 @@
     %(cltpt/roam:node-desc *card-node*)
   </p>
   #(cltpt/base:block-end)
-  <a href="%(format nil
-                    "~A.html"
-                    (cltpt/publish:title-to-filename (cltpt/roam:node-title *card-node*)))"
-     class="read-more">read more <i class="fas fa-arrow-right"></i></a>
 </div>
 #(cltpt/base:block-end)
