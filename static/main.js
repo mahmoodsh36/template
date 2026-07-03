@@ -261,8 +261,9 @@ function initializeArchivePage() {
       postsListContainer.innerHTML = `<div class="no-results">No articles found matching your criteria.</div>`;
     } else {
       filteredPosts.forEach(post => {
-        const postCard = document.createElement('div');
+        const postCard = document.createElement('a');
         postCard.className = 'post-card';
+        postCard.href = post.filepath;
 
         // format the date if it exists
         let dateDisplay = '';
@@ -284,7 +285,7 @@ function initializeArchivePage() {
         postCard.innerHTML = `
         <div class="post-header">
           <div class="post-title-row">
-            <a href="${post.filepath}" class="post-title">${post.title || 'Untitled'}</a>
+            <h3 class="post-title">${post.title || 'Untitled'}</h3>
             ${tagsDisplay}
           </div>
           ${dateDisplay}
