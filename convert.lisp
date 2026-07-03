@@ -128,6 +128,14 @@
     (cltpt/base:text-object-finalize dummy-obj)
     (cltpt/org-mode::org-timestamp-match-to-time dummy-obj timestamp-match)))
 
+(defun format-node-date (node)
+  (let ((time (node-date node)))
+    (when time
+      (local-time:format-timestring
+       nil
+       time
+       :format '((:day 2) #\space :short-month #\space (:year 4))))))
+
 (defun blog-nodes (rmr)
   (sort
    (loop for node in (cltpt/roam:roamer-nodes rmr)
@@ -216,7 +224,7 @@
                 when (and (funcall file-predicate (cltpt/roam:node-file node))
                           (not (and tags (member "noexport" tags :test 'string=))))
                   collect (list
-                           :date (cltpt/base:text-object-property text-obj :date)
+                           :date (format-node-date node)
                            :tags tags
                            :id (cltpt/roam:node-id node)
                            :title (cltpt/roam:node-title node)

@@ -264,62 +264,35 @@ function initializeArchivePage() {
         const postCard = document.createElement('div');
         postCard.className = 'post-card';
 
-        // get icon based on tags
-        const icon = getIconForTags(post.tags);
-
         // format the date if it exists
         let dateDisplay = '';
         if (post.date) {
-          dateDisplay = `<span>${post.date}</span>`;
+          dateDisplay = `<span class="post-date">${post.date}</span>`;
         }
 
         // create tags display
         let tagsDisplay = '';
         if (post.tags && Array.isArray(post.tags) && post.tags.length > 0) {
-          tagsDisplay = ' ' + post.tags.map(tag => `<span class="post-tag">${tag}</span>`).join(' ');
+          tagsDisplay = post.tags.map(tag => `<span class="post-tag">${tag}</span>`).join('');
         }
 
+        // description is optional
+        const excerpt = post.description
+          ? `<p class="post-excerpt">${post.description}</p>`
+          : '';
+
         postCard.innerHTML = `
-        <div class="post-content">
-        <a href="${post.filepath}" class="post-title">
-        <i class="fas ${icon} post-icon"></i>
-                            ${post.title || 'Untitled'}${tagsDisplay}
-                            </a>
-                            <p class="post-excerpt">${post.description || 'No description available.'}</p>
-                            <div class="post-meta">
-                            ${dateDisplay}
-                            <span>ID: ${post.id}</span>
-                            </div>
-                            </div>`;
+        <div class="post-header">
+          <div class="post-title-row">
+            <a href="${post.filepath}" class="post-title">${post.title || 'Untitled'}</a>
+            ${tagsDisplay}
+          </div>
+          ${dateDisplay}
+        </div>
+        ${excerpt}`;
         postsListContainer.appendChild(postCard);
       });
     }
-  }
-
-  // helper function to get an appropriate icon based on tags
-  function getIconForTags(tags) {
-    if (!tags || !Array.isArray(tags) || tags.length === 0) {
-      return 'fa-file'; // Default icon
-    }
-
-    // check for specific tags and return corresponding icons
-    if (tags.includes('Mathematics') || tags.includes('math')) {
-      return 'fa-infinity';
-    }
-    if (tags.includes('Technology') || tags.includes('code') || tags.includes('programming')) {
-      return 'fa-robot';
-    }
-    if (tags.includes('Neuroscience') || tags.includes('brain')) {
-      return 'fa-brain';
-    }
-    if (tags.includes('Physics')) {
-      return 'fa-atom';
-    }
-    if (tags.includes('Computer Science') || tags.includes('cs')) {
-      return 'fa-network-wired';
-    }
-
-    return 'fa-file'; // default icon
   }
 
   searchBar.addEventListener('input', () => {
