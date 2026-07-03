@@ -267,12 +267,20 @@ footer a:hover {
 }
 
 .posts-list .post-card {
+    display: block;
     border-radius: 6px;
     overflow: hidden;
     transition: all 0.2s ease;
     padding: 0.8rem;
     background: var(--bg1);
     border: 1px solid var(--bg2);
+    color: inherit;
+    text-decoration: none;
+}
+
+.posts-list .post-card:hover, .posts-list .post-card:visited {
+    color: inherit;
+    text-decoration: none;
 }
 
 .posts-list .post-card:hover {
@@ -326,10 +334,8 @@ footer a:hover {
     border-bottom: none;
 }
 
-.posts-list a.post-title:hover {
+.posts-list .post-card:hover .post-title {
     color: var(--aqua);
-    text-decoration: none;
-    border-bottom: none;
 }
 
 .posts-list .post-excerpt {

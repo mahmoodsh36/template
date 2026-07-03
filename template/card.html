@@ -1,13 +1,13 @@
 #(cltpt/base:make-block
   :let* '((text-obj (cltpt/roam:node-text-obj *card-node*)))
   :escape nil)
-<div class="post-card">
+<a class="post-card"
+   href="%(format nil
+                  "~A.html"
+                  (cltpt/publish:title-to-filename (cltpt/roam:node-title *card-node*)))">
   <div class="post-header">
     <div class="post-title-row">
-      <a href="%(format nil
-                        "~A.html"
-                        (cltpt/publish:title-to-filename (cltpt/roam:node-title *card-node*)))"
-         class="post-title"> %(cltpt/roam:node-title *card-node*) </a>
+      <h3 class="post-title"> %(cltpt/roam:node-title *card-node*) </h3>
       #(cltpt/base:make-block
         :escape nil
         :loop '(tag (cltpt/base:text-object-property text-obj :tags)))
@@ -25,5 +25,5 @@
     %(cltpt/roam:node-desc *card-node*)
   </p>
   #(cltpt/base:block-end)
-</div>
+</a>
 #(cltpt/base:block-end)
