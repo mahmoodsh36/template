@@ -327,6 +327,13 @@ function initializeTableOfContents() {
   const tocList = document.getElementById('tocList');
   const headers = document.querySelectorAll('.post-content h2, .post-content h3');
 
+  // nothing to build a table of contents from — hide the whole TOC widget
+  if (headers.length === 0) {
+    const tocAside = tocContainer.closest('.toc-container');
+    if (tocAside) tocAside.style.display = 'none';
+    return;
+  }
+
   // keep track of all generated IDs to ensure uniqueness
   const generatedIds = new Set();
 
