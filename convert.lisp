@@ -115,18 +115,19 @@
                            "actual_date"))
          (date-str
            (or actual-date-str
-               (cltpt/base:text-object-property text-obj :date)))
-         (timestamp-match
-           (cltpt/combinator:apply-rule
-            nil
-            cltpt/org-mode::org-timestamp
-            (cltpt/combinator:reader-from-input date-str)
-            0))
-         (dummy-obj (make-instance 'cltpt/base::text-object)))
-    (setf (cltpt/buffer:buffer-own-text dummy-obj) date-str)
-    (cltpt/base:text-object-init dummy-obj date-str timestamp-match)
-    (cltpt/base:text-object-finalize dummy-obj)
-    (cltpt/org-mode::org-timestamp-match-to-time dummy-obj timestamp-match)))
+               (cltpt/base:text-object-property text-obj :date))))
+    (when date-str
+      (let* ((timestamp-match
+               (cltpt/combinator:apply-rule
+                nil
+                cltpt/org-mode::org-timestamp
+                (cltpt/combinator:reader-from-input date-str)
+                0))
+             (dummy-obj (make-instance 'cltpt/base::text-object)))
+        (setf (cltpt/buffer:buffer-own-text dummy-obj) date-str)
+        (cltpt/base:text-object-init dummy-obj date-str timestamp-match)
+        (cltpt/base:text-object-finalize dummy-obj)
+        (cltpt/org-mode::org-timestamp-match-to-time dummy-obj timestamp-match)))))
 
 (defun format-node-date (node)
   (let ((time (node-date node)))
