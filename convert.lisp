@@ -72,6 +72,8 @@
   "%(cltpt/publish:title-to-filename (getf *file-info* :root-title)).html")
 (defvar *rmr*)
 (defvar *card-node* nil)
+;; bound by `render-head' so the shared head.html partial can read the page title.
+(defvar *page-title* nil)
 
 ;; set my custom org-attach file-to-id function
 (defun my-id-to-attach-dir (src-file id)
@@ -150,6 +152,11 @@
            collect node)
    'local-time:timestamp>
    :key #'node-date))
+
+(defun render-head (title)
+  (let ((*page-title* title))
+    (cltpt/publish:convert-template*
+     (cltpt/file-utils:join-paths *template-dir* "head.html"))))
 
 (defun generate-posts-list (nodes)
   (let ((entries
