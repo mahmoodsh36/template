@@ -332,6 +332,8 @@ function initializeTableOfContents() {
   if (headers.length === 0) {
     const tocAside = tocContainer.closest('.toc-container');
     if (tocAside) tocAside.style.display = 'none';
+    const contentWrapper = tocAside ? tocAside.closest('.content-wrapper') : null;
+    if (contentWrapper) contentWrapper.classList.add('no-toc');
     return;
   }
 

@@ -734,6 +734,10 @@ body.light-theme .item-overlay {
     max-width: 800px;
 }
 
+.content-wrapper.no-toc {
+    justify-content: center;
+}
+
 .toc-container {
     width: 250px;
     position: sticky;
