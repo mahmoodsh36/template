@@ -89,7 +89,8 @@
     (when dest-node
       (let* ((text-obj (cltpt/roam:node-text-obj dest-node))
              (latex-env-text (cltpt/base:text-object-contents text-obj)))
-        (cdar (cltpt/latex-previews:generate-previews-for-latex (list latex-env-text)))))))
+        (cltpt/latex-previews:preview-path
+         (car (cltpt/latex-previews:generate-previews-for-latex (list latex-env-text))))))))
 
 (defun export-static-file (filepath dest-dir)
   (when (and filepath (uiop:probe-file* filepath))
