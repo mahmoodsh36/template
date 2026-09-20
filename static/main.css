@@ -97,6 +97,7 @@ body {
     font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
     line-height: 1.6;
     overflow-x: hidden;
+    overflow-x: clip;
     transition: background-color 0.3s, color 0.3s;
     background: var(--bg0);
     color: var(--fg1);
@@ -250,7 +251,8 @@ footer a:hover {
     color: var(--fg0);
 }
 
-.featured .section-title::after {
+.featured .section-title::after,
+.archive-title::after {
     content: "";
     display: block;
     width: 50px;
@@ -261,51 +263,85 @@ footer a:hover {
 }
 
 .posts-list {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
+    list-style: none;
+    padding: 0;
+    margin: 0;
 }
 
-.posts-list .post-card {
-    display: block;
-    border-radius: 6px;
-    overflow: hidden;
-    transition: all 0.2s ease;
-    padding: 0.8rem;
+.featured .container {
+    max-width: 720px;
+}
+
+.posts-list .post-link {
+    display: flex;
+    gap: 0.75rem;
+    align-items: baseline;
+    padding: 0.5rem 0.25rem;
+    border-radius: 4px;
+    color: var(--fg1);
+    text-decoration: none;
+}
+
+.posts-list .post-link:hover,
+.posts-list .post-link:visited {
+    color: var(--fg1);
+    text-decoration: none;
+}
+
+.posts-list .post-link:hover {
     background: var(--bg1);
-    border: 1px solid var(--bg2);
-    color: inherit;
-    text-decoration: none;
 }
 
-.posts-list .post-card:hover, .posts-list .post-card:visited {
-    color: inherit;
-    text-decoration: none;
+.posts-list .post-link:hover .post-title {
+    color: var(--aqua);
 }
 
-.posts-list .post-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 3px 10px var(--shadow-color);
-    border-color: var(--bg3);
-}
-
-.posts-list .post-header {
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
-    margin-bottom: 0.5rem;
-}
-
-.posts-list .post-title-row {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    flex-wrap: wrap;
+.posts-list .post-title {
+    font-size: 1rem;
+    font-weight: 400;
+    margin: 0;
+    color: var(--fg0);
 }
 
 .posts-list .post-date {
+    flex-shrink: 0;
+    width: 12ch;
+    white-space: nowrap;
     font-size: 0.8rem;
-    color: var(--text-light);
+    color: var(--fg4);
+}
+
+.posts-list .post-tags {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 0.75rem;
+    color: var(--fg4);
+}
+
+.posts-list .post-tags:empty {
+    display: none;
+}
+
+.posts-list .post-tag-inline {
+    margin-right: 0.5rem;
+    white-space: nowrap;
+}
+
+.posts-list .post-tag-inline:last-child {
+    margin-right: 0;
+}
+
+.posts-list .post-tag-inline::before {
+    content: "#";
+}
+
+@media (max-width: 480px) {
+    .posts-list .post-link {
+        flex-direction: column;
+        gap: 0.1rem;
+    }
 }
 
 .post-tag {
@@ -316,33 +352,6 @@ footer a:hover {
     font-weight: 600;
     background: var(--bg2);
     color: var(--aqua);
-}
-
-.posts-list .post-tag {
-    padding: 0.15rem 0.4rem;
-    border-radius: 10px;
-    font-size: 0.65rem;
-}
-
-.posts-list .post-title {
-    display: inline;
-    font-size: 1.1rem;
-    font-weight: 600;
-    margin: 0;
-    color: var(--fg0);
-    text-decoration: none;
-    border-bottom: none;
-}
-
-.posts-list .post-card:hover .post-title {
-    color: var(--aqua);
-}
-
-.posts-list .post-excerpt {
-    margin: 0;
-    font-size: 0.9rem;
-    line-height: 1.5;
-    color: var(--fg3);
 }
 
 .math-equation {
@@ -474,58 +483,71 @@ footer a:hover {
 /* =================================
    PAGE: ARCHIVE.HTML
    ================================= */
+.archive {
+    max-width: 720px;
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+}
+
+.archive-title {
+    text-align: center;
+    font-size: 1.6rem;
+    margin-bottom: 1.5rem;
+    font-weight: 600;
+    color: var(--fg0);
+}
+
 .search-container {
-    margin: 1.5rem 0;
+    margin: 0 0 1rem;
 }
 
 .search-bar {
     width: 100%;
-    padding: 0.8rem 1rem;
-    border-radius: 6px;
-    font-size: 1rem;
-    border: 1px solid var(--bg3);
-    transition: border-color 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease, color 0.3s ease;
-    background: var(--bg1);
+    padding: 0.6rem 0;
+    font-size: 0.95rem;
+    background: none;
+    border: none;
+    border-bottom: 1px solid var(--bg3);
+    border-radius: 0;
+    transition: border-color 0.2s ease;
     color: var(--fg1);
 }
 
 .search-bar:focus {
     outline: none;
     border-color: var(--aqua);
-    box-shadow: 0 0 0 2px rgba(142, 192, 124, 0.2);
-}
-
-body.light-theme .search-bar:focus {
-    box-shadow: 0 0 0 2px rgba(66, 123, 88, 0.2);
 }
 
 .archive-filters {
-    margin: 1.5rem 0;
+    margin: 1rem 0;
     display: flex;
     flex-wrap: wrap;
-    gap: 0.5rem;
+    gap: 0.25rem 0.5rem;
+    align-items: baseline;
 }
 
 .filter-btn {
-    padding: 0.4rem 0.8rem;
-    border-radius: 20px;
-    font-size: 0.85rem;
-    font-weight: 500;
+    padding: 0;
+    background: none;
+    border: none;
+    font-size: 0.8rem;
     cursor: pointer;
-    transition: all 0.2s ease;
-    background: var(--bg1);
-    color: var(--fg2);
-    border: 1px solid var(--bg3);
+    transition: color 0.2s ease;
+    color: var(--fg4);
 }
 
-.filter-btn:hover,
+.filter-btn:not(:first-child)::before {
+    content: "·";
+    margin-right: 0.5rem;
+    color: var(--bg4);
+}
+
+.filter-btn:hover {
+    color: var(--fg1);
+}
+
 .filter-btn.active {
-    background: var(--bg2);
     color: var(--aqua);
-}
-
-.archive-posts {
-    margin: 2rem 0;
 }
 
 .post-meta {
@@ -543,18 +565,10 @@ body.light-theme .search-bar:focus {
     color: var(--fg3);
 }
 
-.archive-posts-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1rem;
-}
-
 .archive-counter {
-    font-size: 0.9rem;
-    font-weight: 500;
-    transition: color 0.3s ease;
-    color: var(--fg3);
+    font-size: 0.8rem;
+    margin: 1.5rem 0 0.5rem;
+    color: var(--fg4);
 }
 
 /* =================================
@@ -731,6 +745,7 @@ body.light-theme .item-overlay {
 
 .main-content {
     flex: 1;
+    min-width: 0;
     max-width: 800px;
 }
 
@@ -823,6 +838,10 @@ body.light-theme .item-overlay {
 .post-tags {
     display: flex;
     gap: 0.5rem;
+}
+
+.post-content {
+    overflow-wrap: break-word;
 }
 
 .post-content h2 {
@@ -1154,6 +1173,8 @@ a:focus {
    ================================= */
 .post-content table {
     width: 100%;
+    display: block;
+    overflow-x: auto;
     border-collapse: collapse;
     margin: 1.5rem 0;
     font-size: 0.95rem;
@@ -1276,8 +1297,6 @@ input[type="checkbox"]:checked::after {
 @media (max-width: 768px) {
     .post-content table {
         font-size: 0.85rem;
-        display: block;
-        overflow-x: auto;
         -webkit-overflow-scrolling: touch;
     }
 

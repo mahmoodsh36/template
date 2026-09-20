@@ -242,12 +242,13 @@ function initializeArchivePage() {
 
   function renderPosts() {
     const filteredPosts = searchData.filter(post => {
+      const hasTitle = post.title && post.title.trim();
       const matchesFilter = currentFilter === 'all' || (post.tags && post.tags.includes(currentFilter));
       const title = post.title || '';
       const id = post.id || '';
       const searchMatch = (title.toLowerCase().includes(currentSearch.toLowerCase()) ||
         id.toLowerCase().includes(currentSearch.toLowerCase()));
-      return matchesFilter && searchMatch;
+      return hasTitle && matchesFilter && searchMatch;
     });
 
     postsListContainer.innerHTML = '';
@@ -261,37 +262,22 @@ function initializeArchivePage() {
       postsListContainer.innerHTML = `<div class="no-results">No articles found matching your criteria.</div>`;
     } else {
       filteredPosts.forEach(post => {
-        const postCard = document.createElement('a');
-        postCard.className = 'post-card';
-        postCard.href = post.filepath;
+        const item = document.createElement('li');
+        item.className = 'post-item';
 
-        // format the date if it exists
-        let dateDisplay = '';
-        if (post.date) {
-          dateDisplay = `<span class="post-date">${post.date}</span>`;
-        }
+        const link = document.createElement('a');
+        link.className = 'post-link';
+        link.href = post.filepath;
 
-        // create tags display
         let tagsDisplay = '';
         if (post.tags && Array.isArray(post.tags) && post.tags.length > 0) {
-          tagsDisplay = post.tags.map(tag => `<span class="post-tag">${tag}</span>`).join('');
+          tagsDisplay = `<span class="post-tags">${post.tags.map(tag => `<span class="post-tag-inline">${tag}</span>`).join('')}</span>`;
         }
 
-        // description is optional
-        const excerpt = post.description
-          ? `<p class="post-excerpt">${post.description}</p>`
-          : '';
+        link.innerHTML = `<span class="post-date">${post.date || ''}</span><span class="post-title">${post.title}</span>${tagsDisplay}`;
 
-        postCard.innerHTML = `
-        <div class="post-header">
-          <div class="post-title-row">
-            <h3 class="post-title">${post.title || 'Untitled'}</h3>
-            ${tagsDisplay}
-          </div>
-          ${dateDisplay}
-        </div>
-        ${excerpt}`;
-        postsListContainer.appendChild(postCard);
+        item.appendChild(link);
+        postsListContainer.appendChild(item);
       });
     }
   }

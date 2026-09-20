@@ -173,9 +173,9 @@
                           (cltpt/publish:convert-template*
                            (cltpt/file-utils:join-paths *template-dir* "card.html"))))))
     (format nil
-            "<div class=\"posts-list\">
+            "<ul class=\"posts-list\">
 ~A
-</div>"
+</ul>"
             (cltpt/base:concat entries))))
 
 (defun generate-blog-entries-html (nodes)

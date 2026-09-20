@@ -1,29 +1,20 @@
 #(cltpt/base:make-block
   :let* '((text-obj (cltpt/roam:node-text-obj *card-node*)))
   :escape nil)
-<a class="post-card"
-   href="%(format nil
-                  "~A.html"
-                  (cltpt/publish:title-to-filename (cltpt/roam:node-title *card-node*)))">
-  <div class="post-header">
-    <div class="post-title-row">
-      <h3 class="post-title"> %(cltpt/roam:node-title *card-node*) </h3>
+<li class="post-item">
+  <a class="post-link"
+     href="%(format nil
+                    "~A.html"
+                    (cltpt/publish:title-to-filename (cltpt/roam:node-title *card-node*)))">
+    <span class="post-date">%(format-node-date *card-node*)</span>
+    <span class="post-title">%(cltpt/roam:node-title *card-node*)</span>
+    <span class="post-tags">
       #(cltpt/base:make-block
         :escape nil
-        :loop '(tag (cltpt/base:text-object-property text-obj :tags)))
-        <span class="post-tag"> %tag </span>
+        :loop '(tag (cltpt/base:text-object-property (cltpt/roam:node-text-obj *card-node*) :tags)))
+      <span class="post-tag-inline">%tag </span>
       #(cltpt/base:block-end)
-    </div>
-    <span class="post-date">
-      %(format-node-date *card-node*)
     </span>
-  </div>
-  #(cltpt/base:make-block
-    :if '(cltpt/roam:node-desc *card-node*)
-    :escape nil)
-  <p class="post-excerpt">
-    %(cltpt/roam:node-desc *card-node*)
-  </p>
-  #(cltpt/base:block-end)
-</a>
+  </a>
+</li>
 #(cltpt/base:block-end)
