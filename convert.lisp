@@ -184,19 +184,13 @@
 (defun generate-collage (nodes collage-title dest-dir)
   (with-output-to-string (out)
     (format out
-            "<div class=\"container\">
-<div class=\"gallery-section\">
+            "<section class=\"gallery-section\">
 <h2 class=\"section-title\">~A</h2>
-<div class=\"gallery-grid\">"
+<div class=\"compact-grid\">"
             collage-title)
     (loop for node in nodes
           for title = (cltpt/roam:node-title node)
-          for text-obj = (cltpt/roam:node-text-obj node)
-          do (let* ((cltpt/roam:*roam-parse-data*
-                      (list :roamer *rmr*
-                            :filepath-format nil
-                            :node node))
-                    (image (cltpt/org-mode::text-object-org-keyword-value
+          do (let* ((image (cltpt/org-mode::text-object-org-keyword-value
                             (cltpt/roam:node-text-obj node)
                             "image"))
                     (image1 (if (uiop:probe-file* image)
@@ -205,16 +199,15 @@
                                         "collage image ~A doesnt exist~%"
                                         image)))
                     (href (cltpt/roam:node-info-format-str node *filepath-format*))
-                    (entry-html "<div class=\"gallery-item\" onclick=\"window.location='~A'\">
-  <div class=\"item-image\" />
-    <img src=\"~A\" />
+                    (entry-html "<a class=\"compact-item\" href=\"~A\">
+  <div class=\"compact-item-image\">
+    <img src=\"~A\" alt=\"~A\" loading=\"lazy\" />
   </div>
-  <div class=\"item-overlay\"><h3 class=\"item-title\">~A</h3><p class=\"item-subtitle\"></p></div>
-</div>"))
-               (format out entry-html href image1 title)))
+  <span class=\"compact-item-title\">~A</span>
+</a>"))
+               (format out entry-html href image1 title title)))
     (write-sequence "</div>
-</div>
-</div>"
+</section>"
                     out)))
 
 (defun encode-list-of-plists-to-json (list-of-plists)

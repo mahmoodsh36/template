@@ -8,21 +8,14 @@
 <body class="dark-theme">
   #(cltpt/publish:template-file-to-template-obj "header.html")
 
-  <section class="hero">
-    <div class="container">
-      <h1>mental metal fan</h1>
-      <p>i dont know, for some reason i felt like making this.</p>
-    </div>
-  </section>
+  <main class="container index-narrow">
+    #(cltpt/publish:wrap-into-unescaping-obj (generate-collage (entry-nodes *rmr*) "main nodes" *blog-dir*))
 
-  #(cltpt/publish:wrap-into-unescaping-obj (generate-collage (entry-nodes *rmr*) "main nodes" *blog-dir*))
-
-  <section class="featured">
-    <div class="container">
+    <section class="featured">
       <h2 class="section-title">recent articles</h2>
       %(generate-blog-entries-html (subseq (blog-nodes *rmr*) 0 5))
-    </div>
-  </section>
+    </section>
+  </main>
 
   #(cltpt/publish:template-file-to-template-obj "footer.html")
   <script src="/static/main.js"></script>
