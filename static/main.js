@@ -439,7 +439,7 @@ function initializeOrgBlocks() {
           const titleElement = document.createElement('div');
           titleElement.className = 'org-block-title';
           titleElement.textContent = block.getAttribute('data-title');
-          titleElement.style.padding = '0.3rem 0.8rem';
+          titleElement.style.padding = '4.8px 12.8px';
           titleElement.style.fontSize = '0.8rem';
           titleElement.style.fontWeight = '500';
           titleElement.style.borderRadius = '4px 4px 0 0';
@@ -452,7 +452,7 @@ function initializeOrgBlocks() {
           applyOrgBlockTitleThemeStyles(block, titleElement);
         } else {
           // no title, so no header needed, we remove top padding.
-          block.style.paddingTop = '1rem';
+          block.style.paddingTop = '16px';
         }
         // skip normal processing for dummy blocks
         return;
@@ -463,7 +463,7 @@ function initializeOrgBlocks() {
       if (existingHeader) existingHeader.remove();
 
       // set default top padding for non-dummy blocks
-      block.style.paddingTop = '2.5rem';
+      block.style.paddingTop = '40px';
 
       // create container for the header
       const headerContainer = document.createElement('div');
@@ -479,7 +479,7 @@ function initializeOrgBlocks() {
       const typeElement = document.createElement('div');
       typeElement.className = 'org-block-type';
       typeElement.textContent = type;
-      typeElement.style.padding = '0.3rem 0.8rem';
+      typeElement.style.padding = '4.8px 12.8px';
       typeElement.style.fontSize = '0.8rem';
       typeElement.style.fontWeight = '600';
       typeElement.style.textTransform = 'uppercase';
@@ -494,7 +494,7 @@ function initializeOrgBlocks() {
         const titleElement = document.createElement('div');
         titleElement.className = 'org-block-title';
         titleElement.textContent = block.getAttribute('data-title');
-        titleElement.style.padding = '0.3rem 0.8rem';
+        titleElement.style.padding = '4.8px 12.8px';
         titleElement.style.fontSize = '0.8rem';
         titleElement.style.fontWeight = '500';
         titleElement.style.borderRadius = '0 4px 0 0';
@@ -592,7 +592,7 @@ function initializeOrgBabelResults() {
       headerElement.style.position = 'absolute';
       headerElement.style.top = '0';
       headerElement.style.left = '0';
-      headerElement.style.padding = '0.3rem 0.8rem';
+      headerElement.style.padding = '4.8px 12.8px';
       headerElement.style.fontSize = '0.8rem';
       headerElement.style.fontWeight = '600';
       headerElement.style.textTransform = 'uppercase';
@@ -604,7 +604,7 @@ function initializeOrgBabelResults() {
       headerElement.style.color = themeVar('var(--dark-bg0)', 'var(--light-bg0)');
 
       // add header to block
-      block.style.paddingTop = '2.5rem'; // Make space for header
+      block.style.paddingTop = '40px'; // Make space for header
       block.insertBefore(headerElement, block.firstChild);
     }
 

@@ -12,7 +12,7 @@
       #(cltpt/base:make-block
         :escape nil
         :loop '(tag (cltpt/base:text-object-property (cltpt/roam:node-text-obj *card-node*) :tags)))
-      <span class="post-tag-inline">%tag </span>
+      <span class="post-tag-inline">%(identity tag)</span>
       #(cltpt/base:block-end)
     </span>
   </a>

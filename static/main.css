@@ -111,7 +111,7 @@ body {
 
 /* Header */
 header {
-    padding: 1.2rem 0;
+    padding: 19.2px 0;
     position: relative;
     border-bottom: 1px solid var(--bg4);
 }
@@ -130,7 +130,7 @@ header {
     letter-spacing: -0.5px;
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 8px;
     text-decoration: none !important;
     transition: all 0.2s ease;
     color: var(--fg3);
@@ -175,14 +175,14 @@ header {
 nav ul {
     display: flex;
     list-style: none;
-    gap: 1rem;
+    gap: 16px;
 }
 
 nav a {
     text-decoration: none;
     font-weight: 500;
     position: relative;
-    padding: 0.3rem 0;
+    padding: 4.8px 0;
     transition: all 0.2s ease;
     font-size: 0.9rem;
     color: var(--fg3);
@@ -195,14 +195,14 @@ nav a:hover {
 
 /* Hero Section */
 .hero {
-    padding: 2.5rem 0;
+    padding: 40px 0;
     text-align: center;
     position: relative;
 }
 
 .hero h1 {
     font-size: 1.6rem;
-    margin-bottom: 0.8rem;
+    margin-bottom: 12.8px;
     font-weight: 600;
     color: var(--fg0);
 }
@@ -210,15 +210,15 @@ nav a:hover {
 .hero p {
     font-size: 1rem;
     max-width: 550px;
-    margin: 0 auto 1.2rem;
+    margin: 0 auto 19.2px;
     color: var(--fg3);
 }
 
 /* Footer */
 footer {
-    padding: 1.2rem 0;
+    padding: 19.2px 0;
     text-align: center;
-    margin-top: 1.2rem;
+    margin-top: 19.2px;
     border-top: 1px solid var(--bg4);
 }
 
@@ -239,7 +239,7 @@ footer a:hover {
    PAGE: INDEX.HTML - Featured Section
    ================================= */
 .featured {
-    padding: 2rem 0;
+    padding: 32px 0;
 }
 
 .index-narrow {
@@ -250,7 +250,7 @@ footer a:hover {
 .gallery-section .section-title {
     text-align: center;
     font-size: 1.6rem;
-    margin-bottom: 1.5rem;
+    margin-bottom: 24px;
     position: relative;
     font-weight: 600;
     color: var(--fg0);
@@ -262,7 +262,7 @@ footer a:hover {
     display: block;
     width: 50px;
     height: 2px;
-    margin: 0.6rem auto;
+    margin: 9.6px auto;
     border-radius: 1px;
     background: var(--aqua);
 }
@@ -279,9 +279,9 @@ footer a:hover {
 
 .posts-list .post-link {
     display: flex;
-    gap: 0.75rem;
+    gap: 12px;
     align-items: baseline;
-    padding: 0.5rem 0.25rem;
+    padding: 8px 4px;
     border-radius: 4px;
     color: var(--fg1);
     text-decoration: none;
@@ -302,6 +302,8 @@ footer a:hover {
 }
 
 .posts-list .post-title {
+    flex: 1 1 auto;
+    min-width: 0;
     font-size: 1rem;
     font-weight: 400;
     margin: 0;
@@ -330,7 +332,7 @@ footer a:hover {
 }
 
 .posts-list .post-tag-inline {
-    margin-right: 0.5rem;
+    margin-right: 8px;
     white-space: nowrap;
 }
 
@@ -344,14 +346,52 @@ footer a:hover {
 
 @media (max-width: 480px) {
     .posts-list .post-link {
-        flex-direction: column;
-        gap: 0.1rem;
+        display: flex;
+        gap: 8px;
+        align-items: baseline;
+        position: relative;
+    }
+
+    .posts-list .post-link:has(.post-tag-inline) {
+        padding-bottom: 22px;
+    }
+
+    .posts-list .post-date {
+        flex-shrink: 0;
+        width: 10ch;
+        font-size: 0.75rem;
+    }
+
+    .posts-list .post-title {
+        flex: 1 1 auto;
+        min-width: 0;
+        font-size: 0.9rem;
+        line-height: 1.35;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+    }
+
+    .posts-list .post-tags {
+        position: absolute;
+        left: 4px;
+        right: 4px;
+        bottom: 3px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        font-size: 0.7rem;
+        line-height: 1.4;
+    }
+
+    .posts-list .post-tag-inline {
+        margin-right: 2px;
     }
 }
 
 .post-tag {
     display: inline-block;
-    padding: 0.2rem 0.6rem;
+    padding: 3.2px 9.6px;
     border-radius: 15px;
     font-size: 0.8rem;
     font-weight: 600;
@@ -363,9 +403,9 @@ footer a:hover {
     font-family: "Cambria Math", serif;
     font-size: 0.85rem;
     text-align: center;
-    padding: 0.6rem;
+    padding: 9.6px;
     border-radius: 5px;
-    margin: 0.6rem 0;
+    margin: 9.6px 0;
     border-left: 2px solid var(--aqua);
     background: var(--bg2);
     color: var(--fg2);
@@ -391,19 +431,19 @@ footer a:hover {
    PAGE: ABOUT.HTML
    ================================= */
 .about-content {
-    margin: 3rem 0;
+    margin: 48px 0;
 }
 
 .about-content .section {
-    margin-bottom: 3rem;
+    margin-bottom: 48px;
 }
 
 .about-content .section-title {
     font-size: 1.8rem;
-    margin-bottom: 1.5rem;
+    margin-bottom: 24px;
     font-weight: 600;
     position: relative;
-    padding-bottom: 0.5rem;
+    padding-bottom: 8px;
     color: var(--fg0);
 }
 
@@ -419,7 +459,7 @@ footer a:hover {
 }
 
 .section-content p {
-    margin-bottom: 1.5rem;
+    margin-bottom: 24px;
     font-size: 1.05rem;
     color: var(--fg2);
 }
@@ -429,14 +469,14 @@ footer a:hover {
     flex-direction: column;
     align-items: center;
     text-align: center;
-    margin: 2rem 0;
+    margin: 32px 0;
 }
 
 .profile-avatar {
     width: 150px;
     height: 150px;
     border-radius: 50%;
-    margin-bottom: 1.5rem;
+    margin-bottom: 24px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -449,20 +489,20 @@ footer a:hover {
 .profile-name {
     font-size: 1.8rem;
     font-weight: 600;
-    margin-bottom: 0.5rem;
+    margin-bottom: 8px;
     color: var(--fg0);
 }
 
 .profile-title {
     font-size: 1.2rem;
-    margin-bottom: 1.5rem;
+    margin-bottom: 24px;
     color: var(--fg3);
 }
 
 .social-links {
     display: flex;
-    gap: 1rem;
-    margin-top: 1rem;
+    gap: 16px;
+    margin-top: 16px;
 }
 
 .social-link {
@@ -490,25 +530,25 @@ footer a:hover {
    ================================= */
 .archive {
     max-width: 720px;
-    padding-top: 2rem;
-    padding-bottom: 2rem;
+    padding-top: 32px;
+    padding-bottom: 32px;
 }
 
 .archive-title {
     text-align: center;
     font-size: 1.6rem;
-    margin-bottom: 1.5rem;
+    margin-bottom: 24px;
     font-weight: 600;
     color: var(--fg0);
 }
 
 .search-container {
-    margin: 0 0 1rem;
+    margin: 0 0 16px;
 }
 
 .search-bar {
     width: 100%;
-    padding: 0.6rem 0;
+    padding: 9.6px 0;
     font-size: 0.95rem;
     background: none;
     border: none;
@@ -524,10 +564,10 @@ footer a:hover {
 }
 
 .archive-filters {
-    margin: 1rem 0;
+    margin: 16px 0;
     display: flex;
     flex-wrap: wrap;
-    gap: 0.25rem 0.5rem;
+    gap: 4px 8px;
     align-items: baseline;
 }
 
@@ -543,7 +583,7 @@ footer a:hover {
 
 .filter-btn:not(:first-child)::before {
     content: "·";
-    margin-right: 0.5rem;
+    margin-right: 8px;
     color: var(--bg4);
 }
 
@@ -557,22 +597,22 @@ footer a:hover {
 
 .post-meta {
     display: flex;
-    gap: 1rem;
+    gap: 16px;
     font-size: 0.9rem;
-    margin-bottom: 1rem;
+    margin-bottom: 16px;
     color: var(--fg4);
 }
 
 .no-results {
     text-align: center;
-    padding: 2rem;
+    padding: 32px;
     font-style: italic;
     color: var(--fg3);
 }
 
 .archive-counter {
     font-size: 0.8rem;
-    margin: 1.5rem 0 0.5rem;
+    margin: 24px 0 8px;
     color: var(--fg4);
 }
 
@@ -580,7 +620,7 @@ footer a:hover {
    PAGE: INDEX.HTML - Collage (compact)
    ================================= */
 .gallery-section {
-    margin: 1rem 0;
+    margin: 16px 0;
 }
 
 .gallery-section .section-title::after {
@@ -588,7 +628,7 @@ footer a:hover {
     display: block;
     width: 50px;
     height: 2px;
-    margin: 0.6rem auto;
+    margin: 9.6px auto;
     border-radius: 1px;
     background: var(--aqua);
 }
@@ -598,13 +638,13 @@ footer a:hover {
    ================================= */
 .compact-grid {
     columns: 4;
-    column-gap: 1rem;
+    column-gap: 16px;
 }
 
 .compact-item {
     display: block;
     break-inside: avoid;
-    margin-bottom: 1rem;
+    margin-bottom: 16px;
     cursor: pointer;
     transition: transform 0.2s ease;
     text-decoration: none;
@@ -638,7 +678,7 @@ footer a:hover {
     font-weight: 600;
     margin: 0;
     display: block;
-    padding: 0.5rem 0.6rem;
+    padding: 8px 9.6px;
     color: var(--fg0);
     line-height: 1.2;
 }
@@ -654,8 +694,8 @@ footer a:hover {
    ================================= */
 .content-wrapper {
     display: flex;
-    gap: 2rem;
-    margin: 2rem auto;
+    gap: 32px;
+    margin: 32px auto;
     max-width: 1100px;
 }
 
@@ -672,7 +712,7 @@ footer a:hover {
 .toc-container {
     width: 250px;
     position: sticky;
-    top: 2rem;
+    top: 32px;
     align-self: flex-start;
 }
 
@@ -682,9 +722,9 @@ footer a:hover {
     border: none;
     font-size: 1.2rem;
     cursor: pointer;
-    padding: 0.5rem;
+    padding: 8px;
     border-radius: 4px;
-    margin-bottom: 1rem;
+    margin-bottom: 16px;
     width: 100%;
     text-align: left;
     color: var(--fg2);
@@ -692,7 +732,7 @@ footer a:hover {
 }
 
 .toc {
-    padding: 1rem;
+    padding: 16px;
     border-radius: 6px;
     max-height: 80vh;
     overflow-y: auto;
@@ -703,8 +743,8 @@ footer a:hover {
 .toc-title {
     font-size: 1.1rem;
     font-weight: 600;
-    margin-bottom: 1rem;
-    padding-bottom: 0.5rem;
+    margin-bottom: 16px;
+    padding-bottom: 8px;
     border-bottom: 1px solid var(--bg3);
     color: var(--fg0);
 }
@@ -714,14 +754,14 @@ footer a:hover {
 }
 
 .toc-list li {
-    margin-bottom: 0.5rem;
+    margin-bottom: 8px;
 }
 
 .toc-list a {
     text-decoration: none;
     font-size: 0.9rem;
     display: block;
-    padding: 0.3rem 0;
+    padding: 4.8px 0;
     border-radius: 3px;
     transition: all 0.2s ease;
     color: var(--fg3);
@@ -733,27 +773,27 @@ footer a:hover {
 }
 
 .toc-list .toc-h2 {
-    padding-left: 1rem;
+    padding-left: 16px;
 }
 
 .toc-list .toc-h3 {
-    padding-left: 2rem;
+    padding-left: 32px;
 }
 
 .post-header {
-    margin-bottom: 2rem;
+    margin-bottom: 32px;
 }
 
 .post-title {
     font-size: 2.2rem;
-    margin-bottom: 0.5rem;
+    margin-bottom: 8px;
     font-weight: 700;
     color: var(--fg0);
 }
 
 .post-tags {
     display: flex;
-    gap: 0.5rem;
+    gap: 8px;
 }
 
 .post-content {
@@ -762,27 +802,27 @@ footer a:hover {
 
 .post-content h2 {
     font-size: 1.6rem;
-    margin: 2rem 0 1rem;
+    margin: 32px 0 16px;
     font-weight: 600;
     color: var(--fg0);
 }
 
 .post-content h3 {
     font-size: 1.3rem;
-    margin: 1.5rem 0 1rem;
+    margin: 24px 0 16px;
     font-weight: 600;
     color: var(--fg0);
 }
 
 .post-content p {
-    margin-bottom: 1.2rem;
+    margin-bottom: 19.2px;
     font-size: 1.05rem;
     color: var(--fg2);
 }
 
 .post-content .math-equation {
     font-size: 1.1rem;
-    padding: 1rem;
+    padding: 16px;
     border-left-width: 3px;
 }
 
@@ -817,11 +857,11 @@ footer a:hover {
 @media (max-width: 768px) {
     .header-content {
         flex-direction: column;
-        gap: 0.8rem;
+        gap: 12.8px;
     }
 
     nav ul {
-        gap: 0.7rem;
+        gap: 11.2px;
     }
 
     .hero h1 {
@@ -862,16 +902,16 @@ footer a:hover {
 code {
     font-family: "Fira Code", "Courier New", monospace;
     font-size: 0.85rem;
-    padding: 0.2rem 0.4rem;
+    padding: 3.2px 6.4px;
     border-radius: 4px;
-    margin: 0 0.1rem;
+    margin: 0 1.6px;
     background: var(--bg2);
     color: var(--fg2);
 }
 
 .post-content pre {
-    padding: 1.2rem;
-    margin: 1.5rem 0;
+    padding: 19.2px;
+    margin: 24px 0;
     border-radius: 6px;
     overflow-x: auto;
     border-left: 3px solid var(--aqua);
@@ -891,7 +931,7 @@ code {
    ================================= */
 .org-src {
     position: relative;
-    margin: 1.5rem 0;
+    margin: 24px 0;
     border-radius: 6px;
     overflow: hidden;
     border-left: 3px solid var(--aqua);
@@ -901,8 +941,8 @@ code {
 
 .org-src pre {
     margin: 0;
-    padding: 1.2rem;
-    padding-top: 2.5rem;
+    padding: 19.2px;
+    padding-top: 40px;
     background: none;
     border: none;
     border-radius: 0;
@@ -928,7 +968,7 @@ code {
 }
 
 .org-src-language {
-    padding: 0.3rem 0.8rem;
+    padding: 4.8px 12.8px;
     font-size: 0.75rem;
     font-weight: 600;
     text-transform: uppercase;
@@ -979,9 +1019,9 @@ code {
 /* Copy button for code blocks */
 .code-copy-button {
     position: absolute;
-    top: 0.3rem;
-    right: 0.3rem;
-    padding: 0.3rem 0.6rem;
+    top: 4.8px;
+    right: 4.8px;
+    padding: 4.8px 9.6px;
     font-size: 0.75rem;
     border-radius: 4px;
     cursor: pointer;
@@ -1089,7 +1129,7 @@ a:focus {
     display: block;
     overflow-x: auto;
     border-collapse: collapse;
-    margin: 1.5rem 0;
+    margin: 24px 0;
     font-size: 0.95rem;
     line-height: 1.5;
     background: var(--bg0);
@@ -1097,7 +1137,7 @@ a:focus {
 }
 
 .post-content table th {
-    padding: 0.6rem 1rem;
+    padding: 9.6px 16px;
     text-align: left;
     font-weight: 600;
     border-bottom: 2px solid var(--bg4);
@@ -1105,7 +1145,7 @@ a:focus {
 }
 
 .post-content table td {
-    padding: 0.6rem 1rem;
+    padding: 9.6px 16px;
     border-bottom: 1px solid var(--bg3);
 }
 
@@ -1124,7 +1164,7 @@ a:focus {
 .post-content table caption {
     font-size: 1rem;
     font-weight: 600;
-    margin-bottom: 0.5rem;
+    margin-bottom: 8px;
     text-align: left;
     color: var(--fg0);
 }
@@ -1134,14 +1174,14 @@ a:focus {
    ================================= */
 .post-content ul,
 .post-content ol {
-    margin: 1.2rem 0;
-    padding-left: 2rem;
+    margin: 19.2px 0;
+    padding-left: 32px;
     line-height: 1.6;
     color: var(--fg2);
 }
 
 .post-content li {
-    margin-bottom: 0.5rem;
+    margin-bottom: 8px;
 }
 
 .post-content ul li {
@@ -1215,7 +1255,7 @@ input[type="checkbox"]:checked::after {
 
     .post-content table th,
     .post-content table td {
-        padding: 0.5rem 0.7rem;
+        padding: 8px 11.2px;
     }
 
 }
@@ -1224,8 +1264,8 @@ input[type="checkbox"]:checked::after {
    ORG-BLOCK STYLING
    ================================= */
 .org-block {
-    padding: 1rem;
-    margin: 1.2rem 0;
+    padding: 16px;
+    margin: 19.2px 0;
     border-radius: 6px;
     border-left: 3px solid var(--aqua);
     font-size: 0.95rem;
@@ -1266,8 +1306,8 @@ input[type="checkbox"]:checked::after {
 }
 
 .math-equation {
-    margin: 0.8rem 0;
-    padding: 0.8rem;
+    margin: 12.8px 0;
+    padding: 12.8px;
     border-radius: 4px;
 }
 
@@ -1279,7 +1319,7 @@ input[type="checkbox"]:checked::after {
 /* Citations */
 .org-block [class*="cite"] {
     display: block;
-    margin-top: 0.8rem;
+    margin-top: 12.8px;
     font-size: 0.85rem;
     font-style: italic;
     color: var(--fg3);
@@ -1287,7 +1327,7 @@ input[type="checkbox"]:checked::after {
 
 /* Org-block with data-type and data-title attributes */
 .org-block[data-type] {
-    padding-top: 2.5rem;
+    padding-top: 40px;
     position: relative;
     --problem-color: var(--yellow);
     --definition-color: var(--green);
@@ -1327,8 +1367,8 @@ input[type="checkbox"]:checked::after {
    ORG-BABEL-RESULTS STYLING
    ================================= */
 .org-src+.org-babel-results {
-    padding: 1rem;
-    margin: 1.2rem 0;
+    padding: 16px;
+    margin: 19.2px 0;
     border-radius: 6px;
     border-left: 3px solid var(--purple);
     font-size: 0.95rem;
@@ -1344,7 +1384,7 @@ input[type="checkbox"]:checked::after {
     position: absolute;
     top: 0;
     left: 0;
-    padding: 0.3rem 0.8rem;
+    padding: 4.8px 12.8px;
     font-size: 0.8rem;
     font-weight: 600;
     text-transform: uppercase;
