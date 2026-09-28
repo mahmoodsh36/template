@@ -239,6 +239,21 @@
       (write-string (encode-list-of-plists-to-json metadata)
                     stream))))
 
+(defun node-noexport-p (node)
+  (let* ((text-obj (cltpt/roam:node-text-obj node))
+         (tags (cltpt/base:text-object-property text-obj :tags)))
+    ;; only file-level tags count, ignore org headers tagged noexport
+    (and (typep text-obj 'cltpt/org-mode::org-document)
+         tags
+         (member "noexport" tags :test #'string=))))
+
+(defun noexport-files (rmr)
+  (remove-duplicates
+   (loop for node in (cltpt/roam:roamer-nodes rmr)
+         when (node-noexport-p node)
+         collect (cltpt/roam:node-file node))
+   :test #'string=))
+
 (defun generate ()
   (init)
   (setf cltpt/org-mode::*org-enable-macros* t)
@@ -254,12 +269,20 @@
 (defun generate-from-files-to-dir (rmr-files dest-dir)
   (let* ((rmr (cltpt/roam:roamer-from-files rmr-files))
          (*rmr* rmr)
+         ;; files tagged noexport are never published
+         (tag-excluded-files (noexport-files rmr))
+         (all-excluded-files
+           (remove-duplicates
+            (append *excluded-files* tag-excluded-files)
+            :test #'string=))
          ;; root files to include main files and blog-tagged posts.
          ;; publish will expand these transitively via find-linked-files.
          (include-files
            (remove-duplicates
-            (append *main-files*
-                    (mapcar #'cltpt/roam:node-file (blog-nodes rmr)))
+            (remove-if
+             (lambda (f) (member f tag-excluded-files :test #'string=))
+             (append *main-files*
+                     (mapcar #'cltpt/roam:node-file (blog-nodes rmr))))
             :test #'string=))
          ;; Full expansion needed for search.json (mirrors what publish computes).
          (files-to-convert
@@ -270,7 +293,7 @@
                                   :test #'string=)
                  append (cons main-file
                               (cltpt/utils:find-linked-files
-                               rmr node *excluded-files*))))
+                               rmr node all-excluded-files))))
          (file-predicate
            (lambda (filepath)
              (member filepath files-to-convert :test #'string=)))
@@ -287,7 +310,7 @@
      dest-dir
      rmr-files
      :include-files include-files
-     :exclude-files *excluded-files*
+     :exclude-files all-excluded-files
      :templates (mapcar (lambda (f) (cltpt/file-utils:join-paths *template-dir* f))
                         '("index.html" "about.html" "archive.html" "blog.html"))
      :template-file (cltpt/file-utils:join-paths *template-dir* "page.html")
