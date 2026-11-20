@@ -120,17 +120,18 @@
            (or actual-date-str
                (cltpt/base:text-object-property text-obj :date))))
     (when date-str
-      (let* ((timestamp-match
+      (let* ((timestamp-str (if (and (plusp (length date-str))
+                                     (char= (char date-str 0) #\<))
+                                date-str
+                                (format nil "<~A>" date-str)))
+             (timestamp-match
                (cltpt/combinator:apply-rule
                 nil
                 cltpt/org-mode::org-timestamp
-                (cltpt/combinator:reader-from-input date-str)
-                0))
-             (dummy-obj (make-instance 'cltpt/base::text-object)))
-        (setf (cltpt/buffer:buffer-own-text dummy-obj) date-str)
-        (cltpt/base:text-object-init dummy-obj date-str timestamp-match)
-        (cltpt/base:text-object-finalize dummy-obj)
-        (cltpt/org-mode::org-timestamp-match-to-time dummy-obj timestamp-match)))))
+                (cltpt/combinator:reader-from-input timestamp-str)
+                0)))
+        (when timestamp-match
+          (cltpt/org-mode::org-timestamp-match-to-time timestamp-str timestamp-match))))))
 
 (defun format-node-date (node)
   (let ((time (node-date node)))
@@ -168,8 +169,8 @@
                                  cltpt/base:*convert-info*
                                  (list
                                   :text-obj (cltpt/roam:node-text-obj node)
-                                  :dest-fmt cltpt/base:*simple-format*
-                                  :src-fmt cltpt/base:*simple-format*))))
+                                  :dest-fmt :simple
+                                  :src-fmt :simple))))
                           (cltpt/publish:convert-template*
                            (cltpt/file-utils:join-paths *template-dir* "card.html"))))))
     (format nil
@@ -256,7 +257,7 @@
 
 (defun generate ()
   (init)
-  (setf cltpt/org-mode::*org-enable-macros* t)
+  (setf cltpt/base:*enable-macros* t)
   (cltpt/zoo::init)
   (let ((rmr-files `((:path (,(concatenate 'string (from-brain "notes") "/"))
                       :glob "*.org"
